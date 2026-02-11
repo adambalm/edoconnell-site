@@ -96,8 +96,8 @@ Before any deployment or PR, the implementing agent runs this checklist. This is
 - [ ] Commit message is imperative, concise, and accurate.
 
 **The Medium Is the Message:**
-- [ ] Would a Sanity engineering reviewer learn something about Astro by reading this code?
-- [ ] Would a Sanity hiring manager see evidence of structured content thinking?
+- [ ] Would a technical reviewer learn something about Astro by reading this code?
+- [ ] Would a hiring manager at a CMS or developer tools company see evidence of structured content thinking?
 - [ ] Does the commit history tell a coherent story of professional engineering?
 
 ### Conventions
