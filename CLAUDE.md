@@ -46,9 +46,21 @@ The project is in **pre-build deliberation**. Architecture is being decided via 
 
 ## Quality Infrastructure
 
+### Documentation Triad
+
+Three public-facing documents are maintained in sync. Each serves a different consumer:
+
+| File | Consumer | Purpose |
+|------|----------|---------|
+| `README.md` | Humans | Project description, setup, usage |
+| `AGENTS.md` | Any AI agent | Architecture, standards, navigation |
+| `CLAUDE.md` | Claude Code | Operational context, commands, deliberation state (this file) |
+
+**Rule:** When architectural files change, all three should be reviewed for staleness. Not every change affects all three — but the pre-commit hook reminds you to check.
+
 ### Pre-commit Hook
 
-A git pre-commit hook warns (non-blocking) when architectural files change without a corresponding CLAUDE.md update. Architectural files include: config files, schema definitions, layout components, package.json, and `.claude/` settings.
+A git pre-commit hook warns (non-blocking) when architectural files change without updating any of the three documentation files. It checks `CLAUDE.md`, `AGENTS.md`, and `README.md` against a list of watched architectural patterns.
 
 **Setup after clone:**
 ```bash
@@ -92,7 +104,7 @@ Before any deployment or PR, the implementing agent runs this checklist. This is
 **Security & Hygiene:**
 - [ ] No secrets, tokens, or passwords in committed code.
 - [ ] No employer-identifying information (institution names, internal references).
-- [ ] CLAUDE.md updated if any architectural files changed.
+- [ ] Documentation triad (CLAUDE.md, AGENTS.md, README.md) reviewed if architectural files changed.
 - [ ] Commit message is imperative, concise, and accurate.
 
 **The Medium Is the Message:**

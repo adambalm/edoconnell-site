@@ -1,5 +1,6 @@
 #!/bin/bash
-# Pre-commit hook: warn if architectural files changed without CLAUDE.md update.
+# Pre-commit hook: warn if architectural files changed without doc updates.
+# Checks three public-facing docs: CLAUDE.md, AGENTS.md, README.md
 # Non-blocking — warns, does not prevent commit.
 
 ARCH_PATTERNS=(
@@ -11,16 +12,19 @@ ARCH_PATTERNS=(
   "src/sanity/schemas/"
   "src/layouts/"
   "src/lib/"
+  "src/content/"
   ".claude/"
   "vercel.json"
-  "AGENTS.md"
 )
+
+DOC_FILES=("CLAUDE.md" "AGENTS.md" "README.md")
 
 staged_files=$(git diff --cached --name-only 2>/dev/null)
 if [ -z "$staged_files" ]; then
   exit 0
 fi
 
+# Check if any architectural file is staged
 arch_changed=false
 matched_files=""
 for pattern in "${ARCH_PATTERNS[@]}"; do
@@ -31,18 +35,29 @@ for pattern in "${ARCH_PATTERNS[@]}"; do
   fi
 done
 
-claude_changed=false
-if echo "$staged_files" | grep -q "CLAUDE.md"; then
-  claude_changed=true
+if [ "$arch_changed" = false ]; then
+  exit 0
 fi
 
-if [ "$arch_changed" = true ] && [ "$claude_changed" = false ]; then
+# Check which doc files were NOT updated
+stale_docs=""
+for doc in "${DOC_FILES[@]}"; do
+  if ! echo "$staged_files" | grep -q "$doc"; then
+    if [ -f "$doc" ]; then
+      stale_docs="$stale_docs  $doc"$'\n'
+    fi
+  fi
+done
+
+if [ -n "$stale_docs" ]; then
   echo ""
-  echo "  Architectural files changed without CLAUDE.md update."
-  echo "  Modified:"
+  echo "  Architectural files changed:"
   echo "$matched_files" | sed '/^$/d' | sed 's/^/     /'
   echo ""
-  echo "  Consider updating CLAUDE.md to reflect these changes."
+  echo "  These docs were not updated:"
+  echo "$stale_docs" | sed '/^$/d'
+  echo ""
+  echo "  Not every change requires a doc update — but check."
   echo "  (Warning only — commit proceeds.)"
   echo ""
 fi
