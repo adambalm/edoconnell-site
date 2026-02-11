@@ -21,6 +21,7 @@ Thumbs.db
 
 # Deliberation logs — kept local for agent context, not published
 dialogues/
+.gist-id
 
 # Sanity
 .sanity/
