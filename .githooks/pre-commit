@@ -1,0 +1,50 @@
+#!/bin/bash
+# Pre-commit hook: warn if architectural files changed without CLAUDE.md update.
+# Non-blocking — warns, does not prevent commit.
+
+ARCH_PATTERNS=(
+  "astro.config"
+  "package.json"
+  "tsconfig.json"
+  "sanity.config"
+  "sanity.cli"
+  "src/sanity/schemas/"
+  "src/layouts/"
+  "src/lib/"
+  ".claude/"
+  "vercel.json"
+  "AGENTS.md"
+)
+
+staged_files=$(git diff --cached --name-only 2>/dev/null)
+if [ -z "$staged_files" ]; then
+  exit 0
+fi
+
+arch_changed=false
+matched_files=""
+for pattern in "${ARCH_PATTERNS[@]}"; do
+  matches=$(echo "$staged_files" | grep "$pattern" || true)
+  if [ -n "$matches" ]; then
+    arch_changed=true
+    matched_files="$matched_files$matches"$'\n'
+  fi
+done
+
+claude_changed=false
+if echo "$staged_files" | grep -q "CLAUDE.md"; then
+  claude_changed=true
+fi
+
+if [ "$arch_changed" = true ] && [ "$claude_changed" = false ]; then
+  echo ""
+  echo "  Architectural files changed without CLAUDE.md update."
+  echo "  Modified:"
+  echo "$matched_files" | sed '/^$/d' | sed 's/^/     /'
+  echo ""
+  echo "  Consider updating CLAUDE.md to reflect these changes."
+  echo "  (Warning only — commit proceeds.)"
+  echo ""
+fi
+
+exit 0
