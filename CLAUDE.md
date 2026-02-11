@@ -57,6 +57,49 @@ git config core.hooksPath .githooks
 
 This runs automatically via the `prepare` script after `npm install` once the project is initialized.
 
+### CI Pipeline (`.github/workflows/ci.yml`)
+
+Three-job pipeline that activates automatically when the project is initialized:
+
+1. **build** — `npm ci`, TypeScript check, `astro build`, lint
+2. **accessibility** — Playwright + axe-core a11y audit against built pages
+3. **lighthouse** — Lighthouse CI with threshold enforcement (>= 95 all categories)
+
+All jobs gracefully skip if `package.json` doesn't exist yet. The workflow is committed before the project so the quality floor is established from the first line of application code.
+
+### Self-Review Practice (Articulation Gate for Code)
+
+Before any deployment or PR, the implementing agent runs this checklist. This is not optional — it is the code equivalent of the Lanesborough articulation gate. The agent must be able to affirm each item, not just check a box.
+
+**Structure & Craft:**
+- [ ] Does the Astro component architecture demonstrate real Astro expertise? (Not just HTML in `.astro` files)
+- [ ] Are React islands used only where client-side interactivity is genuinely needed?
+- [ ] Are all component props typed with TypeScript?
+- [ ] Is the component tree shallow and readable, or is it over-abstracted?
+
+**Voice & Editorial:**
+- [ ] Read every prose sentence aloud. Does it sound like Ed, or does it sound like a LinkedIn bio?
+- [ ] No passion declarations, no consultant-speak, no generic sentences.
+- [ ] The test: could this sentence appear on 10,000 other websites? If yes, rewrite or delete.
+
+**Accessibility & Performance:**
+- [ ] Semantic HTML: proper heading hierarchy, landmarks, button vs link distinction.
+- [ ] Keyboard navigable: every interactive element reachable and operable via keyboard.
+- [ ] Visible focus indicators on all focusable elements.
+- [ ] `prefers-reduced-motion` respected for any animations.
+- [ ] Lighthouse >= 95 across Performance, Accessibility, Best Practices, SEO.
+
+**Security & Hygiene:**
+- [ ] No secrets, tokens, or passwords in committed code.
+- [ ] No employer-identifying information (institution names, internal references).
+- [ ] CLAUDE.md updated if any architectural files changed.
+- [ ] Commit message is imperative, concise, and accurate.
+
+**The Medium Is the Message:**
+- [ ] Would a Sanity engineering reviewer learn something about Astro by reading this code?
+- [ ] Would a Sanity hiring manager see evidence of structured content thinking?
+- [ ] Does the commit history tell a coherent story of professional engineering?
+
 ### Conventions
 
 - **Commit messages:** Imperative mood, concise. Co-author tag for AI-assisted commits.
@@ -64,6 +107,7 @@ This runs automatically via the `prepare` script after `npm install` once the pr
 - **TypeScript:** Strict mode. Typed props for all components.
 - **Accessibility:** WCAG AA minimum. Semantic HTML. Keyboard navigable.
 - **Performance:** Lighthouse >= 95 across all categories.
+- **Commit history:** Each commit is self-contained and functional at the time it's made. No placeholder files. No "will fix later" commits. The history is part of the portfolio.
 
 <!-- verified: 2026-02-11 -->
 
