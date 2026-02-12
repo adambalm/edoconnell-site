@@ -90,7 +90,15 @@ src/
 | `README.md` | Humans | Project description, setup, usage |
 | `AGENTS.md` | AI agents | Architecture, standards, navigation (this file) |
 | `CLAUDE.md` | Claude Code | Operational context, commands, deliberation state |
+| `docs/voice-profile.md` | Any prose-generating agent | Ed O'Connell's writing style properties — living document |
 
-All three are maintained in sync. A pre-commit hook warns when architectural files change without corresponding documentation updates.
+All three root docs are maintained in sync. A pre-commit hook warns when architectural files change without corresponding documentation updates.
+
+## Design Principles
+
+- **Fractal quality**: Deep inspection should reveal deeper levels of quality. Semantic HTML, proper CSS inheritance, AI-readable structured data.
+- **AI readiness**: The site is designed to interact well with agents — structured content, semantic markup, machine-parseable metadata.
+- **noindex until authorized**: All pages carry `<meta name="robots" content="noindex">` during development.
+- **Anti-salience**: The build process resists premature optimization for impressiveness. Coherence with the whole structure takes priority over local flair.
 
 <!-- verified: 2026-02-11 -->
