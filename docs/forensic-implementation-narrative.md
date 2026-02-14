@@ -14,7 +14,7 @@
 - 10 commits on master, 6 pre-application (governance infrastructure) + 4 application code. Quality infrastructure was committed before the first line of application code — deliberate signal.
 - Content model includes 4 document types (`demoItem`, `article`, `page`, `siteSettings`) and 2 shared objects (`seo`, `provenance`). Epistemic governance fields (epistemicStatus, audienceContext, publicationReadiness, provenance) appear on content types that carry editorial weight.
 - The `article` type uses a `kind` discriminator (brief/essay/case-study) with required validation — forces editorial decision at creation. Originally named `writingSample`, renamed during execution to be "boringly correct" while metadata carries the depth.
-- Sanity project `zu6l9t4j` created on Ed's personal account (espoconnell@gmail.com), separated from the school account. CORS configured with credentials for embedded Studio.
+- Sanity project `zu6l9t4j` created on Ed's personal Sanity account, separated from the school account. CORS configured with credentials for embedded Studio.
 - All pages carry hardcoded `<meta name="robots" content="noindex">` — policy is "noindex until HO authorizes indexing."
 - CI pipeline (3 jobs: build, accessibility, Lighthouse) uses initialization guards and failure-masking patterns appropriate for early-stage development.
 - Security headers deployed via `vercel.json`: X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy.

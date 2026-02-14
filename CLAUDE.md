@@ -13,7 +13,7 @@ The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. F
 
 - **FSM state:** AG_CLOSED → EXECUTING
 - **Build:** `npm run build` succeeds. Two pages prerender (index, demos).
-- **Sanity project:** `zu6l9t4j` on personal account (espoconnell@gmail.com). CORS configured. Schemas defined but dataset is empty.
+- **Sanity project:** `zu6l9t4j` on personal account (see `.env.local`). CORS configured. Schemas defined but dataset is empty.
 - **Next:** Migrate React demos from portfolio repo, implement article pages, deploy.
 - Dialogue log: `dialogues/001-site-rebuild.md` (gitignored — local context only)
 - Prior site: `github.com/adambalm/portfolio` (React 19 + Vite, deployed to Vercel)
@@ -60,7 +60,7 @@ Sanity Studio is embedded at `/admin` — no separate `dev:studio` command neede
 
 ## Sanity Configuration
 
-- **Project ID:** `zu6l9t4j` (personal account: espoconnell@gmail.com)
+- **Project ID:** `zu6l9t4j` (personal account — see `.env.local` for credentials)
 - **Dataset:** `production`
 - **API Version:** `2025-01-01`
 - **Tokens:** `.env.local` (never committed)
@@ -86,7 +86,7 @@ Only origins that actually exist as running applications:
 
 ### Account Separation
 
-Personal projects use personal account (espoconnell@gmail.com). SCA project (`wesg5rw8`) uses school account (ed.oconnell@springfieldca.org). CLI auth is global — `sanity login` switches identity for all projects on this machine. See Basic Memory: `workspace/planning/sanity-account-map`.
+Personal projects use personal Sanity account. SCA project (`wesg5rw8`) uses school account. CLI auth is global — `sanity login` switches identity for all projects on this machine. Account details in Basic Memory: `workspace/planning/sanity-account-map`.
 
 <!-- verified: 2026-02-13 -->
 
