@@ -50,3 +50,4 @@ A pre-commit hook warns when architectural files change without corresponding do
 
 - `AGENTS.md` — architecture and standards reference for AI tooling
 - `CLAUDE.md` — operational context for Claude Code
+- `CONTRIBUTORS.md` — human and AI contributor credits with roles and contributions

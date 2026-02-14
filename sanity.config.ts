@@ -3,8 +3,9 @@ import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './src/sanity/schemas'
 
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID || 'placeholder'
-const dataset = import.meta.env.PUBLIC_SANITY_DATASET || 'production'
+const env = typeof import.meta !== 'undefined' ? import.meta.env ?? {} : {}
+const projectId = env.PUBLIC_SANITY_PROJECT_ID || 'zu6l9t4j'
+const dataset = env.PUBLIC_SANITY_DATASET || 'production'
 
 export default defineConfig({
   name: 'edoconnell-site',

@@ -3,9 +3,7 @@ import sanity from '@sanity/astro'
 import react from '@astrojs/react'
 import vercel from '@astrojs/vercel'
 
-// Fallback allows build to succeed before Sanity project exists.
-// Replace with real project ID in .env.local after `sanity init`.
-const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'placeholder'
+const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'zu6l9t4j'
 const dataset = process.env.PUBLIC_SANITY_DATASET || 'production'
 
 export default defineConfig({

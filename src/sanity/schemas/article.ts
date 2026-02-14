@@ -1,15 +1,15 @@
 import { defineType, defineField, defineArrayMember } from 'sanity'
 
 /**
- * writingSample — long-form prose with epistemic governance.
+ * article — long-form authored content with epistemic governance.
  *
- * Used for the SA brief, case studies, and other writing that
- * demonstrates structured thinking. Body and appendix are both
- * Portable Text — the structure is the content.
+ * A general-purpose document type for briefs, essays, case studies,
+ * and other substantive writing. The `kind` field distinguishes form;
+ * the structure is shared. Body and appendix are both Portable Text.
  */
-export const writingSample = defineType({
-  name: 'writingSample',
-  title: 'Writing Sample',
+export const article = defineType({
+  name: 'article',
+  title: 'Article',
   type: 'document',
   fields: [
     defineField({
@@ -24,6 +24,21 @@ export const writingSample = defineType({
       type: 'slug',
       options: { source: 'title', maxLength: 96 },
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'kind',
+      title: 'Kind',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Brief', value: 'brief' },
+          { title: 'Essay', value: 'essay' },
+          { title: 'Case Study', value: 'case-study' },
+        ],
+        layout: 'radio',
+      },
+      validation: (rule) => rule.required(),
+      description: 'The form of this article. Briefs are professional deliverables; essays are reflective; case studies are retrospective.',
     }),
     defineField({
       name: 'subtitle',
@@ -99,7 +114,13 @@ export const writingSample = defineType({
   preview: {
     select: {
       title: 'title',
-      subtitle: 'subtitle',
+      kind: 'kind',
+    },
+    prepare({ title, kind }) {
+      return {
+        title,
+        subtitle: kind ? kind.charAt(0).toUpperCase() + kind.slice(1) : undefined,
+      }
     },
   },
 })

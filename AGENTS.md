@@ -49,7 +49,7 @@ Design principle: content as infrastructure, not content as pages. Each document
 | Document Type | Purpose | Key Fields |
 |---------------|---------|------------|
 | `demoItem` | Interactive demonstration | framing (Portable Text), renderMode (ISLAND/STATIC/EXTERNAL), componentName, epistemicStatus, audienceContext, publicationReadiness, provenance |
-| `writingSample` | Long-form prose | body + appendix (Portable Text), epistemicStatus, audienceContext, publicationReadiness, provenance |
+| `article` | Long-form authored content | kind (brief/essay/case-study), body + appendix (Portable Text), epistemicStatus, audienceContext, publicationReadiness, provenance |
 | `page` | General content page | body (Portable Text), seo |
 | `siteSettings` | Global config (singleton) | siteTitle, noindex toggle, default seo |
 

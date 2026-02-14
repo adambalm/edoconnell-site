@@ -13,8 +13,8 @@ The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. F
 
 - **FSM state:** AG_CLOSED → EXECUTING
 - **Build:** `npm run build` succeeds. Two pages prerender (index, demos).
-- **Sanity project:** Not yet created at manage.sanity.io. Placeholder ID allows build; GROQ queries degrade gracefully.
-- **Next:** Create Sanity project, migrate React demos from portfolio repo, implement writingSample pages.
+- **Sanity project:** `zu6l9t4j` on personal account (espoconnell@gmail.com). CORS configured. Schemas defined but dataset is empty.
+- **Next:** Migrate React demos from portfolio repo, implement article pages, deploy.
 - Dialogue log: `dialogues/001-site-rebuild.md` (gitignored — local context only)
 - Prior site: `github.com/adambalm/portfolio` (React 19 + Vite, deployed to Vercel)
 
@@ -54,15 +54,41 @@ npm run preview      # Preview built site locally
 
 Sanity Studio is embedded at `/admin` — no separate `dev:studio` command needed.
 
+**Dev server:** Always started by the user from their terminal, never by Claude Code in background. Default port 4321 conflicts with sca-website — only one at a time. Check `netstat -ano | grep LISTEN | grep 4321` before starting.
+
 <!-- verified: 2026-02-12 -->
 
 ## Sanity Configuration
 
-- **Project:** NEW personal project (NOT SCA project `wesg5rw8`)
+- **Project ID:** `zu6l9t4j` (personal account: espoconnell@gmail.com)
 - **Dataset:** `production`
+- **API Version:** `2025-01-01`
 - **Tokens:** `.env.local` (never committed)
+- **Studio:** Embedded at `/admin` via `@sanity/astro` — no separate Studio app
 
-<!-- verified: 2026-02-12 — project not yet created -->
+### Architecture vs. sca-website
+
+This project uses an **embedded Studio** (single process, one origin). The sca-website uses a **monorepo with separate Studio** (two processes, two origins). This matters for CORS:
+
+| | edoconnell-site | sca-website |
+|---|---|---|
+| **Structure** | Single Astro app | Monorepo: `apps/web` + `apps/sca-studio` |
+| **Studio** | Embedded at `/admin` (same origin) | Separate app at `localhost:3333` |
+| **Dev ports** | `4321` only | `4321` (web) + `3333` (studio) |
+| **CORS origins** | `localhost:4321` + production URL | `localhost:4321` + `localhost:3333` + production URL |
+
+### CORS Origins (manage.sanity.io → API Settings)
+
+Only origins that actually exist as running applications:
+
+- `http://localhost:4321` — dev (Astro + embedded Studio)
+- Production URL — added at deploy time
+
+### Account Separation
+
+Personal projects use personal account (espoconnell@gmail.com). SCA project (`wesg5rw8`) uses school account (ed.oconnell@springfieldca.org). CLI auth is global — `sanity login` switches identity for all projects on this machine. See Basic Memory: `workspace/planning/sanity-account-map`.
+
+<!-- verified: 2026-02-13 -->
 
 ## Quality Infrastructure
 
