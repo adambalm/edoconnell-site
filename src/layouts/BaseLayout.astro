@@ -1,0 +1,107 @@
+---
+interface Props {
+  title: string
+  description?: string
+}
+
+const { title, description = "Ed O'Connell — structured content, working systems." } = Astro.props
+const pageTitle = title === 'Home' ? "Ed O'Connell" : `${title} — Ed O'Connell`
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="description" content={description} />
+    <title>{pageTitle}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header role="banner">
+      <nav aria-label="Primary">
+        <a href="/">Ed O'Connell</a>
+        <ul>
+          <li><a href="/demos/">Demos</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <footer role="contentinfo">
+      <p>&copy; {new Date().getFullYear()} Ed O'Connell</p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  @import '../styles/global.css';
+
+  header {
+    padding: var(--space-4) var(--page-gutter);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  header nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    font-family: var(--font-ui);
+  }
+
+  header nav > a {
+    font-weight: 600;
+    font-size: var(--font-size-md);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  header nav > a:hover {
+    color: var(--color-accent);
+  }
+
+  header ul {
+    display: flex;
+    gap: var(--space-6);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  header ul a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+  }
+
+  header ul a:hover {
+    color: var(--color-accent);
+  }
+
+  main {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter);
+  }
+
+  main:focus {
+    outline: none;
+  }
+
+  footer {
+    padding: var(--space-8) var(--page-gutter);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+</style>

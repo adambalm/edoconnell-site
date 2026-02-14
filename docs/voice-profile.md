@@ -76,6 +76,16 @@ Read every sentence aloud. If it sounds like:
 
 - **Atypical rhetoric as signal:** Ed flags that he will "interject occasionally with atypical rhetoric." This is not noise — it's data. His unusual phrasing often compresses complex ideas into vivid images. Agents should capture these, not flatten them into standard prose.
 
+### 2026-02-11 — Second input (pre-handoff)
+
+- **Anti-branding reflex:** "No one gives a shit" — said of the tagline "Thirty years in education and organizational learning. Now figuring out what still works when the machines can write." Ed rejects even self-deprecating, seemingly authentic taglines. If it reads as a slogan, it's corporate fluff regardless of tone. The anti-pattern isn't just *corporate* slogans — it's slogans, period. "We will figure it out" is the replacement posture: arrive at the voice through the work, not through a pre-baked line.
+
+- **Audience-specificity, not generic "write to a receiver":** Ed refined the voice principle — "Not just write to a receiver. If language is human facing the agent composing it should be as aware as possible of the specific audience being addressed." The composing agent doesn't write *to an audience* (abstract); it writes *to these people* (specific). This has schema implications: content should carry audience context, not just content type.
+
+- **"Cognition in context":** Ed floated this phrase — "if I were Sanity I would totally want as my slogan." Not a tagline for his site, but a conceptual anchor for how he thinks about what structured content does. Cognition that is situated, not abstract. Content that knows where it is and who it's for. This phrase may resurface as an organizing principle.
+
+- **Status honesty applied to own work:** "still lacks style," "passing at best," "exists as an intent, but it is in no way considered publishable right now." Ed applies the same status-honesty-over-aspiration principle to his own artifacts. No inflation of what exists. The SA brief is directionally correct but not finished — and he says so without apology.
+
 ---
 
 ## Register Architecture
@@ -96,4 +106,4 @@ HO has noted these may fork into explicitly separate documents. For now: profess
 
 3. **The voice contract (DO/DON'T lists in CLAUDE.md) is the enforcement layer.** This profile is the understanding layer. Both are needed.
 
-4. **When in doubt, read the Solution Architecture brief** (`sca-explainers` repo, `/solution-architecture/`). That page is the current best expression of Ed's professional voice in prose form.
+4. **The Solution Architecture brief** (`sca-explainers` repo, `/solution-architecture/`) exists as intent — Ed's assessment is that it "still lacks style and the artifact front end design is passing at best." It is directionally correct but not yet publishable. Use it to understand the *type* of prose Ed is aiming for, not as a finished model to emulate.

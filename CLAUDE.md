@@ -1,7 +1,7 @@
 # CLAUDE.md
 
-> **Last verified:** 2026-02-11
-> **Phase:** Skill Forge deliberation (pre-build)
+> **Last verified:** 2026-02-12
+> **Phase:** Executing (AG closed, foundation built)
 
 ## Project Overview
 
@@ -9,32 +9,52 @@ Rebuild of edoconnell.org as an Astro + Sanity + Vercel site. This is a portfoli
 
 ## Current State
 
-The project is in **pre-build deliberation**. Architecture is being decided via Skill Forge dialogue between ChatGPT (GA), Claude Code (IA), and Ed O'Connell (HO).
+The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. Foundation is built — Astro 5 + Sanity v3 + Vercel + TypeScript compiles and produces static output.
 
+- **FSM state:** AG_CLOSED → EXECUTING
+- **Build:** `npm run build` succeeds. Two pages prerender (index, demos).
+- **Sanity project:** Not yet created at manage.sanity.io. Placeholder ID allows build; GROQ queries degrade gracefully.
+- **Next:** Create Sanity project, migrate React demos from portfolio repo, implement writingSample pages.
 - Dialogue log: `dialogues/001-site-rebuild.md` (gitignored — local context only)
 - Prior site: `github.com/adambalm/portfolio` (React 19 + Vite, deployed to Vercel)
-- Target stack: Astro 5 + Sanity v3 + Vercel + TypeScript
+
+<!-- verified: 2026-02-12 -->
+
+## Session Startup — Read Basic Memory Context
+
+Before doing any work in this repository:
+
+1. **Read BOOTSTRAP:** `build_context` with `memory://BOOTSTRAP` for governing protocols
+2. **Load project context:** `build_context` with `memory://continuity/cross-instance/` (when available)
+
+The BOOTSTRAP document in Basic Memory contains the full protocol stack: Black Flag Protocol (epistemic hygiene), Temporal Validity Protocol (document lifecycle), Lanesborough Protocol (multi-agent collaboration), Naming and Structure Convention, and the governing principles (stare decisis, meta-pattern observance, sharpening over closure). All agents working in this repo operate under these protocols.
 
 <!-- verified: 2026-02-11 -->
 
 ## Architecture
 
-*Populated after Skill Forge Understanding Gate closes.*
+Single Astro 5 project with embedded Sanity Studio. Not a monorepo — simpler than sca-website's dual-app structure.
 
-<!-- verified: 2026-02-11 — not yet applicable -->
+- **Frontend:** Astro 5, static output, Vercel adapter
+- **CMS:** Sanity v3, embedded Studio at `/admin`, schemas in `src/sanity/schemas/`
+- **Interactive:** React 19 islands via `@astrojs/react` — used only for stateful demos
+- **Content flow:** Sanity → GROQ query → Astro component → static HTML
+- **Design system:** New design, borrows discipline (typographic scale, spacing, semantic structure) from sca-explainers. Custom properties cascade from `src/styles/global.css`.
+
+<!-- verified: 2026-02-12 -->
 
 ## Commands
 
-*Populated when Astro project is initialized.*
-
 ```bash
-# After project init, expect:
-# npm run dev          — Astro dev server
-# npm run build        — production build
-# npm run dev:studio   — Sanity Studio
+npm run dev          # Astro dev server (localhost:4321)
+npm run build        # Production build (static output + Vercel functions)
+npm run typecheck    # TypeScript validation via astro check
+npm run preview      # Preview built site locally
 ```
 
-<!-- verified: 2026-02-11 — not yet applicable -->
+Sanity Studio is embedded at `/admin` — no separate `dev:studio` command needed.
+
+<!-- verified: 2026-02-12 -->
 
 ## Sanity Configuration
 
@@ -42,7 +62,7 @@ The project is in **pre-build deliberation**. Architecture is being decided via 
 - **Dataset:** `production`
 - **Tokens:** `.env.local` (never committed)
 
-<!-- verified: 2026-02-11 — project not yet created -->
+<!-- verified: 2026-02-12 — project not yet created -->
 
 ## Quality Infrastructure
 
@@ -151,8 +171,9 @@ If you are an agent starting work in this repo, read the dialogue log first. It 
 | sca-website | `C:/Users/Guest1/dev-sandbox/sca-website/` | Sanity schema patterns (reference only) |
 
 **Basic Memory:**
-- Project context: `memory://continuity/cross-instance/sca-website-context`
+- **BOOTSTRAP (read first):** `memory://BOOTSTRAP` — governing protocols, principles, canonical decisions
 - Skill Forge case studies: `memory://case-studies/`
+- Voice profile (literary register): `memory://creative-writing/eds-voice-portrait`
 - Voice contract: extracted from prior engagements (see dialogue log)
 
 <!-- verified: 2026-02-11 -->

@@ -1,7 +1,7 @@
 # AGENTS.md
 
 > Context for AI agents working with or evaluating this codebase.
-> Last verified: 2026-02-11
+> Last verified: 2026-02-12
 
 ## Project
 
@@ -26,19 +26,38 @@ The site serves as both a personal presence and a portfolio of working systems. 
 
 ## Architecture
 
-*This section is populated when the project is initialized. Currently in pre-build deliberation.*
+Single Astro 5 project with embedded Sanity Studio at `/admin`. Static output deployed to Vercel.
 
-Key architectural decisions are documented in the commit history and (locally) in the deliberation log.
+```
+astro.config.mjs         Astro + Sanity + React + Vercel integrations
+sanity.config.ts         Studio config (schemas, plugins)
+src/
+  layouts/BaseLayout     Semantic HTML shell: header, main, footer, skip-link, noindex
+  pages/                 Astro routes — each page fetches via GROQ
+  sanity/schemas/        Sanity document + object type definitions
+  styles/global.css      Design tokens (typography scale, spacing, colors)
+```
 
-<!-- verified: 2026-02-11 — pre-build phase -->
+Content flows: **Sanity → GROQ → Astro → static HTML**. React islands hydrate only for interactive demos.
+
+<!-- verified: 2026-02-12 -->
 
 ## Content Model
 
-*This section is populated when Sanity schemas are created.*
+Design principle: content as infrastructure, not content as pages. Each document type is a data object with typed fields — rendered as a web page, consumed by an API, or queried by an AI agent.
 
-Design principle: content as infrastructure, not content as pages. A "program" or "demo" is a data object with typed fields and relationships — rendered as a web page, consumed by an API, or queried by an AI agent. The schema models relationships (references, not just strings), enabling traversal and discovery.
+| Document Type | Purpose | Key Fields |
+|---------------|---------|------------|
+| `demoItem` | Interactive demonstration | framing (Portable Text), renderMode (ISLAND/STATIC/EXTERNAL), componentName, epistemicStatus, audienceContext, publicationReadiness, provenance |
+| `writingSample` | Long-form prose | body + appendix (Portable Text), epistemicStatus, audienceContext, publicationReadiness, provenance |
+| `page` | General content page | body (Portable Text), seo |
+| `siteSettings` | Global config (singleton) | siteTitle, noindex toggle, default seo |
 
-<!-- verified: 2026-02-11 — pre-build phase -->
+Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (author, generatedBy, reviewedBy, context, date).
+
+**Epistemic governance fields** appear on content types that carry editorial weight. They track *who* produced the content, *what status* it has, and *who it's for* — not as decoration but as queryable structured data.
+
+<!-- verified: 2026-02-12 -->
 
 ## Quality Standards
 
@@ -66,22 +85,20 @@ Design principle: content as infrastructure, not content as pages. A "program" o
 ## File Structure
 
 ```
-.github/workflows/    CI pipeline
+.github/workflows/    CI pipeline (build, a11y, Lighthouse)
 .githooks/            Git hooks (pre-commit doc freshness check)
+public/               Static assets (favicon)
 src/
-  layouts/            Astro layout components
-  pages/              Astro page routes
-  components/         Reusable Astro + React components
-  content/            Astro content collections (structured markdown/MDX)
+  layouts/            Astro layout components (BaseLayout)
+  pages/              Astro page routes (index, demos/)
   sanity/
     schemas/          Sanity document and object type definitions
-    lib/              GROQ queries and Sanity client config
-  styles/             Design tokens and global styles
+      objects/        Shared object types (seo, provenance)
+  styles/             Design tokens and global CSS
+docs/                 Project documentation (voice profile)
 ```
 
-*Updated as directories are created.*
-
-<!-- verified: 2026-02-11 — pre-build phase -->
+<!-- verified: 2026-02-12 -->
 
 ## Documentation Map
 
@@ -100,5 +117,21 @@ All three root docs are maintained in sync. A pre-commit hook warns when archite
 - **AI readiness**: The site is designed to interact well with agents — structured content, semantic markup, machine-parseable metadata.
 - **noindex until authorized**: All pages carry `<meta name="robots" content="noindex">` during development.
 - **Anti-salience**: The build process resists premature optimization for impressiveness. Coherence with the whole structure takes priority over local flair.
+
+<!-- verified: 2026-02-11 -->
+
+## Governing Protocols
+
+This project operates under the protocol stack defined in Basic Memory at `memory://BOOTSTRAP`. Key protocols:
+
+| Protocol | Purpose | Location (Basic Memory) |
+|----------|---------|------------------------|
+| Black Flag Protocol | Epistemic hygiene — confidence levels, citation, no fabrication | `protocols/Black Flag Protocol.md` |
+| Lanesborough Protocol | Multi-agent collaboration — visible debate, HO decision logging | `protocols/Lanesborough Protocol.md` |
+| Temporal Validity Protocol | Document lifecycle — status, supersession, staleness | `protocols/Temporal Validity Protocol.md` |
+| LCE (Language-Constrained Execution) | Formal FSM, PRT with provenance, gate structure | `patterns/LCE-Lanesborough Mapping.md` |
+| Skill Forge Pattern | Two deliverables per engagement — work product + extracted skills | `patterns/LCE-Skill Forge Mapping.md` |
+
+All protocols are stored in Basic Memory and referenced via MCP. Agents should `build_context` with `memory://BOOTSTRAP` at session start.
 
 <!-- verified: 2026-02-11 -->

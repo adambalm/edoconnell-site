@@ -19,14 +19,26 @@ npm install
 
 The `prepare` script activates git hooks automatically after install.
 
+### Sanity
+
+Copy `.env.local.example` to `.env.local` and add your Sanity project ID:
+
+```bash
+cp .env.local.example .env.local
+```
+
+The project builds without a real Sanity project — GROQ queries degrade gracefully. Connect a project when ready.
+
 ## Development
 
 ```bash
-npm run dev          # Astro dev server
-npm run dev:studio   # Sanity Studio
+npm run dev          # Astro dev server (localhost:4321)
 npm run build        # Production build
 npm run typecheck    # TypeScript validation
+npm run preview      # Preview built site
 ```
+
+Sanity Studio is embedded at `/admin` — no separate command needed.
 
 ## Quality
 
