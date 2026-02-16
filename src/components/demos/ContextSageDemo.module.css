@@ -1,0 +1,328 @@
+/* ContextSageDemo - CSS Module */
+
+/* ========== CONTAINER & LAYOUT ========== */
+.container {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-cream);
+  max-width: 55em;
+  margin: 0 auto;
+  padding: var(--space-8);
+  min-height: 100vh;
+}
+
+.header {
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+/* ========== TYPOGRAPHY ========== */
+.title {
+  font-size: 2.2em;
+  font-weight: 400;
+  font-style: italic;
+  margin: 0 0 0.25em 0;
+}
+
+.subtitle {
+  font-size: 1.1em;
+  color: var(--color-text-light);
+  font-style: italic;
+  margin: 0;
+}
+
+.sectionTitle {
+  font-size: 1.5em;
+  font-weight: 400;
+  font-style: italic;
+  margin: var(--space-6) 0 var(--space-2) 0;
+}
+
+.h3 {
+  font-size: 1.2em;
+  font-weight: 400;
+  font-style: italic;
+  margin: var(--space-6) 0 var(--space-2) 0;
+  color: var(--color-text-light);
+}
+
+.lead {
+  font-size: 1.1em;
+  line-height: 1.8;
+  margin-bottom: var(--space-6);
+}
+
+/* ========== LANGUAGE BUTTONS ========== */
+.langGroup {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.langBtn {
+  padding: 0.25em 0.75em;
+  border: 1px solid var(--color-border-light);
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85em;
+  transition: all var(--transition-fast);
+}
+
+.langBtnActive {
+  border-color: var(--color-text-primary);
+  background: var(--color-text-primary);
+  color: var(--color-bg-cream);
+}
+
+/* ========== NAVIGATION ========== */
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 1em;
+  margin-bottom: var(--space-8);
+}
+
+.navBtn {
+  background: none;
+  border: none;
+  padding: 0.25em 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95em;
+  color: var(--color-text-footer);
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.navBtnActive {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-accent);
+}
+
+.navBtn:hover:not(.navBtnActive) {
+  color: var(--color-text-secondary);
+}
+
+/* ========== CONTENT BLOCKS ========== */
+.pullQuote {
+  font-size: 1.2em;
+  font-style: italic;
+  color: var(--color-text-light);
+  margin: var(--space-8) 0;
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
+  text-align: center;
+}
+
+.blockquote {
+  border-left: 3px solid var(--color-border-light);
+  padding-left: var(--space-4);
+  margin: var(--space-4) 0;
+  font-style: italic;
+  color: var(--color-text-light);
+}
+
+.list {
+  margin-bottom: var(--space-6);
+  padding-left: var(--space-6);
+}
+
+.listItem {
+  margin-bottom: var(--space-2);
+}
+
+.paragraph {
+  margin-bottom: var(--space-6);
+}
+
+.paragraphSm {
+  margin-bottom: var(--space-3);
+}
+
+/* ========== DIAGRAM BOX ========== */
+.diagramBox {
+  font-family: var(--font-mono);
+  font-size: 0.75em;
+  background-color: var(--color-bg-warm);
+  padding: var(--space-4);
+  overflow: auto;
+  white-space: pre;
+  line-height: 1.4;
+  margin-bottom: var(--space-6);
+}
+
+/* ========== CASE STUDY CARD ========== */
+.caseStudyCard {
+  background-color: var(--color-bg-paper);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  border-left: 3px solid var(--color-text-footer);
+}
+
+.caseStudyTitle {
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1.1em;
+  margin: 0 0 0.25em 0;
+}
+
+.caseStudyDate {
+  color: var(--color-text-footer);
+  font-size: 0.85em;
+  margin: 0 0 var(--space-4) 0;
+}
+
+.caseStudyQuote {
+  border-left: 3px solid var(--color-border-light);
+  padding-left: var(--space-4);
+  margin: var(--space-3) 0;
+  font-style: italic;
+  color: var(--color-text-light);
+}
+
+/* ========== AGENT LEGEND ========== */
+.agentLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-bg-warm);
+  border-radius: var(--radius-sm);
+}
+
+.agentItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.agentBadge {
+  padding: 0.25em 0.5em;
+  color: var(--color-bg-white);
+  border-radius: var(--radius-sm);
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.agentBadgeHO { background: var(--color-role-ho); }
+.agentBadgeGA { background: var(--color-role-ga); }
+.agentBadgeIA { background: var(--color-role-ia); }
+
+.agentLabel {
+  font-size: 0.9em;
+}
+
+/* ========== NOTE/CAPTION ========== */
+.noteCaption {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-6);
+  color: var(--color-text-light);
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+/* ========== TABLE ========== */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-4) 0;
+  font-size: 0.95em;
+}
+
+.th {
+  text-align: left;
+  padding: var(--space-2);
+  border-bottom: 2px solid var(--color-border-light);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border-light);
+  vertical-align: top;
+}
+
+/* ========== CODE ========== */
+.code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background-color: var(--color-bg-warm);
+  padding: 0.1em 0.3em;
+}
+
+/* ========== FLOW STEPS ========== */
+.flowStep {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
+  align-items: flex-start;
+}
+
+.flowNum {
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background-color: var(--color-feature-blue);
+  color: var(--color-bg-cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8em;
+  flex-shrink: 0;
+}
+
+/* ========== LINKS ========== */
+.accentLink {
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(160, 0, 0, 0.2);
+  transition: border-color var(--transition-fast);
+}
+
+.accentLink:hover {
+  border-bottom-color: var(--color-accent);
+}
+
+/* ========== RESPONSIVE - Tablet ========== */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-6);
+  }
+
+  .diagramBox {
+    font-size: 0.75em;
+  }
+}
+
+/* ========== RESPONSIVE - Mobile ========== */
+@media (max-width: 480px) {
+  .container {
+    padding: var(--space-4);
+    font-size: 14px;
+  }
+
+  .title {
+    font-size: 1.8em;
+  }
+
+  .agentLegend {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .nav {
+    gap: 0.5em;
+  }
+
+  .diagramBox {
+    font-size: 0.65em;
+  }
+}

@@ -13,7 +13,7 @@ This project is built through orchestrated collaboration between human direction
 | Agent | Model | Role | Contributions |
 |---|---|---|---|
 | **Claude Code** | Claude Opus 4.6 (Anthropic) | Inspecting Agent (IA) | Foundation build, schema implementation, infrastructure, testing, documentation |
-| **ChatGPT** | GPT-4o (OpenAI) | Generalizing Agent (GA) | Architecture proposals, schema design, content model deliberation |
+| **ChatGPT** | GPT-5.3 (OpenAI) | Generalizing Agent (GA) | Architecture proposals, schema design, content model deliberation |
 | **Kimi** | Kimi 2.5 (Moonshot AI) | Design Contributor | Design system proposal (evaluation pending) |
 
 ## Collaboration Model
@@ -34,4 +34,4 @@ AI contributions are tracked at two levels:
 
 ## Adding Contributors
 
-When a new AI agent or human contributor participates in this project, add them here with their role and specific contributions. This file is part of the committed repo — transparency about how the work was produced is itself a professional signal.
+When a new AI agent or human contributor participates in this project, add them here with their role and specific contributions. 

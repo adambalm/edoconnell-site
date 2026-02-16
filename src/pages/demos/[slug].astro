@@ -1,0 +1,177 @@
+---
+/**
+ * /demos/[slug] — dynamic route for individual demo pages.
+ *
+ * Fetches a demoItem from Sanity by slug, renders epistemic metadata
+ * server-side, and hydrates the React island based on componentName.
+ *
+ * Uses getStaticPaths because the site is output: 'static'.
+ * Each demo is pre-rendered at build time.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import DemoMeta from '../../components/DemoMeta.astro'
+import { sanityClient } from 'sanity:client'
+import { PortableText } from 'astro-portabletext'
+import '../../styles/demo-tokens.css'
+
+// React island imports — must be static for Astro's bundler
+import MementoDemo from '../../components/demos/MementoDemo'
+import ContextSageDemo from '../../components/demos/ContextSageDemo'
+import SkillForgeVisualizer from '../../components/demos/SkillForgeVisualizer'
+
+interface DemoItem {
+  _id: string
+  title: string
+  slug: { current: string }
+  summary?: string
+  framing?: any[]
+  renderMode?: string
+  componentName?: string
+  externalUrl?: string
+  tags?: string[]
+  epistemicStatus?: string
+  audienceContext?: string
+  publicationReadiness?: string
+  provenance?: {
+    author?: string
+    generatedBy?: string
+    reviewedBy?: string
+    context?: string
+    date?: string
+  }
+  seo?: {
+    metaTitle?: string
+    metaDescription?: string
+  }
+}
+
+export async function getStaticPaths() {
+  const demos: DemoItem[] = await sanityClient.fetch(
+    `*[_type == "demoItem" && defined(slug.current)] {
+      _id,
+      title,
+      slug,
+      summary,
+      framing,
+      renderMode,
+      componentName,
+      externalUrl,
+      tags,
+      epistemicStatus,
+      audienceContext,
+      publicationReadiness,
+      provenance,
+      seo
+    }`
+  )
+  return demos.map((demo) => ({
+    params: { slug: demo.slug.current },
+    props: { demo },
+  }))
+}
+
+const { demo } = Astro.props
+const pageTitle = demo.seo?.metaTitle || demo.title
+const pageDesc = demo.seo?.metaDescription || demo.summary
+
+// EXTERNAL mode: redirect
+if (demo.renderMode === 'EXTERNAL' && demo.externalUrl) {
+  return Astro.redirect(demo.externalUrl)
+}
+---
+
+<BaseLayout title={pageTitle} description={pageDesc}>
+  <article class="demo-page">
+    <header class="demo-header">
+      <h1>{demo.title}</h1>
+      {demo.summary && <p class="demo-summary">{demo.summary}</p>}
+    </header>
+
+    <DemoMeta demo={demo} />
+
+    {demo.framing && (
+      <section class="demo-framing" aria-label="Context">
+        <PortableText value={demo.framing} />
+      </section>
+    )}
+
+    <section class="demo-container" aria-label="Interactive demo">
+      {demo.renderMode === 'ISLAND' && demo.componentName === 'Memento' && (
+        <MementoDemo client:load />
+      )}
+
+      {demo.renderMode === 'ISLAND' && demo.componentName === 'ContextSage' && (
+        <ContextSageDemo client:load />
+      )}
+
+      {demo.renderMode === 'ISLAND' && demo.componentName === 'SkillForge' && (
+        <SkillForgeVisualizer client:load />
+      )}
+
+      {demo.renderMode === 'STATIC' && (
+        <p class="static-note">This demo is rendered as static content.</p>
+      )}
+
+      {demo.renderMode === 'ISLAND' && !['Memento', 'ContextSage', 'SkillForge'].includes(demo.componentName || '') && (
+        <p class="missing-note">Demo component "{demo.componentName}" is not yet available.</p>
+      )}
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .demo-page {
+    max-width: var(--measure, 65ch);
+    margin: 0 auto;
+  }
+
+  .demo-header {
+    margin-bottom: var(--space-4, 1rem);
+  }
+
+  .demo-header h1 {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-2xl, 1.953rem);
+    margin: 0 0 var(--space-2, 0.5rem) 0;
+  }
+
+  .demo-summary {
+    color: var(--color-text-muted, #555);
+    font-size: var(--font-size-md, 1.125rem);
+    margin: 0;
+  }
+
+  .demo-framing {
+    margin-bottom: var(--space-6, 1.5rem);
+    line-height: 1.7;
+  }
+
+  .demo-container {
+    margin-top: var(--space-6, 1.5rem);
+    border: 1px dashed var(--color-border, #d4d0c8);
+    border-radius: 4px;
+    padding: var(--space-2, 0.5rem);
+    position: relative;
+  }
+
+  .demo-container::before {
+    content: 'INTERACTIVE DEMO';
+    position: absolute;
+    top: -0.75em;
+    left: 1em;
+    background: var(--color-bg, #fafaf8);
+    padding: 0 0.5em;
+    font-size: var(--font-size-xs, 0.8rem);
+    color: var(--color-text-muted, #555);
+    letter-spacing: 0.1em;
+    font-family: var(--font-ui);
+  }
+
+  .static-note,
+  .missing-note {
+    padding: var(--space-6, 1.5rem);
+    text-align: center;
+    color: var(--color-text-muted, #555);
+    font-style: italic;
+  }
+</style>
