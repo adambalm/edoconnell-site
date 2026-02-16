@@ -32,6 +32,8 @@ Single Astro 5 project with embedded Sanity Studio at `/admin`. Static output de
 astro.config.mjs         Astro + Sanity + React + Vercel integrations
 sanity.config.ts         Studio config (schemas, plugins)
 src/
+  components/            Astro + React components
+    demos/               React islands (Memento, ContextSage, SkillForge)
   layouts/BaseLayout     Semantic HTML shell: header, main, footer, skip-link, noindex
   pages/                 Astro routes — each page fetches via GROQ
   sanity/schemas/        Sanity document + object type definitions
@@ -88,13 +90,16 @@ Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (au
 .github/workflows/    CI pipeline (build, a11y, Lighthouse)
 .githooks/            Git hooks (pre-commit doc freshness check)
 public/               Static assets (favicon)
+scripts/              Build/seed utilities (seed-demos.mjs)
 src/
+  components/         Astro components and React islands
+    demos/            Interactive demo components (CSS Modules + React)
   layouts/            Astro layout components (BaseLayout)
   pages/              Astro page routes (index, demos/)
   sanity/
     schemas/          Sanity document and object type definitions
       objects/        Shared object types (seo, provenance)
-  styles/             Design tokens and global CSS
+  styles/             Design tokens, global CSS, demo token bridge
 docs/                 Project documentation (voice profile)
 ```
 
