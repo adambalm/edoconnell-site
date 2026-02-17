@@ -17,6 +17,7 @@ interface Props {
       reviewedBy?: string
       context?: string
       date?: string
+      confidenceScore?: number
     }
     tags?: string[]
   }
@@ -79,6 +80,12 @@ const statusLabels: Record<string, string> = {
         <>
           <dt>Date</dt>
           <dd>{prov.date}</dd>
+        </>
+      )}
+      {prov.confidenceScore != null && (
+        <>
+          <dt>Confidence</dt>
+          <dd>{Math.round(prov.confidenceScore * 100)}%</dd>
         </>
       )}
     </dl>

@@ -40,5 +40,13 @@ export const provenance = defineType({
       title: 'Date',
       type: 'date',
     }),
+    defineField({
+      name: 'confidenceScore',
+      title: 'Confidence Score',
+      type: 'number',
+      description:
+        'Self-reported confidence of the generating agent (0–1). Queryable for pipeline gating but not enforced at authoring time.',
+      validation: (Rule) => Rule.min(0).max(1),
+    }),
   ],
 })
