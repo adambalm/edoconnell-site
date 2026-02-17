@@ -13,8 +13,8 @@ The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. F
 
 - **FSM state:** AG_CLOSED → EXECUTING
 - **Build:** `npm run build` succeeds. Two pages prerender (index, demos).
-- **Sanity project:** `zu6l9t4j` on personal account (see `.env.local`). CORS configured. Schemas defined but dataset is empty.
-- **Next:** Migrate React demos from portfolio repo, implement article pages, deploy.
+- **Sanity project:** `zu6l9t4j` on personal account (see `.env.local`). CORS configured. Dataset seeded (`node scripts/seed.mjs`).
+- **Next:** Implement article pages, deploy.
 - Dialogue log: `dialogues/001-site-rebuild.md` (gitignored — local context only)
 - Prior site: `github.com/adambalm/portfolio` (React 19 + Vite, deployed to Vercel)
 
@@ -165,7 +165,7 @@ Before any deployment or PR, the implementing agent runs this checklist. This is
 - **TypeScript:** Strict mode. Typed props for all components.
 - **Accessibility:** WCAG AA minimum. Semantic HTML. Keyboard navigable.
 - **Performance:** Lighthouse >= 95 across all categories.
-- **noindex:** All pages include `<meta name="robots" content="noindex">` until HO explicitly authorizes indexing.
+- **noindex:** Controlled via `siteSettings.noindex` in Sanity. Currently `true` — all pages carry noindex until HO authorizes indexing.
 - **Commit history:** Each commit is self-contained and functional at the time it's made. No placeholder files. No "will fix later" commits. The history is part of the portfolio.
 - **Commit lookback:** Each major commit includes explicit verification that all quality policies remain in effect and new additions resonate with the existing structure.
 - **Fractal quality:** Deep inspection should reveal deeper levels of quality. Semantic HTML, proper CSS inheritance (custom properties, cascade, logical nesting), AI-readable structure.

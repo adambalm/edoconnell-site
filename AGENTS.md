@@ -52,7 +52,7 @@ Design principle: content as infrastructure, not content as pages. Each document
 |---------------|---------|------------|
 | `demoItem` | Interactive demonstration | framing (Portable Text), renderMode (ISLAND/STATIC/EXTERNAL), componentName, epistemicStatus, audienceContext, publicationReadiness, provenance |
 | `article` | Long-form authored content | kind (brief/essay/case-study), body + appendix (Portable Text), epistemicStatus, audienceContext, publicationReadiness, provenance |
-| `page` | General content page | body (Portable Text), seo |
+| `page` | General content page | subtitle, body (Portable Text), seo |
 | `siteSettings` | Global config (singleton) | siteTitle, noindex toggle, default seo |
 
 Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (author, generatedBy, reviewedBy, context, date).
@@ -90,7 +90,7 @@ Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (au
 .github/workflows/    CI pipeline (build, a11y, Lighthouse)
 .githooks/            Git hooks (pre-commit doc freshness check)
 public/               Static assets (favicon)
-scripts/              Build/seed utilities (seed-demos.mjs)
+scripts/              Build/seed utilities (seed.mjs)
 src/
   components/         Astro components and React islands
     demos/            Interactive demo components (CSS Modules + React)
