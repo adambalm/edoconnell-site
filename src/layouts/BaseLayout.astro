@@ -1,11 +1,35 @@
 ---
+import { sanityClient } from 'sanity:client'
+
 interface Props {
   title: string
   description?: string
 }
 
-const { title, description = "Ed O'Connell — structured content, working systems." } = Astro.props
-const pageTitle = title === 'Home' ? "Ed O'Connell" : `${title} — Ed O'Connell`
+const fallback = {
+  siteTitle: "Ed O'Connell",
+  siteDescription: "Ed O'Connell — structured content, working systems.",
+  noindex: true,
+}
+let settings = { ...fallback }
+try {
+  const result = await sanityClient.fetch(
+    `*[_type == "siteSettings"][0]{ siteTitle, siteDescription, noindex }`
+  )
+  if (result) {
+    settings = {
+      siteTitle: result.siteTitle || fallback.siteTitle,
+      siteDescription: result.siteDescription || fallback.siteDescription,
+      noindex: result.noindex ?? fallback.noindex,
+    }
+  }
+} catch {
+  // Sanity unreachable — use hardcoded fallbacks
+}
+
+const { title, description = settings.siteDescription } = Astro.props
+const pageTitle = title === 'Home' ? settings.siteTitle : `${title} — ${settings.siteTitle}`
+const robotsContent = settings.noindex ? 'noindex' : 'index, follow'
 ---
 
 <!doctype html>
@@ -13,7 +37,7 @@ const pageTitle = title === 'Home' ? "Ed O'Connell" : `${title} — Ed O'Connell
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex" />
+    <meta name="robots" content={robotsContent} />
     <meta name="description" content={description} />
     <title>{pageTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -23,7 +47,7 @@ const pageTitle = title === 'Home' ? "Ed O'Connell" : `${title} — Ed O'Connell
 
     <header role="banner">
       <nav aria-label="Primary">
-        <a href="/">Ed O'Connell</a>
+        <a href="/">{settings.siteTitle}</a>
         <ul>
           <li><a href="/demos/">Demos</a></li>
         </ul>
@@ -35,7 +59,7 @@ const pageTitle = title === 'Home' ? "Ed O'Connell" : `${title} — Ed O'Connell
     </main>
 
     <footer role="contentinfo">
-      <p>&copy; {new Date().getFullYear()} Ed O'Connell</p>
+      <p>&copy; {new Date().getFullYear()} {settings.siteTitle}</p>
     </footer>
   </body>
 </html>

@@ -1,10 +1,26 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
+import { sanityClient } from 'sanity:client'
+
+let page = { title: "Ed O'Connell", subtitle: "Cognition in context." }
+try {
+  const result = await sanityClient.fetch(
+    `*[_type == "page" && slug.current == "home"][0]{ title, subtitle }`
+  )
+  if (result) {
+    page = {
+      title: result.title || page.title,
+      subtitle: result.subtitle || page.subtitle,
+    }
+  }
+} catch {
+  // Sanity unreachable — use hardcoded fallbacks
+}
 ---
 
 <BaseLayout title="Home">
   <section aria-labelledby="intro-heading">
-    <h1 id="intro-heading">Ed O'Connell</h1>
-    <p>Cognition in context.</p>
+    <h1 id="intro-heading">{page.title}</h1>
+    <p>{page.subtitle}</p>
   </section>
 </BaseLayout>

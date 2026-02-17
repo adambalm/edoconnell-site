@@ -1,9 +1,9 @@
 /**
- * seed-demos.mjs — Create demoItem documents in Sanity.
+ * seed.mjs — Create siteSettings, page, and demoItem documents in Sanity.
  *
  * Usage:
- *   node scripts/seed-demos.mjs --dry-run    # Preview what would be created
- *   node scripts/seed-demos.mjs              # Create documents
+ *   node scripts/seed.mjs --dry-run    # Preview what would be created
+ *   node scripts/seed.mjs              # Create documents
  *
  * Prerequisites:
  *   1. Create a write token at https://manage.sanity.io → Project → API → Tokens
@@ -13,8 +13,8 @@
  *      SANITY_API_WRITE_TOKEN=sk...
  *
  * Idempotency:
- *   Uses deterministic _id values (demo-memento, demo-context-sage, demo-skill-forge).
- *   Running twice will update existing documents via createOrReplace, not duplicate.
+ *   Uses deterministic _id values. Running twice will update existing
+ *   documents via createOrReplace, not duplicate.
  */
 
 import { createClient } from '@sanity/client';
@@ -44,6 +44,39 @@ const client = createClient({
   token: TOKEN,
   useCdn: false,
 });
+
+/* ========== SITE SETTINGS ========== */
+
+const siteSettings = {
+  _id: 'siteSettings',
+  _type: 'siteSettings',
+  siteTitle: "Ed O'Connell",
+  siteDescription: "Ed O'Connell — structured content, working systems.",
+  noindex: true,
+};
+
+/* ========== PAGE DOCUMENTS ========== */
+
+const pages = [
+  {
+    _id: 'page-home',
+    _type: 'page',
+    title: "Ed O'Connell",
+    subtitle: "Cognition in context.",
+    slug: { _type: 'slug', current: 'home' },
+  },
+  {
+    _id: 'page-demos',
+    _type: 'page',
+    title: "Demos",
+    subtitle: "Working systems, not slide decks.",
+    slug: { _type: 'slug', current: 'demos' },
+    seo: {
+      _type: 'seo',
+      metaDescription: "Interactive demonstrations of structured content, AI systems, and working software.",
+    },
+  },
+];
 
 /* ========== DEMO DOCUMENTS ========== */
 
@@ -133,26 +166,27 @@ const demos = [
 
 /* ========== EXECUTE ========== */
 
+const allDocuments = [
+  { label: 'Site Settings', doc: siteSettings },
+  ...pages.map(doc => ({ label: `Page: ${doc.title}`, doc })),
+  ...demos.map(doc => ({ label: `Demo: ${doc.title}`, doc })),
+];
+
 async function seed() {
-  console.log(`\n🌱 Demo Seed Script`);
+  console.log(`\n🌱 Seed Script`);
   console.log(`   Project: ${PROJECT_ID} / ${DATASET}`);
   console.log(`   Mode: ${DRY_RUN ? 'DRY RUN (no writes)' : 'LIVE'}`);
-  console.log(`   Documents: ${demos.length}\n`);
+  console.log(`   Documents: ${allDocuments.length}\n`);
 
-  for (const demo of demos) {
-    console.log(`📄 ${demo.title}`);
-    console.log(`   _id: ${demo._id}`);
-    console.log(`   slug: ${demo.slug.current}`);
-    console.log(`   renderMode: ${demo.renderMode}`);
-    console.log(`   componentName: ${demo.componentName}`);
-    console.log(`   epistemicStatus: ${demo.epistemicStatus}`);
-    console.log(`   publicationReadiness: ${demo.publicationReadiness}`);
-    console.log(`   provenance.generatedBy: ${demo.provenance.generatedBy}`);
-    console.log(`   tags: [${demo.tags.join(', ')}]`);
+  for (const { label, doc } of allDocuments) {
+    console.log(`📄 ${label}`);
+    console.log(`   _id: ${doc._id}`);
+    console.log(`   _type: ${doc._type}`);
+    if (doc.slug) console.log(`   slug: ${doc.slug.current}`);
 
     if (!DRY_RUN) {
       try {
-        const result = await client.createOrReplace(demo);
+        const result = await client.createOrReplace(doc);
         console.log(`   ✅ Created/updated: ${result._id}\n`);
       } catch (err) {
         console.error(`   ❌ Failed: ${err.message}\n`);
@@ -165,7 +199,7 @@ async function seed() {
   if (DRY_RUN) {
     console.log('🔍 Dry run complete. Run without --dry-run to create documents.');
   } else {
-    console.log('🎉 Done! Run `npm run build` to generate demo pages.');
+    console.log('🎉 Done! Run `npm run build` to regenerate pages from Sanity content.');
   }
 }
 
