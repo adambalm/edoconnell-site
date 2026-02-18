@@ -11,6 +11,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import DemoMeta from '../../components/DemoMeta.astro'
 import { loadQuery } from '../../sanity/lib/load-query'
+import { stegaClean } from '@sanity/client/stega'
 import { PortableText } from 'astro-portabletext'
 import '../../styles/demo-tokens.css'
 
@@ -77,8 +78,12 @@ const pageTitle = demo.seo?.metaTitle || demo.title
 const pageDesc = demo.seo?.metaDescription || demo.summary
 const pageOgImage = demo.seo?.ogImage?.asset?.url
 
+// Strip stega from fields used in logic (not display)
+const renderMode = stegaClean(demo.renderMode)
+const componentName = stegaClean(demo.componentName)
+
 // EXTERNAL mode: redirect
-if (demo.renderMode === 'EXTERNAL' && demo.externalUrl) {
+if (renderMode === 'EXTERNAL' && demo.externalUrl) {
   return Astro.redirect(demo.externalUrl)
 }
 ---
@@ -99,23 +104,23 @@ if (demo.renderMode === 'EXTERNAL' && demo.externalUrl) {
     )}
 
     <section class="demo-container" aria-label="Interactive demo">
-      {demo.renderMode === 'ISLAND' && demo.componentName === 'Memento' && (
+      {renderMode === 'ISLAND' && componentName === 'Memento' && (
         <MementoDemo client:load />
       )}
 
-      {demo.renderMode === 'ISLAND' && demo.componentName === 'ContextSage' && (
+      {renderMode === 'ISLAND' && componentName === 'ContextSage' && (
         <ContextSageDemo client:load />
       )}
 
-      {demo.renderMode === 'ISLAND' && demo.componentName === 'SkillForge' && (
+      {renderMode === 'ISLAND' && componentName === 'SkillForge' && (
         <SkillForgeVisualizer client:load />
       )}
 
-      {demo.renderMode === 'STATIC' && (
+      {renderMode === 'STATIC' && (
         <p class="static-note">This demo is rendered as static content.</p>
       )}
 
-      {demo.renderMode === 'ISLAND' && !['Memento', 'ContextSage', 'SkillForge'].includes(demo.componentName || '') && (
+      {renderMode === 'ISLAND' && !['Memento', 'ContextSage', 'SkillForge'].includes(componentName || '') && (
         <p class="missing-note">Demo component "{demo.componentName}" is not yet available.</p>
       )}
     </section>
