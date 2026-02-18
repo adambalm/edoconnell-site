@@ -17,6 +17,8 @@ export default defineConfig({
       useCdn: false,
       apiVersion: '2025-01-01',
       studioBasePath: '/admin',
+      token: process.env.SANITY_API_WRITE_TOKEN,
+      perspective: 'drafts',
     }),
   ],
 })

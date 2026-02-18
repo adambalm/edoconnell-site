@@ -2,17 +2,12 @@
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import { sanityClient } from 'sanity:client'
 
-const pageFallback = {
-  title: "Demos",
-  subtitle: "Working systems, not slide decks.",
-  seo: null as { metaDescription?: string } | null,
-}
-let page = { ...pageFallback }
+let page = { title: "Demos", subtitle: "Working systems, not slide decks.", seo: null as any }
 let demos: any[] = []
 try {
   const [pageResult, demosResult] = await Promise.all([
     sanityClient.fetch(
-      `*[_type == "page" && slug.current == "demos"][0]{ title, subtitle, seo }`
+      `*[_id == "page-demos"][0]{ title, subtitle, seo { metaTitle, metaDescription, ogImage { asset->{ url } } } }`
     ),
     sanityClient.fetch(
       `*[_type == "demoItem"] | order(displayOrder asc) {
@@ -27,24 +22,17 @@ try {
       }`
     ),
   ])
-  if (pageResult) {
-    page = {
-      title: pageResult.title || pageFallback.title,
-      subtitle: pageResult.subtitle || pageFallback.subtitle,
-      seo: pageResult.seo || pageFallback.seo,
-    }
-  }
-  if (demosResult) {
-    demos = demosResult
-  }
+  if (pageResult) page = pageResult
+  if (demosResult) demos = demosResult
 } catch {
   // Sanity project not yet connected — build degrades gracefully.
 }
 
-const metaDescription = page.seo?.metaDescription || "Interactive demonstrations of structured content, AI systems, and working software."
+const metaDescription = page.seo?.metaDescription ?? "Interactive demonstrations of structured content, AI systems, and working software."
+const ogImage = page.seo?.ogImage?.asset?.url
 ---
 
-<BaseLayout title={page.title} description={metaDescription}>
+<BaseLayout title={page.title} description={metaDescription} ogImage={ogImage}>
   <section aria-labelledby="demos-heading">
     <h1 id="demos-heading">{page.title}</h1>
     <p>{page.subtitle}</p>

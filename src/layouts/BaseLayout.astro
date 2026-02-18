@@ -4,32 +4,35 @@ import { sanityClient } from 'sanity:client'
 interface Props {
   title: string
   description?: string
+  ogImage?: string
 }
 
-const fallback = {
+let settings = {
   siteTitle: "Ed O'Connell",
   siteDescription: "Ed O'Connell — structured content, working systems.",
   noindex: true,
+  seo: null as { metaTitle?: string; metaDescription?: string; ogImage?: { asset?: { url?: string } } } | null,
 }
-let settings = { ...fallback }
 try {
   const result = await sanityClient.fetch(
-    `*[_type == "siteSettings"][0]{ siteTitle, siteDescription, noindex }`
+    `*[_type == "siteSettings"][0]{
+      siteTitle,
+      siteDescription,
+      noindex,
+      seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
+    }`
   )
-  if (result) {
-    settings = {
-      siteTitle: result.siteTitle || fallback.siteTitle,
-      siteDescription: result.siteDescription || fallback.siteDescription,
-      noindex: result.noindex ?? fallback.noindex,
-    }
-  }
+  if (result) settings = result
 } catch {
   // Sanity unreachable — use hardcoded fallbacks
 }
 
-const { title, description = settings.siteDescription } = Astro.props
+const { title, description = settings.siteDescription, ogImage } = Astro.props
 const pageTitle = title === 'Home' ? settings.siteTitle : `${title} — ${settings.siteTitle}`
-const robotsContent = settings.noindex ? 'noindex' : 'index, follow'
+const robotsContent = settings.noindex === false ? 'index, follow' : 'noindex'
+const resolvedOgImage = ogImage ?? settings.seo?.ogImage?.asset?.url
+const ogTitle = pageTitle
+const ogDescription = description
 ---
 
 <!doctype html>
@@ -39,6 +42,10 @@ const robotsContent = settings.noindex ? 'noindex' : 'index, follow'
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content={robotsContent} />
     <meta name="description" content={description} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:type" content="website" />
+    {ogDescription && <meta property="og:description" content={ogDescription} />}
+    {resolvedOgImage && <meta property="og:image" content={resolvedOgImage} />}
     <title>{pageTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>

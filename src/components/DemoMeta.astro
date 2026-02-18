@@ -32,14 +32,28 @@ const statusLabels: Record<string, string> = {
   reviewed: 'Reviewed',
   canonical: 'Canonical',
 }
+
+const readinessLabels: Record<string, string> = {
+  internal: 'Internal',
+  preview: 'Preview',
+  publishable: 'Publishable',
+  published: 'Published',
+}
 ---
 
 <aside class="demo-meta" aria-label="Demo metadata">
-  {demo.epistemicStatus && (
-    <div class="meta-row">
-      <span class={`badge badge--${demo.epistemicStatus}`}>
-        {statusLabels[demo.epistemicStatus] || demo.epistemicStatus}
-      </span>
+  {(demo.epistemicStatus || demo.publicationReadiness) && (
+    <div class="meta-row badge-row">
+      {demo.epistemicStatus && (
+        <span class={`badge badge--${demo.epistemicStatus}`}>
+          {statusLabels[demo.epistemicStatus] || demo.epistemicStatus}
+        </span>
+      )}
+      {demo.publicationReadiness && (
+        <span class={`badge badge-readiness badge-readiness--${demo.publicationReadiness}`}>
+          {readinessLabels[demo.publicationReadiness] || demo.publicationReadiness}
+        </span>
+      )}
     </div>
   )}
 
@@ -151,6 +165,32 @@ const statusLabels: Record<string, string> = {
   .badge--canonical {
     background: #fef3c7;
     color: #92400e;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .badge-readiness--internal {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+
+  .badge-readiness--preview {
+    background: #e0e7ff;
+    color: #3730a3;
+  }
+
+  .badge-readiness--publishable {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .badge-readiness--published {
+    background: #dcfce7;
+    color: #166534;
   }
 
   .provenance {

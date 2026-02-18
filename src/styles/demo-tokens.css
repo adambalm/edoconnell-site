@@ -14,7 +14,7 @@
   /* Typography — bridge to edoconnell-site font stacks */
   --font-serif: var(--font-prose);
   --font-sans: var(--font-ui);
-  --font-mono: var(--font-mono);
+  /* --font-mono inherits from global.css */
 
   /* Text colors */
   --color-text-primary: var(--color-text);
@@ -33,8 +33,7 @@
   /* Border colors */
   --color-border-light: var(--color-border);
 
-  /* Accent — use edoconnell-site's blue instead of portfolio's red */
-  --color-accent: var(--color-accent);
+  /* Accent — inherits from global.css (edoconnell-site blue, not portfolio red) */
 
   /* Status colors (portfolio-specific, no edoconnell-site equivalent) */
   --color-status-complete: #15803d;

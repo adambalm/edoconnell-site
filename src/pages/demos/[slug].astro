@@ -43,6 +43,7 @@ interface DemoItem {
   seo?: {
     metaTitle?: string
     metaDescription?: string
+    ogImage?: { asset?: { url?: string } }
   }
 }
 
@@ -62,7 +63,7 @@ export async function getStaticPaths() {
       audienceContext,
       publicationReadiness,
       provenance,
-      seo
+      seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
     }`
   )
   return demos.map((demo) => ({
@@ -74,6 +75,7 @@ export async function getStaticPaths() {
 const { demo } = Astro.props
 const pageTitle = demo.seo?.metaTitle || demo.title
 const pageDesc = demo.seo?.metaDescription || demo.summary
+const pageOgImage = demo.seo?.ogImage?.asset?.url
 
 // EXTERNAL mode: redirect
 if (demo.renderMode === 'EXTERNAL' && demo.externalUrl) {
@@ -81,7 +83,7 @@ if (demo.renderMode === 'EXTERNAL' && demo.externalUrl) {
 }
 ---
 
-<BaseLayout title={pageTitle} description={pageDesc}>
+<BaseLayout title={pageTitle} description={pageDesc} ogImage={pageOgImage}>
   <article class="demo-page">
     <header class="demo-header">
       <h1>{demo.title}</h1>
@@ -122,11 +124,11 @@ if (demo.renderMode === 'EXTERNAL' && demo.externalUrl) {
 
 <style>
   .demo-page {
-    max-width: var(--measure, 65ch);
     margin: 0 auto;
   }
 
   .demo-header {
+    max-width: var(--measure, 65ch);
     margin-bottom: var(--space-4, 1rem);
   }
 
@@ -143,6 +145,7 @@ if (demo.renderMode === 'EXTERNAL' && demo.externalUrl) {
   }
 
   .demo-framing {
+    max-width: var(--measure, 65ch);
     margin-bottom: var(--space-6, 1.5rem);
     line-height: 1.7;
   }

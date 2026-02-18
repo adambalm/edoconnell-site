@@ -1,26 +1,44 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { sanityClient } from 'sanity:client'
+import { PortableText } from 'astro-portabletext'
 
-let page = { title: "Ed O'Connell", subtitle: "Cognition in context." }
+let page = { title: "Ed O'Connell", subtitle: "Cognition in context.", body: null as any[] | null, seo: null as any }
 try {
   const result = await sanityClient.fetch(
-    `*[_type == "page" && slug.current == "home"][0]{ title, subtitle }`
+    `*[_id == "page-home"][0]{ title, subtitle, body, seo { metaTitle, metaDescription, ogImage { asset->{ url } } } }`
   )
-  if (result) {
-    page = {
-      title: result.title || page.title,
-      subtitle: result.subtitle || page.subtitle,
-    }
-  }
+  if (result) page = result
 } catch {
   // Sanity unreachable — use hardcoded fallbacks
 }
+
+const metaDescription = page.seo?.metaDescription
+const ogImage = page.seo?.ogImage?.asset?.url
 ---
 
-<BaseLayout title="Home">
+<BaseLayout title="Home" description={metaDescription} ogImage={ogImage}>
   <section aria-labelledby="intro-heading">
     <h1 id="intro-heading">{page.title}</h1>
-    <p>{page.subtitle}</p>
+    {page.subtitle && <p class="subtitle">{page.subtitle}</p>}
+
+    {page.body && (
+      <div class="body">
+        <PortableText value={page.body} />
+      </div>
+    )}
   </section>
 </BaseLayout>
+
+<style>
+  .subtitle {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    margin-top: 0;
+  }
+
+  .body {
+    margin-top: var(--space-8);
+    line-height: 1.7;
+  }
+</style>
