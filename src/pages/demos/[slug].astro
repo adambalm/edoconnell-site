@@ -10,7 +10,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import DemoMeta from '../../components/DemoMeta.astro'
-import { sanityClient } from 'sanity:client'
+import { loadQuery } from '../../sanity/lib/load-query'
 import { PortableText } from 'astro-portabletext'
 import '../../styles/demo-tokens.css'
 
@@ -48,8 +48,8 @@ interface DemoItem {
 }
 
 export async function getStaticPaths() {
-  const demos: DemoItem[] = await sanityClient.fetch(
-    `*[_type == "demoItem" && defined(slug.current)] {
+  const { data: demos } = await loadQuery<DemoItem[]>({
+    query: `*[_type == "demoItem" && defined(slug.current)] {
       _id,
       title,
       slug,
@@ -64,9 +64,9 @@ export async function getStaticPaths() {
       publicationReadiness,
       provenance,
       seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
-    }`
-  )
-  return demos.map((demo) => ({
+    }`,
+  })
+  return (demos ?? []).map((demo) => ({
     params: { slug: demo.slug.current },
     props: { demo },
   }))

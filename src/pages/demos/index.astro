@@ -1,16 +1,16 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
-import { sanityClient } from 'sanity:client'
+import { loadQuery } from '../../sanity/lib/load-query'
 
 let page = { title: "Demos", subtitle: "Working systems, not slide decks.", seo: null as any }
 let demos: any[] = []
 try {
   const [pageResult, demosResult] = await Promise.all([
-    sanityClient.fetch(
-      `*[_id == "page-demos"][0]{ title, subtitle, seo { metaTitle, metaDescription, ogImage { asset->{ url } } } }`
-    ),
-    sanityClient.fetch(
-      `*[_type == "demoItem"] | order(displayOrder asc) {
+    loadQuery<typeof page>({
+      query: `*[_id == "page-demos"][0]{ title, subtitle, seo { metaTitle, metaDescription, ogImage { asset->{ url } } } }`,
+    }),
+    loadQuery<any[]>({
+      query: `*[_type == "demoItem"] | order(displayOrder asc) {
         _id,
         title,
         slug,
@@ -19,11 +19,11 @@ try {
         tags,
         epistemicStatus,
         publicationReadiness
-      }`
-    ),
+      }`,
+    }),
   ])
-  if (pageResult) page = pageResult
-  if (demosResult) demos = demosResult
+  if (pageResult.data) page = pageResult.data
+  if (demosResult.data) demos = demosResult.data
 } catch {
   // Sanity project not yet connected — build degrades gracefully.
 }

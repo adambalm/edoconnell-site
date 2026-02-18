@@ -1,5 +1,8 @@
 ---
-import { sanityClient } from 'sanity:client'
+import { loadQuery } from '../sanity/lib/load-query'
+import { VisualEditing } from '@sanity/astro/visual-editing'
+
+const visualEditingEnabled = import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === 'true'
 
 interface Props {
   title: string
@@ -14,15 +17,15 @@ let settings = {
   seo: null as { metaTitle?: string; metaDescription?: string; ogImage?: { asset?: { url?: string } } } | null,
 }
 try {
-  const result = await sanityClient.fetch(
-    `*[_type == "siteSettings"][0]{
+  const { data } = await loadQuery<typeof settings>({
+    query: `*[_type == "siteSettings"][0]{
       siteTitle,
       siteDescription,
       noindex,
       seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
-    }`
-  )
-  if (result) settings = result
+    }`,
+  })
+  if (data) settings = data
 } catch {
   // Sanity unreachable — use hardcoded fallbacks
 }
@@ -68,6 +71,8 @@ const ogDescription = description
     <footer role="contentinfo">
       <p>&copy; {new Date().getFullYear()} {settings.siteTitle}</p>
     </footer>
+
+    {visualEditingEnabled && <VisualEditing enabled={true} />}
   </body>
 </html>
 
