@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Last verified:** 2026-02-12
+> **Last verified:** 2026-02-18
 > **Phase:** Executing (AG closed, foundation built)
 
 ## Project Overview
@@ -12,13 +12,14 @@ Rebuild of edoconnell.org as an Astro + Sanity + Vercel site. This is a portfoli
 The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. Foundation is built — Astro 5 + Sanity v3 + Vercel + TypeScript compiles and produces static output.
 
 - **FSM state:** AG_CLOSED → EXECUTING
-- **Build:** `npm run build` succeeds. Two pages prerender (index, demos).
-- **Sanity project:** `zu6l9t4j` on personal account (see `.env.local`). CORS configured. Dataset seeded (`node scripts/seed.mjs`).
-- **Next:** Implement article pages, deploy.
+- **Build:** `npm run build` succeeds. Five pages prerender (index, demos index, 3 demo slugs).
+- **Sanity project:** `zu6l9t4j` on personal account (see `.env.local`). CORS configured. Dataset seeded (`node scripts/seed.mjs`). All templates wired to CMS via `loadQuery`.
+- **Visual editing:** Stega encoding and VisualEditing component working. Presentation tool configured but iframe loading has a known Vite cache issue — deferred.
+- **Next:** Fix Presentation tool iframe, implement article pages, deploy.
 - Dialogue log: `dialogues/001-site-rebuild.md` (gitignored — local context only)
 - Prior site: `github.com/adambalm/portfolio` (React 19 + Vite, deployed to Vercel)
 
-<!-- verified: 2026-02-12 -->
+<!-- verified: 2026-02-18 -->
 
 ## Session Startup — Read Basic Memory Context
 
@@ -38,10 +39,12 @@ Single Astro 5 project with embedded Sanity Studio. Not a monorepo — simpler t
 - **Frontend:** Astro 5, static output, Vercel adapter
 - **CMS:** Sanity v3, embedded Studio at `/admin`, schemas in `src/sanity/schemas/`
 - **Interactive:** React 19 islands via `@astrojs/react` — used only for stateful demos
-- **Content flow:** Sanity → GROQ query → Astro component → static HTML
+- **Content flow:** Sanity → `loadQuery` (GROQ + stega options) → Astro component → static HTML
+- **Query layer:** `src/sanity/lib/load-query.ts` — wraps `sanityClient.fetch()` with per-fetch stega, perspective, and token options. All page templates use this instead of `sanityClient` directly.
+- **Visual editing:** `VisualEditing` component in BaseLayout (gated by `PUBLIC_SANITY_VISUAL_EDITING_ENABLED`), `presentationTool` in `sanity.config.ts` with document-to-URL mapping, `stega.studioUrl` in `astro.config.mjs`.
 - **Design system:** New design, borrows discipline (typographic scale, spacing, semantic structure) from sca-explainers. Custom properties cascade from `src/styles/global.css`.
 
-<!-- verified: 2026-02-12 -->
+<!-- verified: 2026-02-18 -->
 
 ## Commands
 
@@ -84,11 +87,26 @@ Only origins that actually exist as running applications:
 - `http://localhost:4321` — dev (Astro + embedded Studio)
 - Production URL — added at deploy time
 
+### Visual Editing
+
+Visual editing uses the canonical `@sanity/astro` pattern:
+
+1. **`src/sanity/lib/load-query.ts`** — wraps `sanityClient.fetch()` with per-fetch options: `stega: true`, `resultSourceMap: 'withKeyArraySelector'`, `perspective: 'previewDrafts'`, and a read token. All page templates use this instead of `sanityClient.fetch()` directly.
+2. **`VisualEditing` component** in `BaseLayout.astro` — renders the overlay UI for click-to-edit. Gated by `PUBLIC_SANITY_VISUAL_EDITING_ENABLED` env var.
+3. **`presentationTool`** in `sanity.config.ts` — document-to-URL mapping for `siteSettings`, `page`, and `demoItem` types.
+4. **`stega.studioUrl`** in `astro.config.mjs` — tells stega-encoded strings where to link edits.
+
+**Env vars for visual editing (`.env.local`):**
+- `PUBLIC_SANITY_VISUAL_EDITING_ENABLED=true` — enables stega + VisualEditing component
+- `SANITY_API_READ_TOKEN` or `SANITY_API_WRITE_TOKEN` — required for authenticated draft fetches
+
+**Known issue:** Presentation tool iframe shows a Vite dynamic import error (`ViteDevServerStopped`). Stega encoding itself works. Deferred for separate investigation.
+
 ### Account Separation
 
 Personal projects use personal Sanity account. SCA project (`wesg5rw8`) uses school account. CLI auth is global — `sanity login` switches identity for all projects on this machine. Account details in Basic Memory: `workspace/planning/sanity-account-map`.
 
-<!-- verified: 2026-02-13 -->
+<!-- verified: 2026-02-18 -->
 
 ## Quality Infrastructure
 

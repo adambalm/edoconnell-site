@@ -27,7 +27,7 @@ Copy `.env.local.example` to `.env.local` and add your Sanity project ID:
 cp .env.local.example .env.local
 ```
 
-The project builds without a real Sanity project — GROQ queries degrade gracefully. Connect a project when ready.
+The Sanity project is connected and the dataset is seeded. GROQ queries degrade gracefully if Sanity is unreachable — the site builds with hardcoded fallbacks.
 
 ## Development
 

@@ -1,7 +1,7 @@
 # AGENTS.md
 
 > Context for AI agents working with or evaluating this codebase.
-> Last verified: 2026-02-12
+> Last verified: 2026-02-18
 
 ## Project
 
@@ -30,19 +30,21 @@ Single Astro 5 project with embedded Sanity Studio at `/admin`. Static output de
 
 ```
 astro.config.mjs         Astro + Sanity + React + Vercel integrations
-sanity.config.ts         Studio config (schemas, plugins)
+sanity.config.ts         Studio config (schemas, plugins, presentationTool)
 src/
   components/            Astro + React components
     demos/               React islands (Memento, ContextSage, SkillForge)
-  layouts/BaseLayout     Semantic HTML shell: header, main, footer, skip-link, noindex
-  pages/                 Astro routes — each page fetches via GROQ
-  sanity/schemas/        Sanity document + object type definitions
+  layouts/BaseLayout     Semantic HTML shell, VisualEditing overlay, meta tags
+  pages/                 Astro routes — each page fetches via loadQuery
+  sanity/
+    lib/load-query.ts    Canonical fetch wrapper (stega, perspective, token)
+    schemas/             Sanity document + object type definitions
   styles/global.css      Design tokens (typography scale, spacing, colors)
 ```
 
-Content flows: **Sanity → GROQ → Astro → static HTML**. React islands hydrate only for interactive demos.
+Content flows: **Sanity → `loadQuery` (GROQ + stega) → Astro → static HTML**. React islands hydrate only for interactive demos. Visual editing overlays activate when `PUBLIC_SANITY_VISUAL_EDITING_ENABLED=true`.
 
-<!-- verified: 2026-02-12 -->
+<!-- verified: 2026-02-18 -->
 
 ## Content Model
 
@@ -55,11 +57,11 @@ Design principle: content as infrastructure, not content as pages. Each document
 | `page` | General content page | subtitle, body (Portable Text), seo |
 | `siteSettings` | Global config (singleton) | siteTitle, noindex toggle, default seo |
 
-Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (author, generatedBy, reviewedBy, context, date).
+Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (author, generatedBy, reviewedBy, context, date, confidenceScore).
 
 **Epistemic governance fields** appear on content types that carry editorial weight. They track *who* produced the content, *what status* it has, and *who it's for* — not as decoration but as queryable structured data.
 
-<!-- verified: 2026-02-12 -->
+<!-- verified: 2026-02-18 -->
 
 ## Quality Standards
 
@@ -78,11 +80,12 @@ Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (au
 ## Key Patterns
 
 - **Island architecture**: Static HTML pages with targeted React hydration. Interactive components use `client:load`, `client:visible`, or `client:idle` based on interaction requirements. No unnecessary client-side JavaScript.
-- **Structured content**: All content authored in Sanity, queried via GROQ, rendered through typed Astro components. Content is not embedded in page templates.
+- **Structured content**: All content authored in Sanity, queried via `loadQuery` (GROQ + stega options), rendered through typed Astro components. Content is not embedded in page templates.
+- **Visual editing**: Stega encoding embeds invisible source metadata in content strings. The `VisualEditing` component renders click-to-edit overlays. The `presentationTool` maps documents to preview URLs. All gated by env var — off in production builds, on for editorial preview.
 - **Epistemic governance**: AI-generated and AI-assisted content carries provenance metadata — what agent produced it, when, in what context, with what epistemic status.
 - **Accessibility-first**: Semantic HTML, heading hierarchy, landmark regions, keyboard navigation, visible focus, reduced motion support. Not retrofitted — built in.
 
-<!-- verified: 2026-02-11 -->
+<!-- verified: 2026-02-18 -->
 
 ## File Structure
 
@@ -94,16 +97,17 @@ scripts/              Build/seed utilities (seed.mjs)
 src/
   components/         Astro components and React islands
     demos/            Interactive demo components (CSS Modules + React)
-  layouts/            Astro layout components (BaseLayout)
-  pages/              Astro page routes (index, demos/)
+  layouts/            Astro layout components (BaseLayout + VisualEditing)
+  pages/              Astro page routes (index, demos/, demos/[slug])
   sanity/
+    lib/              Query helpers (load-query.ts — stega, perspective, token)
     schemas/          Sanity document and object type definitions
       objects/        Shared object types (seo, provenance)
   styles/             Design tokens, global CSS, demo token bridge
 docs/                 Project documentation (voice profile)
 ```
 
-<!-- verified: 2026-02-12 -->
+<!-- verified: 2026-02-18 -->
 
 ## Documentation Map
 

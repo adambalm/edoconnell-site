@@ -26,5 +26,12 @@ dialogues/
 # Sanity
 .sanity/
 
+# Test artifacts
+screenshots/
+screenshot-*.png
+test-*.cjs
+.playwright-profile/
+.playwright-auth.json
+
 # Vercel
 .vercel/
