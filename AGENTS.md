@@ -81,7 +81,7 @@ Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (au
 
 - **Island architecture**: Static HTML pages with targeted React hydration. Interactive components use `client:load`, `client:visible`, or `client:idle` based on interaction requirements. No unnecessary client-side JavaScript.
 - **Structured content**: All content authored in Sanity, queried via `loadQuery` (GROQ + stega options), rendered through typed Astro components. Content is not embedded in page templates.
-- **Visual editing**: Stega encoding embeds invisible source metadata in content strings. The `VisualEditing` component renders click-to-edit overlays. The `presentationTool` maps documents to preview URLs. All gated by env var — off in production builds, on for editorial preview.
+- **Visual editing**: Stega encoding embeds invisible source metadata in content strings. The `VisualEditing` component renders click-to-edit overlays. The `presentationTool` maps documents to preview URLs. All gated by env var — off in production builds, on for editorial preview. **Critical:** Fields used in logic (conditionals, CSS classes, object keys) must be stripped via `stegaClean()` from `@sanity/client/stega`. Display-only fields must NOT be cleaned.
 - **Epistemic governance**: AI-generated and AI-assisted content carries provenance metadata — what agent produced it, when, in what context, with what epistemic status.
 - **Accessibility-first**: Semantic HTML, heading hierarchy, landmark regions, keyboard navigation, visible focus, reduced motion support. Not retrofitted — built in.
 

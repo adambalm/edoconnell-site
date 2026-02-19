@@ -100,7 +100,9 @@ Visual editing uses the canonical `@sanity/astro` pattern:
 - `PUBLIC_SANITY_VISUAL_EDITING_ENABLED=true` — enables stega + VisualEditing component
 - `SANITY_API_READ_TOKEN` or `SANITY_API_WRITE_TOKEN` — required for authenticated draft fetches
 
-**Known issue:** Presentation tool iframe shows a Vite dynamic import error (`ViteDevServerStopped`). Stega encoding itself works. Deferred for separate investigation.
+**Resolved (2026-02-18):** Presentation tool `ViteDevServerStopped` error was caused by `@sanity/visual-editing` not being hoisted to top-level `node_modules`. Fixed by installing it as a direct dependency. Presentation tool fully verified via authenticated Playwright tests: Studio loads, Presentation tab visible, iframe renders site content (15,521 chars), stega encoding present in iframe (14,520 chars). Auth state captured via `pw-studio-capture-auth.js` and reused headlessly via `~/.claude/.sanity-auth-state.json`.
+
+**Pattern — `stegaClean`:** Sanity fields used in logic (`===` comparisons, CSS class names, Record key lookups) must be stripped of stega encoding via `stegaClean()` from `@sanity/client/stega`. Display-only fields should NOT be cleaned — stega is what enables click-to-edit overlays. See `demos/[slug].astro` (renderMode, componentName) and `DemoMeta.astro` (epistemicStatus, publicationReadiness).
 
 ### Account Separation
 
