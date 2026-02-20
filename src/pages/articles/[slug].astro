@@ -1,0 +1,181 @@
+---
+/**
+ * /articles/[slug] — dynamic route for long-form articles.
+ *
+ * Fetches an article from Sanity by slug, renders Portable Text body
+ * and optional appendix. Uses getStaticPaths for static output.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { loadQuery } from '../../sanity/lib/load-query'
+import { PortableText } from 'astro-portabletext'
+
+interface Article {
+  _id: string
+  title: string
+  slug: { current: string }
+  kind?: string
+  subtitle?: string
+  abstract?: string
+  body?: any[]
+  appendix?: any[]
+  audienceContext?: string
+  seo?: {
+    metaTitle?: string
+    metaDescription?: string
+    ogImage?: { asset?: { url?: string } }
+  }
+}
+
+export async function getStaticPaths() {
+  const { data: articles } = await loadQuery<Article[]>({
+    query: `*[_type == "article" && defined(slug.current)] {
+      _id,
+      title,
+      slug,
+      kind,
+      subtitle,
+      abstract,
+      body,
+      appendix,
+      audienceContext,
+      seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
+    }`,
+  })
+  return (articles ?? []).map((article) => ({
+    params: { slug: article.slug.current },
+    props: { article },
+  }))
+}
+
+const { article } = Astro.props
+const pageTitle = article.seo?.metaTitle || article.title
+const pageDesc = article.seo?.metaDescription || article.abstract
+const pageOgImage = article.seo?.ogImage?.asset?.url
+---
+
+<BaseLayout title={pageTitle} description={pageDesc} ogImage={pageOgImage}>
+  <article class="article-page">
+    <header class="article-header">
+      {article.kind && <span class="article-kind">{article.kind}</span>}
+      <h1>{article.title}</h1>
+      {article.subtitle && <p class="article-subtitle">{article.subtitle}</p>}
+      {article.audienceContext && (
+        <p class="article-audience">{article.audienceContext}</p>
+      )}
+    </header>
+
+    {article.body && (
+      <section class="article-body">
+        <PortableText value={article.body} />
+      </section>
+    )}
+
+    {article.appendix && article.appendix.length > 0 && (
+      <aside class="article-appendix" aria-label="Appendix">
+        <h2>Appendix</h2>
+        <PortableText value={article.appendix} />
+      </aside>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .article-page {
+    max-width: var(--measure, 65ch);
+  }
+
+  .article-header {
+    margin-bottom: var(--space-12, 3rem);
+  }
+
+  .article-kind {
+    display: inline-block;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+  }
+
+  .article-header h1 {
+    margin-bottom: var(--space-3, 0.75rem);
+  }
+
+  .article-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-muted);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+
+  .article-audience {
+    margin-top: var(--space-4);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  .article-body {
+    line-height: var(--leading-loose, 1.8);
+  }
+
+  .article-body :global(h2) {
+    margin-top: var(--space-12, 3rem);
+    margin-bottom: var(--space-4, 1rem);
+  }
+
+  .article-body :global(h3) {
+    margin-top: var(--space-8, 2rem);
+    margin-bottom: var(--space-3, 0.75rem);
+  }
+
+  .article-body :global(p) {
+    margin-bottom: var(--space-4, 1rem);
+  }
+
+  .article-body :global(ul),
+  .article-body :global(ol) {
+    margin-bottom: var(--space-4, 1rem);
+    padding-left: var(--space-6, 1.5rem);
+  }
+
+  .article-body :global(li) {
+    margin-bottom: var(--space-2, 0.5rem);
+  }
+
+  .article-body :global(blockquote) {
+    border-left: 3px solid var(--color-border);
+    padding-left: var(--space-4);
+    margin: var(--space-6) 0;
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  .article-body :global(pre) {
+    background: var(--color-bg-subtle);
+    padding: var(--space-4);
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: var(--space-6) 0;
+    font-size: var(--font-size-sm);
+    line-height: var(--leading-normal);
+  }
+
+  .article-appendix {
+    margin-top: var(--space-16, 4rem);
+    padding-top: var(--space-8, 2rem);
+    border-top: 1px solid var(--color-border);
+    line-height: var(--leading-loose, 1.8);
+  }
+
+  .article-appendix h2 {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--space-6);
+  }
+
+  .article-appendix :global(p) {
+    margin-bottom: var(--space-4, 1rem);
+  }
+</style>

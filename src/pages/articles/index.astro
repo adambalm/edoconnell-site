@@ -1,0 +1,105 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { loadQuery } from '../../sanity/lib/load-query'
+
+interface ArticleListing {
+  _id: string
+  title: string
+  slug: { current: string }
+  kind?: string
+  subtitle?: string
+  abstract?: string
+}
+
+const { data: articles } = await loadQuery<ArticleListing[]>({
+  query: `*[_type == "article" && defined(slug.current)] | order(title asc) {
+    _id,
+    title,
+    slug,
+    kind,
+    subtitle,
+    abstract
+  }`,
+})
+---
+
+<BaseLayout title="Articles">
+  <section aria-labelledby="articles-heading">
+    <h1 id="articles-heading">Articles</h1>
+
+    {(!articles || articles.length === 0) ? (
+      <p class="empty">No articles published yet.</p>
+    ) : (
+      <ul class="article-list">
+        {articles.map((article) => (
+          <li>
+            <a href={`/articles/${article.slug.current}/`}>
+              <span class="article-title">{article.title}</span>
+              {article.kind && <span class="article-kind">{article.kind}</span>}
+            </a>
+            {article.subtitle && <p class="article-subtitle">{article.subtitle}</p>}
+            {article.abstract && <p class="article-abstract">{article.abstract}</p>}
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .article-list {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-8);
+  }
+
+  .article-list li {
+    margin-bottom: var(--space-8);
+    max-width: var(--measure, 65ch);
+  }
+
+  .article-list a {
+    text-decoration: none;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
+  .article-title {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .article-list a:hover .article-title {
+    color: var(--color-accent);
+  }
+
+  .article-kind {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+  }
+
+  .article-subtitle {
+    color: var(--color-text-muted);
+    margin-top: var(--space-1);
+    font-size: var(--font-size-md);
+  }
+
+  .article-abstract {
+    margin-top: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    line-height: var(--leading-normal);
+  }
+
+  .empty {
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin-top: var(--space-8);
+  }
+</style>
