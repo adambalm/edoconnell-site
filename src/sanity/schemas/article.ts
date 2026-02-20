@@ -56,13 +56,13 @@ export const article = defineType({
       name: 'body',
       title: 'Body',
       type: 'array',
-      of: [defineArrayMember({ type: 'block' })],
+      of: [defineArrayMember({ type: 'block' }), defineArrayMember({ type: 'code' })],
     }),
     defineField({
       name: 'appendix',
       title: 'Appendix',
       type: 'array',
-      of: [defineArrayMember({ type: 'block' })],
+      of: [defineArrayMember({ type: 'block' }), defineArrayMember({ type: 'code' })],
       description: 'Supplementary material — methodology notes, data sources, revision history.',
     }),
     defineField({

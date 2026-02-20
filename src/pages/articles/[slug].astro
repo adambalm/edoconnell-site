@@ -8,6 +8,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import { loadQuery } from '../../sanity/lib/load-query'
 import { PortableText } from 'astro-portabletext'
+import CodeBlock from '../../components/Code.astro'
+
+const ptComponents = { type: { code: CodeBlock } }
 
 interface Article {
   _id: string
@@ -66,14 +69,14 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
 
     {article.body && (
       <section class="article-body">
-        <PortableText value={article.body} />
+        <PortableText value={article.body} components={ptComponents} />
       </section>
     )}
 
     {article.appendix && article.appendix.length > 0 && (
       <aside class="article-appendix" aria-label="Appendix">
         <h2>Appendix</h2>
-        <PortableText value={article.appendix} />
+        <PortableText value={article.appendix} components={ptComponents} />
       </aside>
     )}
   </article>

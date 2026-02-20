@@ -15,6 +15,7 @@
     "@astrojs/react": "^4.4.0",
     "@astrojs/vercel": "^9.0.0",
     "@sanity/astro": "^3.2.0",
+    "@sanity/code-input": "^6.0.4",
     "@sanity/vision": "^3.0.0",
     "@sanity/visual-editing": "^2.15.4",
     "astro": "^5.17.0",

@@ -1,0 +1,48 @@
+---
+/**
+ * Code — Portable Text renderer for Sanity `code` blocks.
+ *
+ * Uses Astro's built-in <Code> component (Shiki) for
+ * syntax highlighting with zero client-side JavaScript.
+ */
+import { Code as ShikiCode } from 'astro:components'
+
+const { node } = Astro.props
+const language = node.language || 'text'
+const code = node.code || ''
+const filename = node.filename
+---
+
+<figure class="code-block">
+  {filename && <figcaption class="code-filename">{filename}</figcaption>}
+  <ShikiCode code={code} lang={language} theme="github-dark" />
+</figure>
+
+<style>
+  .code-block {
+    margin: var(--space-6, 1.5rem) 0;
+  }
+
+  .code-block :global(pre) {
+    border-radius: 4px;
+    padding: var(--space-4, 1rem);
+    overflow-x: auto;
+    font-size: var(--font-size-sm, 0.875rem);
+    line-height: var(--leading-normal, 1.5);
+    margin: 0;
+  }
+
+  .code-filename {
+    font-family: var(--font-ui, system-ui);
+    font-size: var(--font-size-xs, 0.75rem);
+    color: var(--color-text-muted, #888);
+    background: #1a1a2e;
+    padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+    border-radius: 4px 4px 0 0;
+    margin: 0;
+  }
+
+  .code-filename + :global(pre) {
+    border-radius: 0 0 4px 4px;
+  }
+</style>

@@ -2,6 +2,7 @@ import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { presentationTool } from 'sanity/presentation'
+import { codeInput } from '@sanity/code-input'
 import { schemaTypes } from './src/sanity/schemas'
 
 const env = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : (typeof process !== 'undefined' ? process.env : {}) as Record<string, string | undefined>
@@ -14,6 +15,7 @@ export default defineConfig({
   projectId,
   dataset,
   plugins: [
+    codeInput(),
     structureTool(),
     visionTool(),
     presentationTool({
