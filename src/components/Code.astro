@@ -8,9 +8,14 @@
 import { Code as ShikiCode } from 'astro:components'
 
 const { node } = Astro.props
-const language = node.language || 'text'
 const code = node.code || ''
 const filename = node.filename
+
+// Shiki doesn't have a GROQ grammar. Map unsupported languages to plaintext
+// so the build doesn't emit warnings. Adding a custom TextMate grammar is
+// possible but not worth the complexity for one code block.
+const UNSUPPORTED_LANGUAGES = new Set(['groq'])
+const language = UNSUPPORTED_LANGUAGES.has(node.language) ? 'text' : (node.language || 'text')
 ---
 
 <figure class="code-block">

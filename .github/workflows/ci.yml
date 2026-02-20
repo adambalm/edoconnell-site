@@ -86,7 +86,7 @@ jobs:
 
       - name: Run accessibility tests
         if: steps.check.outputs.ready == 'true'
-        run: npx playwright test --project=accessibility --if-present || echo "No accessibility tests yet"
+        run: npx playwright test
 
   lighthouse:
     runs-on: ubuntu-latest
@@ -123,4 +123,4 @@ jobs:
         if: steps.check.outputs.ready == 'true'
         run: |
           npm install -g @lhci/cli@0.14.0
-          lhci autorun --config=lighthouserc.json || echo "No Lighthouse config yet"
+          lhci autorun --config=lighthouserc.json

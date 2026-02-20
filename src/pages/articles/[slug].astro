@@ -6,6 +6,7 @@
  * and optional appendix. Uses getStaticPaths for static output.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
+import ArticleMeta from '../../components/ArticleMeta.astro'
 import { loadQuery } from '../../sanity/lib/load-query'
 import { PortableText } from 'astro-portabletext'
 import CodeBlock from '../../components/Code.astro'
@@ -21,7 +22,17 @@ interface Article {
   abstract?: string
   body?: any[]
   appendix?: any[]
+  epistemicStatus?: string
+  publicationReadiness?: string
   audienceContext?: string
+  provenance?: {
+    author?: string
+    generatedBy?: string
+    reviewedBy?: string
+    context?: string
+    date?: string
+    confidenceScore?: number
+  }
   seo?: {
     metaTitle?: string
     metaDescription?: string
@@ -40,7 +51,10 @@ export async function getStaticPaths() {
       abstract,
       body,
       appendix,
+      epistemicStatus,
+      publicationReadiness,
       audienceContext,
+      provenance,
       seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
     }`,
   })
@@ -59,13 +73,11 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
 <BaseLayout title={pageTitle} description={pageDesc} ogImage={pageOgImage}>
   <article class="article-page">
     <header class="article-header">
-      {article.kind && <span class="article-kind">{article.kind}</span>}
       <h1>{article.title}</h1>
       {article.subtitle && <p class="article-subtitle">{article.subtitle}</p>}
-      {article.audienceContext && (
-        <p class="article-audience">{article.audienceContext}</p>
-      )}
     </header>
+
+    <ArticleMeta article={article} />
 
     {article.body && (
       <section class="article-body">
@@ -88,17 +100,7 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
   }
 
   .article-header {
-    margin-bottom: var(--space-12, 3rem);
-  }
-
-  .article-kind {
-    display: inline-block;
-    font-family: var(--font-ui);
-    font-size: var(--font-size-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-6, 1.5rem);
   }
 
   .article-header h1 {
@@ -112,20 +114,13 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
     margin: 0;
   }
 
-  .article-audience {
-    margin-top: var(--space-4);
-    font-family: var(--font-ui);
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-    font-style: italic;
-  }
-
+  /* Body prose */
   .article-body {
     line-height: var(--leading-loose, 1.8);
   }
 
   .article-body :global(h2) {
-    margin-top: var(--space-12, 3rem);
+    margin-top: var(--space-16, 4rem);
     margin-bottom: var(--space-4, 1rem);
   }
 
@@ -156,16 +151,13 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
     font-style: italic;
   }
 
-  .article-body :global(pre) {
-    background: var(--color-bg-subtle);
-    padding: var(--space-4);
-    border-radius: 4px;
-    overflow-x: auto;
-    margin: var(--space-6) 0;
-    font-size: var(--font-size-sm);
-    line-height: var(--leading-normal);
+  /* Code blocks — slightly wider than prose for readability */
+  .article-body :global(.code-block),
+  .article-appendix :global(.code-block) {
+    max-width: 72ch;
   }
 
+  /* Appendix */
   .article-appendix {
     margin-top: var(--space-16, 4rem);
     padding-top: var(--space-8, 2rem);
@@ -178,7 +170,23 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
     margin-bottom: var(--space-6);
   }
 
+  .article-appendix :global(h3) {
+    margin-top: var(--space-8, 2rem);
+    margin-bottom: var(--space-3, 0.75rem);
+    font-size: var(--font-size-md);
+  }
+
   .article-appendix :global(p) {
     margin-bottom: var(--space-4, 1rem);
+  }
+
+  .article-appendix :global(ul),
+  .article-appendix :global(ol) {
+    margin-bottom: var(--space-4, 1rem);
+    padding-left: var(--space-6, 1.5rem);
+  }
+
+  .article-appendix :global(li) {
+    margin-bottom: var(--space-2, 0.5rem);
   }
 </style>
