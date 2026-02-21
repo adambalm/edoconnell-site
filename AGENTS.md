@@ -93,7 +93,7 @@ Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (au
 .github/workflows/    CI pipeline (build, a11y, Lighthouse)
 .githooks/            Git hooks (pre-commit doc freshness check)
 public/               Static assets (favicon)
-scripts/              Build/seed utilities (seed.mjs)
+scripts/              Content scripts (seed, editorial patches, dialogue sync)
 src/
   components/         Astro components and React islands
     demos/            Interactive demo components (CSS Modules + React)

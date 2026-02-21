@@ -22,7 +22,7 @@ This project uses the **Lanesborough Protocol** — a structured deliberation fr
 
 ### Deliberation History
 
-The full decision history is preserved in an append-only dialogue log (`dialogues/001-site-rebuild.md`). This log is **gitignored** — it contains session-level context, agent deliberation, and working notes that are operationally useful but not part of the public artifact. The log is synced to a private GitHub Gist for persistence across machines.
+The full decision history is preserved in an append-only dialogue log (`dialogues/001-site-rebuild.md`). This log is **gitignored** — it contains session-level context, agent deliberation, and working notes that are operationally useful but not part of the public artifact.
 
 The architectural decisions *resulting* from deliberation are reflected in committed files: schema designs, documentation updates, and the commit history itself. The dialogue log is the "how we got here"; the committed code is the "what we decided."
 
