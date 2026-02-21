@@ -1,7 +1,7 @@
 # AGENTS.md
 
 > Context for AI agents working with or evaluating this codebase.
-> Last verified: 2026-02-18
+> Last verified: 2026-02-20
 
 ## Project
 
@@ -15,7 +15,7 @@ The site serves as both a personal presence and a portfolio of working systems. 
 
 | Layer | Technology | Role |
 |-------|-----------|------|
-| Frontend | Astro 5 + TypeScript | Static site generation with island architecture |
+| Frontend | Astro 5 + TypeScript | SSR (content pages) + static prerendering (indexes), island architecture |
 | CMS | Sanity v3 | Structured content — schemas, GROQ queries, Studio |
 | Hosting | Vercel | Deployment, preview URLs, edge functions |
 | Interactive | React 19 | Client-side islands for stateful demos |
@@ -26,7 +26,7 @@ The site serves as both a personal presence and a portfolio of working systems. 
 
 ## Architecture
 
-Single Astro 5 project with embedded Sanity Studio at `/admin`. Static output deployed to Vercel.
+Single Astro 5 project with embedded Sanity Studio at `/admin`. Server-rendered content pages + static prerendered indexes, deployed to Vercel.
 
 ```
 astro.config.mjs         Astro + Sanity + React + Vercel integrations
@@ -42,9 +42,9 @@ src/
   styles/global.css      Design tokens (typography scale, spacing, colors)
 ```
 
-Content flows: **Sanity → `loadQuery` (GROQ + stega) → Astro → static HTML**. React islands hydrate only for interactive demos. Visual editing overlays activate when `PUBLIC_SANITY_VISUAL_EDITING_ENABLED=true`.
+Content flows: **Sanity → `loadQuery` (GROQ + stega) → Astro → HTML**. Content detail pages (`/articles/[slug]`, `/demos/[slug]`) are SSR — they fetch from Sanity on each request so content changes appear immediately after publish. Index pages and homepage use `export const prerender = true` for static build-time rendering. React islands hydrate only for interactive demos. Visual editing overlays activate when `PUBLIC_SANITY_VISUAL_EDITING_ENABLED=true`.
 
-<!-- verified: 2026-02-18 -->
+<!-- verified: 2026-02-20 -->
 
 ## Content Model
 
@@ -61,7 +61,7 @@ Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (au
 
 **Epistemic governance fields** appear on content types that carry editorial weight. They track *who* produced the content, *what status* it has, and *who it's for* — not as decoration but as queryable structured data.
 
-<!-- verified: 2026-02-18 -->
+<!-- verified: 2026-02-20 -->
 
 ## Quality Standards
 
@@ -85,7 +85,7 @@ Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (au
 - **Epistemic governance**: AI-generated and AI-assisted content carries provenance metadata — what agent produced it, when, in what context, with what epistemic status.
 - **Accessibility-first**: Semantic HTML, heading hierarchy, landmark regions, keyboard navigation, visible focus, reduced motion support. Not retrofitted — built in.
 
-<!-- verified: 2026-02-18 -->
+<!-- verified: 2026-02-20 -->
 
 ## File Structure
 
@@ -98,7 +98,7 @@ src/
   components/         Astro components and React islands
     demos/            Interactive demo components (CSS Modules + React)
   layouts/            Astro layout components (BaseLayout + VisualEditing)
-  pages/              Astro page routes (index, demos/, demos/[slug])
+  pages/              Astro page routes (index, articles/, demos/, [slug] routes are SSR)
   sanity/
     lib/              Query helpers (load-query.ts — stega, perspective, token)
     schemas/          Sanity document and object type definitions
@@ -107,7 +107,7 @@ src/
 docs/                 Project documentation (voice profile)
 ```
 
-<!-- verified: 2026-02-18 -->
+<!-- verified: 2026-02-20 -->
 
 ## Documentation Map
 

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Last verified:** 2026-02-18
+> **Last verified:** 2026-02-20
 > **Phase:** Executing (AG closed, foundation built)
 
 ## Project Overview
@@ -9,17 +9,17 @@ Rebuild of edoconnell.org as an Astro + Sanity + Vercel site. This is a portfoli
 
 ## Current State
 
-The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. Foundation is built — Astro 5 + Sanity v3 + Vercel + TypeScript compiles and produces static output.
+The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. Foundation is built — Astro 5 + Sanity v3 + Vercel + TypeScript. Live at edoconnell.org.
 
 - **FSM state:** AG_CLOSED → EXECUTING
-- **Build:** `npm run build` succeeds. Five pages prerender (index, demos index, 3 demo slugs).
+- **Build:** `npm run build` succeeds. `output: 'server'` — content pages are SSR, index pages are prerendered static.
 - **Sanity project:** `zu6l9t4j` on personal account (see `.env.local`). CORS configured. Dataset seeded (`node scripts/seed.mjs`). All templates wired to CMS via `loadQuery`.
-- **Visual editing:** Stega encoding and VisualEditing component working. Presentation tool configured but iframe loading has a known Vite cache issue — deferred.
-- **Next:** Fix Presentation tool iframe, implement article pages, deploy.
+- **Visual editing:** Stega encoding and VisualEditing component working. Presentation tool configured and verified.
+- **Articles:** SSR route at `/articles/[slug]`. SA Brief published with code blocks (Shiki highlighting via `@sanity/code-input`).
 - Dialogue log: `dialogues/001-site-rebuild.md` (gitignored — local context only)
 - Prior site: `github.com/adambalm/portfolio` (React 19 + Vite, deployed to Vercel)
 
-<!-- verified: 2026-02-18 -->
+<!-- verified: 2026-02-20 -->
 
 ## Session Startup — Read Basic Memory Context
 
@@ -36,21 +36,22 @@ The BOOTSTRAP document in Basic Memory contains the full protocol stack: Black F
 
 Single Astro 5 project with embedded Sanity Studio. Not a monorepo — simpler than sca-website's dual-app structure.
 
-- **Frontend:** Astro 5, static output, Vercel adapter
+- **Frontend:** Astro 5, SSR via Vercel adapter (`output: 'server'`)
 - **CMS:** Sanity v3, embedded Studio at `/admin`, schemas in `src/sanity/schemas/`
 - **Interactive:** React 19 islands via `@astrojs/react` — used only for stateful demos
-- **Content flow:** Sanity → `loadQuery` (GROQ + stega options) → Astro component → static HTML
+- **Content flow:** Sanity → `loadQuery` (GROQ + stega options) → Astro component → HTML
+- **Rendering strategy:** Content detail pages (`/articles/[slug]`, `/demos/[slug]`) are SSR — they fetch from Sanity on each request so content changes appear immediately after publish. Index pages and homepage use `export const prerender = true` to remain static at build time.
 - **Query layer:** `src/sanity/lib/load-query.ts` — wraps `sanityClient.fetch()` with per-fetch stega, perspective, and token options. All page templates use this instead of `sanityClient` directly.
 - **Visual editing:** `VisualEditing` component in BaseLayout (gated by `PUBLIC_SANITY_VISUAL_EDITING_ENABLED`), `presentationTool` in `sanity.config.ts` with document-to-URL mapping, `stega.studioUrl` in `astro.config.mjs`.
 - **Design system:** New design, borrows discipline (typographic scale, spacing, semantic structure) from sca-explainers. Custom properties cascade from `src/styles/global.css`.
 
-<!-- verified: 2026-02-18 -->
+<!-- verified: 2026-02-20 -->
 
 ## Commands
 
 ```bash
 npm run dev          # Astro dev server (localhost:4321)
-npm run build        # Production build (static output + Vercel functions)
+npm run build        # Production build (SSR server + static prerendered pages)
 npm run typecheck    # TypeScript validation via astro check
 npm run preview      # Preview built site locally
 ```
@@ -59,7 +60,7 @@ Sanity Studio is embedded at `/admin` — no separate `dev:studio` command neede
 
 **Dev server:** Always started by the user from their terminal, never by Claude Code in background. Default port 4321 conflicts with sca-website — only one at a time. Check `netstat -ano | grep LISTEN | grep 4321` before starting.
 
-<!-- verified: 2026-02-12 -->
+<!-- verified: 2026-02-20 -->
 
 ## Sanity Configuration
 
@@ -108,7 +109,7 @@ Visual editing uses the canonical `@sanity/astro` pattern:
 
 Personal projects use personal Sanity account. SCA project (`wesg5rw8`) uses school account. CLI auth is global — `sanity login` switches identity for all projects on this machine. Account details in Basic Memory: `workspace/planning/sanity-account-map`.
 
-<!-- verified: 2026-02-18 -->
+<!-- verified: 2026-02-20 -->
 
 ## Quality Infrastructure
 

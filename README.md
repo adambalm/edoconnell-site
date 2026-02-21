@@ -4,7 +4,7 @@ Personal site — under active development.
 
 ## Stack
 
-- [Astro](https://astro.build) — static site generator with island architecture
+- [Astro](https://astro.build) — SSR for content pages, static prerendering for indexes, island architecture
 - [Sanity](https://www.sanity.io) — structured content CMS
 - [Vercel](https://vercel.com) — deployment
 - TypeScript throughout
