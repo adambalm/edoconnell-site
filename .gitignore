@@ -18,6 +18,7 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+NUL
 
 # Deliberation logs — kept local for agent context, not published
 dialogues/
@@ -27,11 +28,16 @@ dialogues/
 .sanity/
 
 # Test artifacts
+test-results/
 screenshots/
 screenshot-*.png
 test-*.cjs
 .playwright-profile/
 .playwright-auth.json
+tmp-*
+
+# Claude Code
+.claude/
 
 # Vercel
 .vercel/
