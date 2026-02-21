@@ -52,6 +52,15 @@ const ogDescription = description
     {resolvedOgImage && <meta property="og:image" content={resolvedOgImage} />}
     <title>{pageTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      if (new URLSearchParams(window.location.search).has('notrack')) {
+        localStorage.setItem('notrack', '1');
+      }
+      window.webAnalyticsBeforeSend = function(event) {
+        if (localStorage.getItem('notrack')) return null;
+        return event;
+      };
+    </script>
     <Analytics />
   </head>
   <body>
