@@ -1,6 +1,7 @@
 ---
 import { loadQuery } from '../sanity/lib/load-query'
 import { VisualEditing } from '@sanity/astro/visual-editing'
+import Analytics from '@vercel/analytics/astro'
 
 const visualEditingEnabled = import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ENABLED === 'true'
 
@@ -51,6 +52,7 @@ const ogDescription = description
     {resolvedOgImage && <meta property="og:image" content={resolvedOgImage} />}
     <title>{pageTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <Analytics />
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
