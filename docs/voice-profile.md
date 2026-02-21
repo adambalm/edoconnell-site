@@ -21,7 +21,7 @@ Ed writes compressed declarative prose. Sentences tend short. When they extend, 
 | **Compressed declaratives** | "Structured content is bedrock. It holds regardless of what you build on top." | Padding with hedge words: "It's worth noting that structured content can potentially serve as a kind of foundation..." |
 | **Name the thing** | "Sanity", "GROQ", "Astro islands" — tools and concepts get proper nouns | Generic references: "the CMS", "the query language", "the framework's component model" |
 | **Approach sideways** | Content architecture explained via prosody metaphor (iambic pentameter, Keats) | Direct marketing language: "Our content architecture delivers seamless omnichannel experiences" |
-| **Wit as container for weight** | "Type 2 fun" for describing difficult professional work that only seems valuable in retrospect | Humor as decoration: jokes that don't carry meaning |
+| **Wit as container for weight** | Humor that does structural work — the laugh carries the insight, not bolted on afterward | Humor as decoration: jokes that don't carry meaning |
 | **Self-aware about rhetoric** | "if I may be allowed a somewhat loose metaphor" — flags his own figurative moves | Either unmarked metaphor or no metaphor at all |
 | **Musical/acoustic metaphors** | "constructively resonate with the whole structure" — coherence framed as resonance | Mechanical metaphors: "all the pieces fit together" |
 | **Literary allusion as shorthand** | "Frankenstein efforts" — one word does the work of a paragraph about patchwork incoherence | Explaining the reference: "like Frankenstein's monster, which was assembled from disparate parts..." |
@@ -82,7 +82,7 @@ Read every sentence aloud. If it sounds like:
 
 - **Audience-specificity, not generic "write to a receiver":** Ed refined the voice principle — "Not just write to a receiver. If language is human facing the agent composing it should be as aware as possible of the specific audience being addressed." The composing agent doesn't write *to an audience* (abstract); it writes *to these people* (specific). This has schema implications: content should carry audience context, not just content type.
 
-- **"Cognition in context":** Ed floated this phrase — "if I were Sanity I would totally want as my slogan." Not a tagline for his site, but a conceptual anchor for how he thinks about what structured content does. Cognition that is situated, not abstract. Content that knows where it is and who it's for. This phrase may resurface as an organizing principle.
+- **"Cognition in context":** The site's tagline. Cognition that is situated, not abstract. Content that knows where it is and who it's for.
 
 - **Status honesty applied to own work:** "still lacks style," "passing at best," "exists as an intent, but it is in no way considered publishable right now." Ed applies the same status-honesty-over-aspiration principle to his own artifacts. No inflation of what exists. The SA brief is directionally correct but not finished — and he says so without apology.
 
@@ -106,4 +106,4 @@ HO has noted these may fork into explicitly separate documents. For now: profess
 
 3. **The voice contract (DO/DON'T lists in CLAUDE.md) is the enforcement layer.** This profile is the understanding layer. Both are needed.
 
-4. **The Solution Architecture brief** (`sca-explainers` repo, `/solution-architecture/`) exists as intent — Ed's assessment is that it "still lacks style and the artifact front end design is passing at best." It is directionally correct but not yet publishable. Use it to understand the *type* of prose Ed is aiming for, not as a finished model to emulate.
+4. **The Solution Architecture brief** is published at `/articles/solution-architecture-brief`. It demonstrates the target register for technical prose on this site — compressed, evidence-grounded, structured for both human and machine readers.
