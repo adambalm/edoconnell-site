@@ -15,6 +15,13 @@ export default defineConfig({
 
   use: {
     baseURL: 'http://localhost:4321',
+    storageState: {
+      cookies: [],
+      origins: [{
+        origin: 'http://localhost:4321',
+        localStorage: [{ name: 'notrack', value: '1' }],
+      }],
+    },
   },
 
   projects: [

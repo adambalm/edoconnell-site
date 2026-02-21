@@ -191,6 +191,7 @@ Before any deployment or PR, the implementing agent runs this checklist. This is
 - **Commit lookback:** Each major commit includes explicit verification that all quality policies remain in effect and new additions resonate with the existing structure.
 - **Fractal quality:** Deep inspection should reveal deeper levels of quality. Semantic HTML, proper CSS inheritance (custom properties, cascade, logical nesting), AI-readable structure.
 - **Voice:** All prose reviewed against `docs/voice-profile.md`. No passion declarations, no consultant-speak, no LinkedIn bio energy.
+- **Analytics hygiene:** Vercel Web Analytics is active. All Playwright scripts — whether run via `npx playwright test` or ad-hoc — MUST suppress analytics. The formal test suite handles this via `storageState` in `playwright.config.ts`. Ad-hoc scripts targeting any URL (localhost or production) must either navigate to `?notrack` first or set `localStorage.setItem('notrack', '1')` via `page.addInitScript()` before the first `page.goto()`. Do not pollute production analytics with test traffic.
 
 <!-- verified: 2026-02-11 -->
 
