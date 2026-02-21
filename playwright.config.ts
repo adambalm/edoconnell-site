@@ -3,8 +3,8 @@ import { defineConfig } from '@playwright/test'
 /**
  * Playwright configuration for accessibility testing.
  *
- * Tests run against the built output served by `astro preview`.
- * Three viewport sizes cover mobile, tablet, and desktop.
+ * Tests run against the Astro dev server (astro preview is unsupported
+ * by the Vercel adapter). Three viewport sizes: mobile, tablet, desktop.
  */
 export default defineConfig({
   testDir: './tests',
@@ -33,9 +33,9 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run preview',
+    command: 'npm run dev',
     url: 'http://localhost:4321',
     reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
+    timeout: 60_000,
   },
 })
