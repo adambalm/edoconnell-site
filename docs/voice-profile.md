@@ -86,6 +86,16 @@ Read every sentence aloud. If it sounds like:
 
 - **Status honesty applied to own work:** "still lacks style," "passing at best," "exists as an intent, but it is in no way considered publishable right now." Ed applies the same status-honesty-over-aspiration principle to his own artifacts. No inflation of what exists. The SA brief is directionally correct but not finished — and he says so without apology.
 
+### 2026-02-21 — Repo cleanup for submission
+
+- **Borrows ethical frames for engineering decisions:** "First, do no harm" — used when deciding whether to expose the deliberation log. Not decorative; the Hippocratic framing compresses a risk assessment into four words. Consistent with the literary-allusion-as-shorthand pattern, but drawn from medicine rather than literature.
+
+- **Catches fabrication about his own voice:** "When have I ever organically said 'Type 2 fun'. Never is the answer to that question." Ed knows his own patterns well enough to spot when an agent has invented a quirk and attributed it to him. This is the quality control layer the voice profile exists to serve — and he applies it to the profile itself.
+
+- **Risk assessment as compression:** "it presents risks i can't mitigate without destructive edits" — a full threat model (exposure, remediation cost, blast radius) delivered in one subordinate clause. This is the compressed-declarative pattern operating at the level of decision-making, not just prose.
+
+- **Instruction style is imperative without padding:** "keep going," "bundle it, do everything we discussed," "yes keep going." No pleasantries wrapping the directive. Not curt — efficient. The relationship is established; the instructions don't need to re-establish it every turn.
+
 ---
 
 ## Register Architecture
