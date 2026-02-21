@@ -61,6 +61,12 @@ export const demoItem = defineType({
       type: 'string',
       description: 'React component to hydrate (e.g. "SkillForge"). Only for ISLAND mode.',
       hidden: ({ document }) => document?.renderMode !== 'ISLAND',
+      validation: (rule) =>
+        rule.custom((value, context) => {
+          const doc = context.document as { renderMode?: string } | undefined
+          if (doc?.renderMode === 'ISLAND' && !value) return 'Component name is required for ISLAND mode'
+          return true
+        }),
     }),
     defineField({
       name: 'externalUrl',
@@ -68,6 +74,12 @@ export const demoItem = defineType({
       type: 'url',
       description: 'Link to external demo. Only for EXTERNAL mode.',
       hidden: ({ document }) => document?.renderMode !== 'EXTERNAL',
+      validation: (rule) =>
+        rule.custom((value, context) => {
+          const doc = context.document as { renderMode?: string } | undefined
+          if (doc?.renderMode === 'EXTERNAL' && !value) return 'URL is required for EXTERNAL mode'
+          return true
+        }),
     }),
     defineField({
       name: 'tags',

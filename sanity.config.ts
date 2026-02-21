@@ -17,7 +17,8 @@ export default defineConfig({
   plugins: [
     codeInput(),
     structureTool(),
-    visionTool(),
+    // Vision Tool: GROQ playground — omitted from production Studio builds
+    ...(env.MODE !== 'production' ? [visionTool()] : []),
     presentationTool({
       previewUrl: '/',
       resolve: {
