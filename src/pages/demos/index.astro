@@ -26,8 +26,8 @@ try {
   ])
   if (pageResult.data) page = pageResult.data
   if (demosResult.data) demos = demosResult.data
-} catch {
-  // Sanity project not yet connected — build degrades gracefully.
+} catch (e) {
+  console.warn('[demos] Sanity fetch failed — using fallback content:', e instanceof Error ? e.message : e)
 }
 
 const metaDescription = page.seo?.metaDescription ?? "Interactive demonstrations of structured content, AI systems, and working software."

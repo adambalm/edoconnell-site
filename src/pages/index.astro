@@ -11,8 +11,8 @@ try {
     query: `*[_id == "page-home"][0]{ title, subtitle, body, seo { metaTitle, metaDescription, ogImage { asset->{ url } } } }`,
   })
   if (data) page = data
-} catch {
-  // Sanity unreachable — use hardcoded fallbacks
+} catch (e) {
+  console.warn('[index] Sanity fetch failed — using fallback content:', e instanceof Error ? e.message : e)
 }
 
 const metaDescription = page.seo?.metaDescription

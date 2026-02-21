@@ -27,8 +27,8 @@ try {
     }`,
   })
   if (data) settings = data
-} catch {
-  // Sanity unreachable — use hardcoded fallbacks
+} catch (e) {
+  console.warn('[BaseLayout] Sanity fetch failed — using fallback settings:', e instanceof Error ? e.message : e)
 }
 
 const { title, description = settings.siteDescription, ogImage } = Astro.props
