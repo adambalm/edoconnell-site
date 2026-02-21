@@ -1,8 +1,9 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./dist/client",
-      "url": ["/", "/articles/", "/demos/"],
+      "startServerCommand": "npm run preview",
+      "startServerReadyPattern": "localhost",
+      "url": ["http://localhost:4321/", "http://localhost:4321/articles/", "http://localhost:4321/demos/"],
       "numberOfRuns": 1,
       "settings": {
         "chromeFlags": "--no-sandbox --headless"

@@ -3,7 +3,7 @@ import { defineConfig } from '@playwright/test'
 /**
  * Playwright configuration for accessibility testing.
  *
- * Tests run against the built static output served by `astro preview`.
+ * Tests run against the built output served by `astro preview`.
  * Three viewport sizes cover mobile, tablet, and desktop.
  */
 export default defineConfig({
