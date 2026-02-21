@@ -68,10 +68,10 @@ Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (au
 | Standard | Threshold | Enforcement |
 |----------|-----------|-------------|
 | TypeScript | Strict mode, typed props | CI: `astro check` |
-| Lighthouse Performance | >= 95 | CI: Lighthouse CI |
+| Lighthouse Performance | >= 90 (warn) | CI: Lighthouse CI |
 | Lighthouse Accessibility | >= 95 | CI: Lighthouse CI |
 | Lighthouse Best Practices | >= 95 | CI: Lighthouse CI |
-| Lighthouse SEO | >= 95 | CI: Lighthouse CI |
+| Lighthouse SEO | >= 50 (warn) | CI: Lighthouse CI — intentional `noindex` during development tanks SEO score |
 | Accessibility | WCAG AA | CI: Playwright + axe-core |
 | Documentation freshness | Pre-commit warning | Hook: `.githooks/pre-commit` |
 

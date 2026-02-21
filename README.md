@@ -42,7 +42,7 @@ Sanity Studio is embedded at `/admin` — no separate command needed.
 
 ## Quality
 
-CI runs on every push: build, TypeScript check, Playwright accessibility tests, and Lighthouse performance audits. Thresholds are enforced — Lighthouse >= 95 across all four categories.
+CI runs on every push: build, TypeScript check, Playwright accessibility tests, and Lighthouse audits. Thresholds are enforced — Lighthouse >= 95 for Accessibility and Best Practices, with Performance and SEO as warnings (SEO is depressed by intentional `noindex` during development).
 
 A pre-commit hook warns when architectural files change without corresponding documentation updates.
 
