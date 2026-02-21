@@ -7,11 +7,17 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import ArticleMeta from '../../components/ArticleMeta.astro'
+import ReadingProgress from '../../components/ReadingProgress.astro'
+import InlineTOC from '../../components/InlineTOC.astro'
 import { loadQuery } from '../../sanity/lib/load-query'
 import { PortableText } from 'astro-portabletext'
 import CodeBlock from '../../components/Code.astro'
+import Heading2 from '../../components/Heading2.astro'
 
-const ptComponents = { type: { code: CodeBlock } }
+const ptComponents = {
+  type: { code: CodeBlock },
+  block: { h2: Heading2 },
+}
 
 interface Article {
   _id: string
@@ -75,6 +81,7 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
 ---
 
 <BaseLayout title={pageTitle} description={pageDesc} ogImage={pageOgImage}>
+  <ReadingProgress />
   <article class="article-page">
     <header class="article-header">
       <h1>{article.title}</h1>
@@ -82,6 +89,8 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
     </header>
 
     <ArticleMeta article={article} />
+
+    {article.body && <InlineTOC body={article.body} />}
 
     {article.body && (
       <section class="article-body">
@@ -124,6 +133,7 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
   }
 
   .article-body :global(h2) {
+    scroll-margin-top: 100px;
     margin-top: var(--space-16, 4rem);
     margin-bottom: var(--space-4, 1rem);
   }

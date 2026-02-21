@@ -4,6 +4,7 @@
  *
  * Uses Astro's built-in <Code> component (Shiki) for
  * syntax highlighting with zero client-side JavaScript.
+ * Includes copy-to-clipboard and language/filename label.
  */
 import { Code as ShikiCode } from 'astro:components'
 
@@ -12,20 +13,97 @@ const code = node.code || ''
 const filename = node.filename
 
 // Shiki doesn't have a GROQ grammar. Map unsupported languages to plaintext
-// so the build doesn't emit warnings. Adding a custom TextMate grammar is
-// possible but not worth the complexity for one code block.
 const UNSUPPORTED_LANGUAGES = new Set(['groq'])
 const language = UNSUPPORTED_LANGUAGES.has(node.language) ? 'text' : (node.language || 'text')
+
+// Display label: filename takes priority over language
+const displayLabel = filename || (language !== 'text' ? language : '')
 ---
 
 <figure class="code-block">
-  {filename && <figcaption class="code-filename">{filename}</figcaption>}
+  {(displayLabel || true) && (
+    <div class="code-header">
+      <span class="code-label">{displayLabel}</span>
+      <button
+        class="copy-btn"
+        type="button"
+        aria-label="Copy code"
+        data-code={code}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+  )}
   <ShikiCode code={code} lang={language} theme="github-dark" />
 </figure>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const code = (btn as HTMLElement).dataset.code || '';
+      try {
+        await navigator.clipboard.writeText(code);
+        btn.classList.add('copied');
+        btn.setAttribute('aria-label', 'Copied!');
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.setAttribute('aria-label', 'Copy code');
+        }, 2000);
+      } catch {
+        // Clipboard API may fail in some contexts — fail silently
+      }
+    });
+  });
+</script>
 
 <style>
   .code-block {
     margin: var(--space-6, 1.5rem) 0;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1a1a2e;
+    padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+    border-radius: 4px 4px 0 0;
+    font-family: var(--font-ui, system-ui);
+    font-size: var(--font-size-xs, 0.75rem);
+    min-height: 36px;
+  }
+
+  .code-label {
+    color: #9ca3af;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-1, 0.25rem);
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .copy-btn:hover {
+    color: #e4e4e7;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .copy-btn.copied {
+    color: #86efac;
+  }
+
+  .code-header + :global(pre) {
+    border-radius: 0 0 4px 4px;
   }
 
   .code-block :global(pre) {
@@ -37,17 +115,8 @@ const language = UNSUPPORTED_LANGUAGES.has(node.language) ? 'text' : (node.langu
     margin: 0;
   }
 
-  .code-filename {
-    font-family: var(--font-ui, system-ui);
-    font-size: var(--font-size-xs, 0.75rem);
-    color: var(--color-text-muted, #888);
-    background: #1a1a2e;
-    padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
-    border-radius: 4px 4px 0 0;
-    margin: 0;
-  }
-
-  .code-filename + :global(pre) {
+  /* When there's a header, pre gets bottom-only radius */
+  .code-header ~ :global(pre) {
     border-radius: 0 0 4px 4px;
   }
 </style>

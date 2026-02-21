@@ -1,0 +1,84 @@
+---
+/**
+ * InlineTOC — inline table of contents extracted from Portable Text headings.
+ *
+ * Only renders when 3+ h2 headings are found. Horizontal layout with
+ * dot separators. IDs must match the slugified h2 IDs in the article body.
+ */
+
+interface Props {
+  body: any[]
+}
+
+const { body } = Astro.props
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
+// Extract h2 headings from Portable Text blocks
+const headings = (body || [])
+  .filter((block: any) => block._type === 'block' && block.style === 'h2')
+  .map((block: any) => {
+    const text = (block.children || [])
+      .filter((child: any) => child._type === 'span')
+      .map((child: any) => child.text || '')
+      .join('')
+    return { text, id: slugify(text) }
+  })
+  .filter((h: { text: string }) => h.text.length > 0)
+---
+
+{headings.length >= 3 && (
+  <nav class="inline-toc" aria-label="Table of contents">
+    <ol>
+      {headings.map((heading, i) => (
+        <li>
+          {i > 0 && <span class="toc-sep" aria-hidden="true">&middot;</span>}
+          <a href={`#${heading.id}`}>{heading.text}</a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<style>
+  .inline-toc {
+    margin-bottom: var(--space-8);
+    padding: var(--space-4) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .inline-toc ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .inline-toc li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .toc-sep {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    user-select: none;
+  }
+
+  .inline-toc a {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .inline-toc a:hover {
+    color: var(--color-accent);
+  }
+</style>

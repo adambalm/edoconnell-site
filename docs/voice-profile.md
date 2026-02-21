@@ -78,7 +78,7 @@ Read every sentence aloud. If it sounds like:
 
 ### 2026-02-11 — Second input (pre-handoff)
 
-- **Anti-branding reflex:** "No one gives a shit" — said of the tagline "Thirty years in education and organizational learning. Now figuring out what still works when the machines can write." Ed rejects even self-deprecating, seemingly authentic taglines. If it reads as a slogan, it's corporate fluff regardless of tone. The anti-pattern isn't just *corporate* slogans — it's slogans, period. "We will figure it out" is the replacement posture: arrive at the voice through the work, not through a pre-baked line.
+- **Anti-branding reflex:** "No one gives a shit" — said of the tagline "Twenty years in education and organizational learning. Now figuring out what still works when the machines can write." Ed rejects even self-deprecating, seemingly authentic taglines. If it reads as a slogan, it's corporate fluff regardless of tone. The anti-pattern isn't just *corporate* slogans — it's slogans, period. "We will figure it out" is the replacement posture: arrive at the voice through the work, not through a pre-baked line.
 
 - **Audience-specificity, not generic "write to a receiver":** Ed refined the voice principle — "Not just write to a receiver. If language is human facing the agent composing it should be as aware as possible of the specific audience being addressed." The composing agent doesn't write *to an audience* (abstract); it writes *to these people* (specific). This has schema implications: content should carry audience context, not just content type.
 

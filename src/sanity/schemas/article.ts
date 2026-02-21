@@ -53,6 +53,13 @@ export const article = defineType({
       description: 'Brief summary for listing pages and meta.',
     }),
     defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: { layout: 'tags' },
+    }),
+    defineField({
       name: 'body',
       title: 'Body',
       type: 'array',

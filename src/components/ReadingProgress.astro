@@ -1,0 +1,53 @@
+---
+/**
+ * ReadingProgress — scroll progress bar for article pages.
+ *
+ * Fixed at top of viewport, GPU-accelerated via scaleX transform.
+ * Purely visual — aria-hidden, not announced by screen readers.
+ */
+---
+
+<div class="reading-progress" aria-hidden="true">
+  <div class="reading-progress-bar"></div>
+</div>
+
+<script>
+  const bar = document.querySelector('.reading-progress-bar') as HTMLElement;
+  if (bar) {
+    let ticking = false;
+    function updateProgress() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+      bar.style.transform = `scaleX(${progress})`;
+      ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateProgress);
+        ticking = true;
+      }
+    }, { passive: true });
+    updateProgress();
+  }
+</script>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .reading-progress-bar {
+    height: 100%;
+    background: var(--color-accent);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.1s ease-out;
+  }
+</style>

@@ -81,11 +81,13 @@ const ogImage = page.seo?.ogImage?.asset?.url
     border-radius: 4px;
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.15s ease;
+    background: var(--color-surface, var(--color-bg));
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   .demo-list > li > a:hover {
     border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
   }
 
   .demo-list h2 {

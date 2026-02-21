@@ -1,0 +1,15 @@
+---
+const { node } = Astro.props
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
+const text = (node.children || [])
+  .filter((child: any) => child._type === 'span')
+  .map((child: any) => child.text || '')
+  .join('')
+const id = slugify(text)
+---
+
+<h2 id={id}><slot /></h2>

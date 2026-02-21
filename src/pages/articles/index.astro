@@ -2,6 +2,7 @@
 export const prerender = true
 
 import BaseLayout from '../../layouts/BaseLayout.astro'
+import ArticleCard from '../../components/ArticleCard.astro'
 import { loadQuery } from '../../sanity/lib/load-query'
 
 interface ArticleListing {
@@ -11,18 +12,28 @@ interface ArticleListing {
   kind?: string
   subtitle?: string
   abstract?: string
+  tags?: string[]
+  provenance?: { date?: string }
 }
 
-const { data: articles } = await loadQuery<ArticleListing[]>({
-  query: `*[_type == "article" && defined(slug.current)] | order(title asc) {
-    _id,
-    title,
-    slug,
-    kind,
-    subtitle,
-    abstract
-  }`,
-})
+let articles: ArticleListing[] = []
+try {
+  const result = await loadQuery<ArticleListing[]>({
+    query: `*[_type == "article" && defined(slug.current)] | order(title asc) {
+      _id,
+      title,
+      slug,
+      kind,
+      subtitle,
+      abstract,
+      tags,
+      provenance { date }
+    }`,
+  })
+  if (result.data) articles = result.data
+} catch (e) {
+  console.warn('[articles] Sanity fetch failed:', e instanceof Error ? e.message : e)
+}
 ---
 
 <BaseLayout title="Articles">
@@ -32,71 +43,20 @@ const { data: articles } = await loadQuery<ArticleListing[]>({
     {(!articles || articles.length === 0) ? (
       <p class="empty">No articles published yet.</p>
     ) : (
-      <ul class="article-list">
+      <div class="article-grid">
         {articles.map((article) => (
-          <li>
-            <a href={`/articles/${article.slug.current}/`}>
-              <span class="article-title">{article.title}</span>
-              {article.kind && <span class="article-kind">{article.kind}</span>}
-            </a>
-            {article.subtitle && <p class="article-subtitle">{article.subtitle}</p>}
-            {article.abstract && <p class="article-abstract">{article.abstract}</p>}
-          </li>
+          <ArticleCard article={article} />
         ))}
-      </ul>
+      </div>
     )}
   </section>
 </BaseLayout>
 
 <style>
-  .article-list {
-    list-style: none;
-    padding: 0;
+  .article-grid {
+    display: grid;
+    gap: var(--space-6);
     margin-top: var(--space-8);
-  }
-
-  .article-list li {
-    margin-bottom: var(--space-8);
-    max-width: var(--measure, 65ch);
-  }
-
-  .article-list a {
-    text-decoration: none;
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-3);
-  }
-
-  .article-title {
-    font-family: var(--font-ui);
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-    color: var(--color-text);
-  }
-
-  .article-list a:hover .article-title {
-    color: var(--color-accent);
-  }
-
-  .article-kind {
-    font-family: var(--font-ui);
-    font-size: var(--font-size-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-text-muted);
-  }
-
-  .article-subtitle {
-    color: var(--color-text-muted);
-    margin-top: var(--space-1);
-    font-size: var(--font-size-md);
-  }
-
-  .article-abstract {
-    margin-top: var(--space-2);
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-    line-height: var(--leading-normal);
   }
 
   .empty {

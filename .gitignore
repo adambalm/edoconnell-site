@@ -39,5 +39,8 @@ tmp-*
 # Claude Code
 .claude/
 
+# Working docs — local design/planning briefs, not published
+docs/design-brief.md
+
 # Vercel
 .vercel/
