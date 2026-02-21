@@ -1,9 +1,9 @@
 ---
 /**
- * /articles/[slug] — dynamic route for long-form articles.
+ * /articles/[slug] — SSR route for long-form articles.
  *
- * Fetches an article from Sanity by slug, renders Portable Text body
- * and optional appendix. Uses getStaticPaths for static output.
+ * Fetches an article from Sanity by slug on each request so content
+ * changes appear immediately after publish. No rebuild required.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import ArticleMeta from '../../components/ArticleMeta.astro'
@@ -40,31 +40,35 @@ interface Article {
   }
 }
 
-export async function getStaticPaths() {
-  const { data: articles } = await loadQuery<Article[]>({
-    query: `*[_type == "article" && defined(slug.current)] {
-      _id,
-      title,
-      slug,
-      kind,
-      subtitle,
-      abstract,
-      body,
-      appendix,
-      epistemicStatus,
-      publicationReadiness,
-      audienceContext,
-      provenance,
-      seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
-    }`,
-  })
-  return (articles ?? []).map((article) => ({
-    params: { slug: article.slug.current },
-    props: { article },
-  }))
+const { slug } = Astro.params
+
+if (!slug) {
+  return Astro.redirect('/articles/')
 }
 
-const { article } = Astro.props
+const { data: article } = await loadQuery<Article>({
+  query: `*[_type == "article" && slug.current == $slug][0] {
+    _id,
+    title,
+    slug,
+    kind,
+    subtitle,
+    abstract,
+    body,
+    appendix,
+    epistemicStatus,
+    publicationReadiness,
+    audienceContext,
+    provenance,
+    seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
+  }`,
+  params: { slug },
+})
+
+if (!article) {
+  return Astro.redirect('/articles/')
+}
+
 const pageTitle = article.seo?.metaTitle || article.title
 const pageDesc = article.seo?.metaDescription || article.abstract
 const pageOgImage = article.seo?.ogImage?.asset?.url

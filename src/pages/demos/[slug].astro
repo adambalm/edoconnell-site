@@ -1,12 +1,10 @@
 ---
 /**
- * /demos/[slug] — dynamic route for individual demo pages.
+ * /demos/[slug] — SSR route for individual demo pages.
  *
- * Fetches a demoItem from Sanity by slug, renders epistemic metadata
- * server-side, and hydrates the React island based on componentName.
- *
- * Uses getStaticPaths because the site is output: 'static'.
- * Each demo is pre-rendered at build time.
+ * Fetches a demoItem from Sanity by slug on each request, renders
+ * epistemic metadata server-side, and hydrates the React island
+ * based on componentName.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import DemoMeta from '../../components/DemoMeta.astro'
@@ -48,32 +46,36 @@ interface DemoItem {
   }
 }
 
-export async function getStaticPaths() {
-  const { data: demos } = await loadQuery<DemoItem[]>({
-    query: `*[_type == "demoItem" && defined(slug.current)] {
-      _id,
-      title,
-      slug,
-      summary,
-      framing,
-      renderMode,
-      componentName,
-      externalUrl,
-      tags,
-      epistemicStatus,
-      audienceContext,
-      publicationReadiness,
-      provenance,
-      seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
-    }`,
-  })
-  return (demos ?? []).map((demo) => ({
-    params: { slug: demo.slug.current },
-    props: { demo },
-  }))
+const { slug } = Astro.params
+
+if (!slug) {
+  return Astro.redirect('/demos/')
 }
 
-const { demo } = Astro.props
+const { data: demo } = await loadQuery<DemoItem>({
+  query: `*[_type == "demoItem" && slug.current == $slug][0] {
+    _id,
+    title,
+    slug,
+    summary,
+    framing,
+    renderMode,
+    componentName,
+    externalUrl,
+    tags,
+    epistemicStatus,
+    audienceContext,
+    publicationReadiness,
+    provenance,
+    seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
+  }`,
+  params: { slug },
+})
+
+if (!demo) {
+  return Astro.redirect('/demos/')
+}
+
 const pageTitle = demo.seo?.metaTitle || demo.title
 const pageDesc = demo.seo?.metaDescription || demo.summary
 const pageOgImage = demo.seo?.ogImage?.asset?.url

@@ -7,7 +7,7 @@ const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'zu6l9t4j'
 const dataset = process.env.PUBLIC_SANITY_DATASET || 'production'
 
 export default defineConfig({
-  output: 'static',
+  output: 'server',
   adapter: vercel(),
   integrations: [
     react(),
