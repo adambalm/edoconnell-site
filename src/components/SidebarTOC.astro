@@ -1,0 +1,170 @@
+---
+/**
+ * SidebarTOC — sticky sidebar table of contents for wide screens.
+ *
+ * Extracts h2 headings from Portable Text (same logic as InlineTOC),
+ * renders as a vertical nav in the right margin. Hidden below 1100px
+ * where InlineTOC serves as the mobile fallback.
+ *
+ * Active section tracked via IntersectionObserver on heading elements.
+ */
+
+import { stegaClean } from '@sanity/client/stega'
+
+interface Props {
+  body: any[]
+}
+
+const { body } = Astro.props
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
+const headings = (body || [])
+  .filter((block: any) => block._type === 'block' && block.style === 'h2')
+  .map((block: any) => {
+    const text = stegaClean(
+      (block.children || [])
+        .filter((child: any) => child._type === 'span')
+        .map((child: any) => child.text || '')
+        .join('')
+    )
+    return { text, id: slugify(text) }
+  })
+  .filter((h: { text: string }) => h.text.length > 0)
+---
+
+{headings.length >= 3 && (
+  <nav class="sidebar-toc" aria-label="In this article">
+    <div class="sidebar-toc-title">In this article</div>
+    <ol>
+      {headings.map((heading) => (
+        <li>
+          <a href={`#${heading.id}`} data-sidebar-link={heading.id}>{heading.text}</a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<script>
+  const nav = document.querySelector('.sidebar-toc');
+  if (nav) {
+    const links = nav.querySelectorAll<HTMLAnchorElement>('a[data-sidebar-link]');
+    const ids = Array.from(links).map(l => l.dataset.sidebarLink!);
+    const headingEls = ids.map(id => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+
+    // Active section tracking via scroll position
+    let ticking = false;
+    function updateActive() {
+      // Find the heading closest to (but above) the viewport top
+      const scrollTop = window.scrollY;
+      const offset = 120; // header + some breathing room
+      let activeId = ids[0];
+
+      for (const el of headingEls) {
+        if (el.offsetTop - offset <= scrollTop) {
+          activeId = el.id;
+        } else {
+          break;
+        }
+      }
+
+      links.forEach(link => {
+        const isActive = link.dataset.sidebarLink === activeId;
+        link.classList.toggle('active', isActive);
+        if (isActive) {
+          link.setAttribute('aria-current', 'true');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateActive);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    updateActive();
+
+    // Smooth scroll on click, respecting reduced motion
+    links.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const id = link.dataset.sidebarLink;
+        const target = id && document.getElementById(id);
+        if (target) {
+          e.preventDefault();
+          const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          target.scrollIntoView({ behavior: prefersReduced ? 'instant' : 'smooth', block: 'start' });
+          history.pushState(null, '', `#${id}`);
+        }
+      });
+    });
+  }
+</script>
+
+<style>
+  .sidebar-toc {
+    display: none;
+    position: sticky;
+    top: calc(57px + var(--space-8));
+    max-height: calc(100vh - 57px - var(--space-16));
+    overflow-y: auto;
+    align-self: start;
+  }
+
+  @media (min-width: 1100px) {
+    .sidebar-toc {
+      display: block;
+    }
+  }
+
+  .sidebar-toc-title {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-3);
+  }
+
+  .sidebar-toc ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-left: 2px solid var(--color-border);
+  }
+
+  .sidebar-toc li {
+    margin: 0;
+  }
+
+  .sidebar-toc a {
+    display: block;
+    padding: var(--space-1) var(--space-3);
+    margin-left: -2px;
+    border-left: 2px solid transparent;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .sidebar-toc a:hover {
+    color: var(--color-text);
+  }
+
+  .sidebar-toc a.active {
+    color: var(--color-accent);
+    border-left-color: var(--color-accent);
+  }
+</style>
