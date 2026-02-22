@@ -2,37 +2,23 @@
 /**
  * SidebarTOC — sticky sidebar table of contents for wide screens.
  *
- * Extracts h2 headings from Portable Text (same logic as InlineTOC),
- * renders as a vertical nav in the right margin. Hidden below 1100px
- * where InlineTOC serves as the mobile fallback.
+ * Receives pre-extracted headings (computed in the page template before
+ * PortableText mutates the body array). Renders a vertical nav in the
+ * right margin. Hidden below 1100px where InlineTOC serves as fallback.
  *
- * Active section tracked via IntersectionObserver on heading elements.
+ * Active section tracked via scroll listener on heading elements.
  */
 
-import { stegaClean } from '@sanity/client/stega'
+interface Heading {
+  text: string
+  id: string
+}
 
 interface Props {
-  body: any[]
+  headings: Heading[]
 }
 
-const { body } = Astro.props
-
-function slugify(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
-
-const headings = (body || [])
-  .filter((block: any) => block._type === 'block' && block.style === 'h2')
-  .map((block: any) => {
-    const text = stegaClean(
-      (block.children || [])
-        .filter((child: any) => child._type === 'span')
-        .map((child: any) => child.text || '')
-        .join('')
-    )
-    return { text, id: slugify(text) }
-  })
-  .filter((h: { text: string }) => h.text.length > 0)
+const { headings } = Astro.props
 ---
 
 {headings.length >= 3 && (
@@ -58,7 +44,6 @@ const headings = (body || [])
     // Active section tracking via scroll position
     let ticking = false;
     function updateActive() {
-      // Find the heading closest to (but above) the viewport top
       const scrollTop = window.scrollY;
       const offset = 120; // header + some breathing room
       let activeId = ids[0];

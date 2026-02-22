@@ -1,36 +1,22 @@
 ---
 /**
- * InlineTOC — inline table of contents extracted from Portable Text headings.
+ * InlineTOC — inline table of contents for article pages.
  *
- * Only renders when 3+ h2 headings are found. Horizontal layout with
- * dot separators. IDs must match the slugified h2 IDs in the article body.
+ * Receives pre-extracted headings (computed in the page template before
+ * PortableText mutates the body array). Horizontal layout with dot
+ * separators. Only renders when 3+ headings are provided.
  */
 
-import { stegaClean } from '@sanity/client/stega'
+interface Heading {
+  text: string
+  id: string
+}
 
 interface Props {
-  body: any[]
+  headings: Heading[]
 }
 
-const { body } = Astro.props
-
-function slugify(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
-
-// Extract h2 headings from Portable Text blocks
-const headings = (body || [])
-  .filter((block: any) => block._type === 'block' && block.style === 'h2')
-  .map((block: any) => {
-    const text = stegaClean(
-      (block.children || [])
-        .filter((child: any) => child._type === 'span')
-        .map((child: any) => child.text || '')
-        .join('')
-    )
-    return { text, id: slugify(text) }
-  })
-  .filter((h: { text: string }) => h.text.length > 0)
+const { headings } = Astro.props
 ---
 
 {headings.length >= 3 && (

@@ -13,6 +13,7 @@ import SidebarTOC from '../../components/SidebarTOC.astro'
 import BackToTop from '../../components/BackToTop.astro'
 import { loadQuery } from '../../sanity/lib/load-query'
 import { PortableText } from 'astro-portabletext'
+import { stegaClean } from '@sanity/client/stega'
 import CodeBlock from '../../components/Code.astro'
 import Heading2 from '../../components/Heading2.astro'
 
@@ -80,6 +81,25 @@ if (!article) {
 const pageTitle = article.seo?.metaTitle || article.title
 const pageDesc = article.seo?.metaDescription || article.abstract
 const pageOgImage = article.seo?.ogImage?.asset?.url
+
+// Extract headings BEFORE PortableText renders — astro-portabletext mutates
+// block children in place (span → @text), which breaks post-render extraction.
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
+const articleHeadings = (article.body || [])
+  .filter((block: any) => block._type === 'block' && block.style === 'h2')
+  .map((block: any) => {
+    const text = stegaClean(
+      (block.children || [])
+        .filter((child: any) => child._type === 'span')
+        .map((child: any) => child.text || '')
+        .join('')
+    )
+    return { text, id: slugify(text) }
+  })
+  .filter((h: { text: string }) => h.text.length > 0)
 ---
 
 <BaseLayout title={pageTitle} description={pageDesc} ogImage={pageOgImage}>
@@ -93,7 +113,7 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
 
       <ArticleMeta article={article} />
 
-      {article.body && <InlineTOC body={article.body} />}
+      {articleHeadings.length > 0 && <InlineTOC headings={articleHeadings} />}
 
       {article.body && (
         <section class="article-body">
@@ -109,7 +129,7 @@ const pageOgImage = article.seo?.ogImage?.asset?.url
       )}
     </div>
 
-    {article.body && <SidebarTOC body={article.body} />}
+    {articleHeadings.length > 0 && <SidebarTOC headings={articleHeadings} />}
   </article>
   <BackToTop />
 </BaseLayout>
