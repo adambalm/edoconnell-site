@@ -2,7 +2,7 @@
 
 Astro 5, Sanity v3, Vercel. Server-rendered content pages, statically prerendered indexes, React islands for interactive demos. Embedded Studio at `/admin` with visual editing via the Presentation Tool.
 
-The Sanity content model carries epistemic governance fields — provenance, confidence scores, publication readiness — so content tracks not just *what* it says but *who* produced it, *how*, and *at what confidence level*. These fields are queryable structured data. Nothing gates on them yet, but the schema is built so something could.
+The Sanity content model carries epistemic governance fields — provenance, confidence scores, publication readiness — so content tracks not just *what* it says but *who* produced it, *how*, and *at what confidence level*. These fields are queryable structured data, drawn from a content architecture used in production elsewhere.
 
 ## Interactive Demos
 
