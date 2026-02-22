@@ -1,17 +1,13 @@
 ---
 /**
- * ArticleMeta — renders epistemic and provenance metadata for articles.
+ * ArticleMeta — renders provenance and audience metadata for articles.
  *
- * Borrows badge and provenance grid patterns from DemoMeta.
- * Server-rendered so metadata is visible even if JavaScript fails.
+ * Governance badges (kind, epistemicStatus, publicationReadiness) and
+ * confidenceScore are kept in the schema for editorial workflow but
+ * not displayed on the public page.
  */
-import { stegaClean } from '@sanity/client/stega'
-
 interface Props {
   article: {
-    kind?: string
-    epistemicStatus?: string
-    publicationReadiness?: string
     audienceContext?: string
     provenance?: {
       author?: string
@@ -19,63 +15,15 @@ interface Props {
       reviewedBy?: string
       context?: string
       date?: string
-      confidenceScore?: number
     }
   }
 }
 
 const { article } = Astro.props
 const prov = article.provenance
-
-const kind = stegaClean(article.kind)
-const epistemicStatus = stegaClean(article.epistemicStatus)
-const publicationReadiness = stegaClean(article.publicationReadiness)
-
-const kindLabels: Record<string, string> = {
-  brief: 'Brief',
-  essay: 'Essay',
-  'case-study': 'Case Study',
-}
-
-const statusLabels: Record<string, string> = {
-  draft: 'Draft',
-  working: 'Working',
-  reviewed: 'Reviewed',
-  canonical: 'Canonical',
-  superseded: 'Superseded',
-  deprecated: 'Deprecated',
-  archived: 'Archived',
-}
-
-const readinessLabels: Record<string, string> = {
-  internal: 'Internal',
-  preview: 'Preview',
-  publishable: 'Publishable',
-  published: 'Published',
-}
 ---
 
 <aside class="article-meta" aria-label="Article metadata">
-  {(kind || epistemicStatus || publicationReadiness) && (
-    <div class="meta-badges">
-      {kind && (
-        <span class="badge badge-kind">
-          {kindLabels[kind] || kind}
-        </span>
-      )}
-      {epistemicStatus && (
-        <span class={`badge badge-status badge-status--${epistemicStatus}`}>
-          {statusLabels[epistemicStatus] || epistemicStatus}
-        </span>
-      )}
-      {publicationReadiness && (
-        <span class={`badge badge-readiness badge-readiness--${publicationReadiness}`}>
-          {readinessLabels[publicationReadiness] || publicationReadiness}
-        </span>
-      )}
-    </div>
-  )}
-
   {article.audienceContext && (
     <p class="meta-audience">{article.audienceContext}</p>
   )}
@@ -112,12 +60,6 @@ const readinessLabels: Record<string, string> = {
           <dd>{prov.date}</dd>
         </>
       )}
-      {prov.confidenceScore != null && (
-        <>
-          <dt>Confidence</dt>
-          <dd>{Math.round(prov.confidenceScore * 100)}%</dd>
-        </>
-      )}
     </dl>
   )}
 </aside>
@@ -127,76 +69,6 @@ const readinessLabels: Record<string, string> = {
     margin-bottom: var(--space-8, 2rem);
     font-size: var(--font-size-sm, 0.875rem);
     color: var(--color-text-muted, #555);
-  }
-
-  .meta-badges {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-    margin-bottom: var(--space-3, 0.75rem);
-  }
-
-  .badge {
-    display: inline-block;
-    padding: 0.15em 0.6em;
-    font-size: var(--font-size-xs, 0.8rem);
-    font-family: var(--font-ui, system-ui);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-radius: 3px;
-  }
-
-  .badge-kind {
-    background: var(--color-bg-subtle, #f0efe9);
-    color: var(--color-text-muted, #555);
-  }
-
-  .badge-status--draft {
-    background: var(--badge-draft-bg);
-    color: var(--badge-draft-text);
-  }
-
-  .badge-status--working {
-    background: var(--badge-working-bg);
-    color: var(--badge-working-text);
-  }
-
-  .badge-status--reviewed {
-    background: var(--badge-reviewed-bg);
-    color: var(--badge-reviewed-text);
-  }
-
-  .badge-status--canonical {
-    background: var(--badge-canonical-bg);
-    color: var(--badge-canonical-text);
-  }
-
-  .badge-status--superseded,
-  .badge-status--deprecated,
-  .badge-status--archived {
-    background: var(--badge-muted-bg);
-    color: var(--badge-muted-text);
-  }
-
-  .badge-readiness--internal {
-    background: var(--badge-muted-bg);
-    color: var(--badge-muted-text);
-  }
-
-  .badge-readiness--preview {
-    background: var(--badge-preview-bg);
-    color: var(--badge-preview-text);
-  }
-
-  .badge-readiness--publishable {
-    background: var(--badge-publishable-bg);
-    color: var(--badge-publishable-text);
-  }
-
-  .badge-readiness--published {
-    background: var(--badge-published-bg);
-    color: var(--badge-published-text);
   }
 
   .meta-audience {

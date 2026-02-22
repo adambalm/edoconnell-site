@@ -58,16 +58,6 @@
   --color-accent-subtle: rgba(139, 38, 53, 0.06);
   --color-surface: #ffffff;
 
-  /* Badge tokens */
-  --badge-draft-bg: #f3f4f6;       --badge-draft-text: #4b5563;
-  --badge-working-bg: #dbeafe;     --badge-working-text: #1e40af;
-  --badge-reviewed-bg: #dcfce7;    --badge-reviewed-text: #166534;
-  --badge-canonical-bg: #fef3c7;   --badge-canonical-text: #92400e;
-  --badge-muted-bg: #f3f4f6;      --badge-muted-text: #4b5563;
-  --badge-preview-bg: #e0e7ff;     --badge-preview-text: #3730a3;
-  --badge-publishable-bg: #fef3c7; --badge-publishable-text: #92400e;
-  --badge-published-bg: #dcfce7;   --badge-published-text: #166534;
-
   /* Focus */
   --focus-ring: 2px solid var(--color-accent);
   --focus-offset: 2px;
@@ -85,14 +75,6 @@
   --color-accent-hover: #d4838d;
   --color-accent-subtle: rgba(194, 106, 117, 0.12);
   --color-surface: #1f1f23;
-  --badge-draft-bg: #3f3f46;      --badge-draft-text: #a1a1aa;
-  --badge-working-bg: #1e3a5f;    --badge-working-text: #93c5fd;
-  --badge-reviewed-bg: #14532d;   --badge-reviewed-text: #86efac;
-  --badge-canonical-bg: #78350f;  --badge-canonical-text: #fcd34d;
-  --badge-muted-bg: #3f3f46;     --badge-muted-text: #a1a1aa;
-  --badge-preview-bg: #312e81;    --badge-preview-text: #c7d2fe;
-  --badge-publishable-bg: #78350f;--badge-publishable-text: #fcd34d;
-  --badge-published-bg: #14532d;  --badge-published-text: #86efac;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -108,14 +90,6 @@
     --color-accent-hover: #d4838d;
     --color-accent-subtle: rgba(194, 106, 117, 0.12);
     --color-surface: #1f1f23;
-    --badge-draft-bg: #3f3f46;      --badge-draft-text: #a1a1aa;
-    --badge-working-bg: #1e3a5f;    --badge-working-text: #93c5fd;
-    --badge-reviewed-bg: #14532d;   --badge-reviewed-text: #86efac;
-    --badge-canonical-bg: #78350f;  --badge-canonical-text: #fcd34d;
-    --badge-muted-bg: #3f3f46;     --badge-muted-text: #a1a1aa;
-    --badge-preview-bg: #312e81;    --badge-preview-text: #c7d2fe;
-    --badge-publishable-bg: #78350f;--badge-publishable-text: #fcd34d;
-    --badge-published-bg: #14532d;  --badge-published-text: #86efac;
   }
 }
 
