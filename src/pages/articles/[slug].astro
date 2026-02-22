@@ -8,7 +8,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import ArticleMeta from '../../components/ArticleMeta.astro'
 import ReadingProgress from '../../components/ReadingProgress.astro'
-import InlineTOC from '../../components/InlineTOC.astro'
 import SidebarTOC from '../../components/SidebarTOC.astro'
 import BackToTop from '../../components/BackToTop.astro'
 import { loadQuery } from '../../sanity/lib/load-query'
@@ -112,8 +111,6 @@ const articleHeadings = (article.body || [])
       </header>
 
       <ArticleMeta article={article} />
-
-      {articleHeadings.length > 0 && <InlineTOC headings={articleHeadings} />}
 
       {article.body && (
         <section class="article-body">
