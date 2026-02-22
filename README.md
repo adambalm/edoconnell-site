@@ -1,6 +1,6 @@
 # edoconnell.org
 
-Astro 5, Sanity v3, Vercel. Server-rendered content pages, statically prerendered indexes, React islands for interactive demos. Embedded Studio at `/admin` with visual editing via the Presentation Tool.
+Astro 5, Sanity v3, Vercel. Server-rendered content pages, statically prerendered indexes, React islands for interactive demos. Embedded Sanity Studio with visual editing via the Presentation Tool.
 
 The Sanity content model carries epistemic governance fields — provenance, confidence scores, publication readiness — so content tracks not just *what* it says but *who* produced it, *how*, and *at what confidence level*. These fields are queryable structured data, drawn from a content architecture used in production elsewhere.
 
@@ -130,7 +130,7 @@ npm run build        # Production build (SSR + static)
 npm run typecheck    # TypeScript validation
 ```
 
-Sanity Studio is embedded at `/admin` — no separate process needed.
+Sanity Studio is embedded in the Astro app — no separate process needed.
 
 ### Scripts
 
