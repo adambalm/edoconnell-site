@@ -1,14 +1,22 @@
 ---
+import { stegaClean } from '@sanity/client/stega'
+
 const { node } = Astro.props
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 }
 
-const text = (node.children || [])
-  .filter((child: any) => child._type === 'span')
-  .map((child: any) => child.text || '')
-  .join('')
+/** Extract plain text from buildMarksTree output (@text/@span nodes). */
+function extractText(children: any[]): string {
+  return (children || []).map((child: any) => {
+    if (child.text) return child.text
+    if (child.children) return extractText(child.children)
+    return ''
+  }).join('')
+}
+
+const text = stegaClean(extractText(node.children || []))
 const id = slugify(text)
 ---
 

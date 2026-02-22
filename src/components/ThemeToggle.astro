@@ -30,8 +30,8 @@
 </button>
 
 <script>
-  const btn = document.querySelector('.theme-toggle') as HTMLButtonElement;
-  if (btn) {
+  const buttons = document.querySelectorAll('.theme-toggle') as NodeListOf<HTMLButtonElement>;
+  if (buttons.length > 0) {
     function getTheme(): string {
       const stored = localStorage.getItem('theme');
       if (stored === 'dark' || stored === 'light') return stored;
@@ -40,19 +40,23 @@
 
     function applyTheme(theme: string) {
       document.documentElement.setAttribute('data-theme', theme);
-      btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
-      btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      buttons.forEach(btn => {
+        btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+        btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      });
     }
 
     // Initialize
     applyTheme(getTheme());
 
-    // Toggle on click
-    btn.addEventListener('click', () => {
-      const current = getTheme();
-      const next = current === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('theme', next);
-      applyTheme(next);
+    // Toggle on click — bind to all instances
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const current = getTheme();
+        const next = current === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', next);
+        applyTheme(next);
+      });
     });
 
     // Listen for system preference changes (only when no manual preference)

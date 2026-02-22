@@ -6,6 +6,8 @@
  * dot separators. IDs must match the slugified h2 IDs in the article body.
  */
 
+import { stegaClean } from '@sanity/client/stega'
+
 interface Props {
   body: any[]
 }
@@ -20,10 +22,12 @@ function slugify(text: string): string {
 const headings = (body || [])
   .filter((block: any) => block._type === 'block' && block.style === 'h2')
   .map((block: any) => {
-    const text = (block.children || [])
-      .filter((child: any) => child._type === 'span')
-      .map((child: any) => child.text || '')
-      .join('')
+    const text = stegaClean(
+      (block.children || [])
+        .filter((child: any) => child._type === 'span')
+        .map((child: any) => child.text || '')
+        .join('')
+    )
     return { text, id: slugify(text) }
   })
   .filter((h: { text: string }) => h.text.length > 0)
@@ -41,6 +45,21 @@ const headings = (body || [])
     </ol>
   </nav>
 )}
+
+<script>
+  document.querySelectorAll('.inline-toc a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const id = link.getAttribute('href')?.slice(1);
+      const target = id && document.getElementById(id);
+      if (target) {
+        e.preventDefault();
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        target.scrollIntoView({ behavior: prefersReduced ? 'instant' : 'smooth', block: 'start' });
+        history.pushState(null, '', `#${id}`);
+      }
+    });
+  });
+</script>
 
 <style>
   .inline-toc {
