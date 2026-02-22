@@ -1,17 +1,120 @@
 # edoconnell.org
 
-Portfolio site. Astro 5 frontend with embedded Sanity v3 Studio, deployed on Vercel. Content is structured data — authored once in the CMS, queried via GROQ, rendered through typed components. Content pages are server-rendered for immediate publish visibility; index pages are statically prerendered.
+Astro 5, Sanity v3, Vercel. Server-rendered content pages, statically prerendered indexes, React islands for interactive demos. Embedded Studio at `/admin` with visual editing via the Presentation Tool.
 
-The Sanity content model uses epistemic governance fields (provenance, epistemic status, publication readiness) on authored content types — tracking not just *what* was written but *who* produced it, *how*, and *at what confidence level*. Visual editing is wired via the Presentation Tool with stega encoding.
+The interesting parts are below the surface. The Sanity content model carries epistemic governance fields — provenance, confidence scores, publication readiness — so content knows not just *what* it says but *who* produced it, *how*, and *at what confidence level*. This isn't decoration. It's queryable structured data that could gate a publishing pipeline.
+
+## Interactive Demos
+
+Three React islands hydrate inside Astro's static shell. Each is a `client:load` component selected at render time by a CMS-controlled `renderMode` field — the Sanity schema decides what hydrates, not the template.
+
+**Skill Forge Visualizer** — The most complex component (~500+ lines, ~20 subcomponents). Visualizes a multi-agent deliberation process with swimlane diagrams, gate status indicators, cost-benefit SVG curves, and a Swiss Cheese verification model. Trilingual (EN/ES/ZH). Includes a `RewordGate` component that enforces a 50-character minimum articulation before a gate can close — the UI embodies the protocol it's documenting. Uses KaTeX for mathematical notation with graceful fallback.
+
+**Context Sage** — Visualizes governed multi-agent collaboration. ASCII swimlane diagrams showing three-role deliberation flow (Human Orchestrator, Generalizing Agent, Inspecting Agent). Case study cards with counterfactual analysis. Trilingual content with language toggle. The data structure is baked into the component (~400 lines of structured content) rather than fetched — this is intentional, since the demo *is* the content.
+
+**Memento** — Demonstrates browser session capture and LLM-based classification. Renders real session data (27 tabs from a single session), category distribution bars, NLP extraction results, and expandable technical deep-dives. Shows the gap between "what tabs were open" and "what was actually happening" — the classification layer is the point.
+
+### How Islands Work Here
+
+The routing logic in `src/pages/demos/[slug].astro` is worth reading. Sanity's `demoItem` schema has a `renderMode` enum (`ISLAND`, `STATIC`, `EXTERNAL`) with cross-field validation: `ISLAND` requires a `componentName`, `EXTERNAL` requires a URL. The Astro template strips stega encoding from logic fields via `stegaClean()` before branching — display fields keep their encoding so visual editing overlays still work. This is the kind of detail that matters in a Sanity integration: knowing which fields are for logic and which are for rendering.
+
+```astro
+// Fields used in conditionals must be cleaned
+const renderMode = stegaClean(demo.renderMode)
+const componentName = stegaClean(demo.componentName)
+// But demo.title, demo.summary are NOT cleaned — stega enables click-to-edit
+```
+
+## Structured Content Engineering
+
+### The Query Layer
+
+All data flows through `src/sanity/lib/load-query.ts` — a 43-line wrapper that negotiates between two modes:
+
+- **Visual editing on:** `previewDrafts` perspective, stega encoding, source maps, authenticated fetch with read token
+- **Visual editing off:** `published` perspective, CDN-backed, no token needed
+
+Every page template calls `loadQuery<T>()` with a typed GROQ query. The wrapper decides whether to encode edit links into field values based on environment configuration, then returns typed data with source maps for the Presentation Tool. One function, two entirely different fetch strategies, zero conditional logic in page templates.
+
+### Content Model
+
+Four document types, two reusable objects:
+
+| Type | Purpose |
+|------|---------|
+| `article` | Long-form content — briefs, essays, case studies. Portable Text body + appendix, Shiki code highlighting |
+| `demoItem` | Interactive demonstrations with render mode control and cross-field validation |
+| `page` | Freeform pages (home, demos index) addressed by document ID |
+| `siteSettings` | Singleton — site title, global SEO, the `noindex` flag |
+| `provenance` | Reusable object: author, generating agent, reviewer, context, confidence score (0–1) |
+| `seo` | Reusable object: meta title, description, OG image with asset reference expansion |
+
+The `provenance` object is the load-bearing detail. It tracks *who* made the content (human or AI), *who* reviewed it, and a self-reported `confidenceScore` from the generating agent. This is structured data — queryable, filterable, pipeline-gatable — not a comment in a markdown file. An `article` also carries `epistemicStatus` (draft → working → reviewed → canonical → superseded → deprecated → archived) and `supersededBy` as a typed reference to its replacement.
+
+### Rendering Strategy
+
+Index pages (`/`, `/articles/`, `/demos/`) export `prerender = true` — built once, served from CDN. Content detail pages (`/articles/[slug]`, `/demos/[slug]`) are SSR — a `loadQuery` call on every request, so edits in the Studio appear immediately without a rebuild. The tradeoff is explicit: indexes are fast and cheap; detail pages are fresh and slightly slower.
+
+## Product Philosophy: Why Epistemic Governance
+
+Most portfolios show what someone built. This one also shows how much they trust what they're showing you.
+
+Every article and demo carries structured metadata about its own reliability: who wrote it, whether an AI helped, what the author's confidence level is, and where the content sits in a lifecycle from `draft` to `canonical` to `archived`. This isn't aspirational — it's implemented in the Sanity schema, rendered in the UI via `DemoMeta` and `ArticleMeta` components, and enforced by validation rules.
+
+The motivation is practical. When AI-assisted content is mixed with human-authored content (as it is here), readers deserve to know which is which. And when content ages or gets superseded, the system should say so rather than leaving stale claims lying around. The `supersededBy` reference field means a deprecated article can point directly to its replacement — no dead ends, no silent rot.
+
+This is also a statement about what "structured content" means beyond the usual CMS pitch. Structured content isn't just "headless so you can reuse it." It's content that carries enough metadata to be *trusted*, *versioned*, and *queried by machines* — not just rendered by them.
+
+## Design System
+
+CSS custom properties throughout — no utility classes, no CSS-in-JS. Typography on a major-third scale (1.25 ratio). Three font stacks: Georgia for prose, Inter for UI, JetBrains Mono for code. Dark mode via `data-theme` attribute with `prefers-color-scheme` fallback. `prefers-reduced-motion` respected globally. Skip link, visible focus indicators, `65ch` measure constraint for readability.
+
+See `src/styles/global.css` for the full token set.
+
+## Tour of the Repository
+
+**Best React work:**
+- `src/components/demos/SkillForgeVisualizer.tsx` — Complex stateful visualization with ~20 subcomponents, i18n, KaTeX math, SVG charts, accessibility (44px touch targets, skip links, ARIA labels)
+- `src/components/demos/MementoDemo.tsx` — Data-rich UI with expandable accordions, category distribution bars, tab-based navigation
+
+**Best Astro/Sanity integration:**
+- `src/pages/demos/[slug].astro` — CMS-controlled hydration strategy, stega-aware field handling, typed GROQ queries
+- `src/sanity/lib/load-query.ts` — Dual-mode fetch wrapper (43 lines, does a lot)
+- `src/sanity/schemas/demoItem.ts` — Cross-field validation, conditional field visibility, render mode enum
+
+**Content architecture decisions:**
+- `src/sanity/schemas/objects/provenance.ts` — The epistemic governance object
+- `src/sanity/schemas/article.ts` — Full lifecycle status with supersession references
+
+**Accessibility & polish:**
+- `src/components/InlineTOC.astro` — Extracts headings from Portable Text, generates navigation, stega-cleans before slugifying
+- `src/components/ReadingProgress.astro` — GPU-accelerated scroll indicator with `requestAnimationFrame` throttling
+- `tests/interactions.spec.ts` — 42+ Playwright tests: navigation, mobile menu, theme toggle, hydration verification
+
+**Infrastructure:**
+- `.github/workflows/ci.yml` — Three-job pipeline: build + typecheck, Playwright accessibility, Lighthouse audits
+- `playwright.config.ts` — Analytics suppression via `storageState`, dynamic content discovery
+
+## Quality
+
+CI enforces on every push: TypeScript check, production build, 42+ Playwright accessibility tests, Lighthouse audits (>= 95 accessibility and best practices). A pre-commit hook warns when architectural files change without documentation updates.
 
 ## Stack
 
-- [Astro 5](https://astro.build) — SSR for content pages, static prerendering for indexes, island architecture
-- [Sanity v3](https://www.sanity.io) — structured content, embedded Studio at `/admin`, visual editing
-- [Vercel](https://vercel.com) — deployment
-- TypeScript throughout
+- [Astro 5](https://astro.build) — SSR + static prerendering + island architecture
+- [Sanity v3](https://www.sanity.io) — structured content, embedded Studio, visual editing via Presentation Tool
+- [React 19](https://react.dev) — interactive demo islands only (not the page shell)
+- [Vercel](https://vercel.com) — deployment, web analytics
+- TypeScript, Playwright, Lighthouse CI
 
-## Setup
+---
+
+## Development
+
+<details>
+<summary>Local setup and scripts</summary>
+
+### Setup
 
 ```bash
 git clone https://github.com/adambalm/edoconnell-site.git
@@ -19,44 +122,39 @@ cd edoconnell-site
 npm install
 ```
 
-The `prepare` script activates git hooks automatically after install.
+The `prepare` script configures git hooks automatically.
 
-### Sanity
+Copy `.env.local.example` to `.env.local` and add credentials. The site builds with fallbacks if Sanity is unreachable.
 
-Copy `.env.local.example` to `.env.local` and add your Sanity project ID:
-
-```bash
-cp .env.local.example .env.local
-```
-
-The Sanity project is connected and the dataset is seeded. GROQ queries degrade gracefully if Sanity is unreachable — the site builds with hardcoded fallbacks.
-
-## Development
+### Commands
 
 ```bash
 npm run dev          # Astro dev server (localhost:4321)
-npm run build        # Production build
+npm run build        # Production build (SSR + static)
 npm run typecheck    # TypeScript validation
-npm run preview      # Preview built site
 ```
 
-Sanity Studio is embedded at `/admin` — no separate command needed.
+Sanity Studio is embedded at `/admin` — no separate process needed.
 
-## Quality
+### Scripts
 
-CI runs on every push: build, TypeScript check, Playwright accessibility tests, and Lighthouse audits. Thresholds are enforced — Lighthouse >= 95 for Accessibility and Best Practices, with Performance and SEO as warnings (SEO is depressed by intentional `noindex` during development).
+- `scripts/seed.mjs` — seed Sanity dataset
+- `scripts/patch-sa-brief-v2.mjs` — editorial patches via Portable Text (workaround for [agent-toolkit #20](https://github.com/sanity-io/agent-toolkit/issues/20))
 
-A pre-commit hook warns when architectural files change without corresponding documentation updates.
+### CI Thresholds
 
-## Scripts
+| Metric | Threshold | Mode |
+|--------|-----------|------|
+| Accessibility | >= 95 | Error |
+| Best Practices | >= 95 | Error |
+| Performance | >= 90 | Warn |
+| SEO | >= 50 | Warn (intentional `noindex`) |
 
-- `scripts/seed.mjs` — seed Sanity dataset with initial documents (`--dry-run` supported)
-- `scripts/patch-sa-brief.mjs` — editorial patches to the Solution Architecture Brief via Portable Text manipulation (workaround for [agent-toolkit #20](https://github.com/sanity-io/agent-toolkit/issues/20))
-- `scripts/sync-dialogue.sh` — sync local deliberation log to a private GitHub Gist for cross-agent access
+</details>
 
 ## Documentation
 
-- `AGENTS.md` — architecture and standards reference for AI tooling
+- `AGENTS.md` — architecture and standards for AI agents
 - `CLAUDE.md` — operational context for Claude Code
-- `CONTRIBUTORS.md` — human and AI contributor credits with roles and contributions
+- `CONTRIBUTORS.md` — human and AI contributor credits
 - `docs/voice-profile.md` — editorial voice properties for prose-generating agents
