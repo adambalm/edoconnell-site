@@ -106,6 +106,7 @@
 
 .navTab {
   padding: var(--space-3) var(--space-4);
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -120,7 +121,8 @@
   outline: none;
 }
 
-.navTab:hover {
+.navTab:hover,
+.navTab:active {
   color: var(--color-text-primary);
 }
 
@@ -148,6 +150,9 @@
 
 .langBtn {
   padding: var(--space-1) var(--space-3);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   border: 1px solid var(--color-border-light);
   background: transparent;
   color: var(--color-text-primary);
@@ -576,6 +581,7 @@
 
 .rewordGateBtn {
   padding: var(--space-3) var(--space-6);
+  min-height: 44px;
   background: var(--color-accent);
   color: var(--color-bg-white);
   border: none;
@@ -592,7 +598,8 @@
   cursor: not-allowed;
 }
 
-.rewordGateBtn:not(:disabled):hover {
+.rewordGateBtn:not(:disabled):hover,
+.rewordGateBtn:not(:disabled):active {
   background: var(--color-accent-dark);
 }
 
@@ -801,6 +808,9 @@
   .economicsGrid {
     grid-template-columns: 1fr;
   }
+
+  /* classicLayoutGrid + economicsResultsGrid overrides moved to end of file
+     (their base rules are defined after this block, so these had no effect) */
 }
 
 @media (max-width: 480px) {
@@ -884,7 +894,8 @@
   transition: all var(--transition-fast);
 }
 
-.rewordGateExpandBtn:hover {
+.rewordGateExpandBtn:hover,
+.rewordGateExpandBtn:active {
   background: var(--color-accent-light);
 }
 
@@ -944,7 +955,8 @@
   color: var(--color-bg-white);
 }
 
-.rewordGateSubmitBtnEnabled:hover {
+.rewordGateSubmitBtnEnabled:hover,
+.rewordGateSubmitBtnEnabled:active {
   background: var(--color-accent-dark);
 }
 
@@ -1236,6 +1248,7 @@
 .featuredExampleToggle {
   width: 100%;
   padding: var(--space-3) var(--space-4);
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1461,6 +1474,7 @@
 .relatedExamplesToggle {
   width: 100%;
   padding: var(--space-3) var(--space-4);
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1811,6 +1825,7 @@
 
 .layoutToggleBtn {
   padding: var(--space-2) var(--space-4);
+  min-height: 44px;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-sm);
   background: var(--color-bg-white);
@@ -1936,11 +1951,15 @@
 
 .economicsFormulaRow {
   margin-bottom: var(--space-4);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .economicsFormulaRowBorder {
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-border-light);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .economicsFormulaLabel {
@@ -2212,6 +2231,7 @@
 .referenceLink {
   color: var(--color-accent);
   text-decoration: underline;
+  overflow-wrap: anywhere;
 }
 
 .novelCard {
@@ -2236,6 +2256,17 @@
 
 @media (max-width: 768px) {
   .thinSkillComparisonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* These grids are defined after the first 768px media query block,
+     so that earlier override gets overridden by the base rule.
+     Re-declare the mobile collapse here where it takes precedence. */
+  .classicLayoutGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .economicsResultsGrid {
     grid-template-columns: 1fr;
   }
 }

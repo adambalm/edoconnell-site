@@ -9,6 +9,11 @@ const dataset = process.env.PUBLIC_SANITY_DATASET || 'production'
 export default defineConfig({
   output: 'server',
   adapter: vercel(),
+  vite: {
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
+    },
+  },
   integrations: [
     react(),
     sanity({

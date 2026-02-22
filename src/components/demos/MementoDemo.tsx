@@ -187,7 +187,7 @@ const sessionData = {
 /* ========== SUBCOMPONENT: CategoryBar ========== */
 const CategoryBar = ({ name, count, max }: { name: string; count: number; max: number }) => (
   <div className={styles.categoryBar}>
-    <div className={styles.categoryBarFill} style={{ width: `${(count / max) * 180}px` }} />
+    <div className={styles.categoryBarFill} style={{ width: `${(count / max) * 100}%` }} />
     <span className={styles.categoryBarName}>{name}</span>
     <span className={styles.categoryBarCount}>({count})</span>
   </div>
@@ -260,24 +260,28 @@ export default function MementoDemo() {
       </div>
       <div className={styles.contentBlock}>
         <div className={styles.label}>{t.liveSession.reasoningLabel}</div>
-        <table className={styles.table}>
-          <thead><tr><th className={styles.th}>Tab</th><th className={styles.th}>Category</th><th className={styles.th}>Signals</th><th className={styles.th}>Confidence</th></tr></thead>
-          <tbody>
-            {sessionData.sampleReasoning.map((item, i) => (
-              <tr key={i}><td className={styles.td}>{item.tab}</td><td className={styles.td}>{item.category}</td><td className={styles.td}>{item.signals.join(', ')}</td><td className={styles.td}>{item.confidence}</td></tr>
-            ))}
-          </tbody>
-        </table>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead><tr><th className={styles.th}>Tab</th><th className={styles.th}>Category</th><th className={styles.th}>Signals</th><th className={styles.th}>Confidence</th></tr></thead>
+            <tbody>
+              {sessionData.sampleReasoning.map((item, i) => (
+                <tr key={i}><td className={styles.td}>{item.tab}</td><td className={styles.td}>{item.category}</td><td className={styles.td}>{item.signals.join(', ')}</td><td className={styles.td}>{item.confidence}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <div>
         <div className={styles.label}>{t.liveSession.metaLabel}</div>
-        <table className={styles.table}><tbody>
-          <tr><td className={styles.td}>Engine</td><td className={styles.td}><span className={styles.code}>{sessionData.meta.engine}</span></td></tr>
-          <tr><td className={styles.td}>Model</td><td className={styles.td}><span className={styles.code}>{sessionData.meta.model}</span></td></tr>
-          <tr><td className={styles.td}>Passes</td><td className={styles.td}>{sessionData.meta.passes}</td></tr>
-          <tr><td className={styles.td}>Time</td><td className={styles.td}>{sessionData.meta.time}</td></tr>
-          <tr><td className={styles.td}>Cost</td><td className={styles.td}>{sessionData.meta.cost}</td></tr>
-        </tbody></table>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}><tbody>
+            <tr><td className={styles.td}>Engine</td><td className={styles.td}><span className={styles.code}>{sessionData.meta.engine}</span></td></tr>
+            <tr><td className={styles.td}>Model</td><td className={styles.td}><span className={styles.code}>{sessionData.meta.model}</span></td></tr>
+            <tr><td className={styles.td}>Passes</td><td className={styles.td}>{sessionData.meta.passes}</td></tr>
+            <tr><td className={styles.td}>Time</td><td className={styles.td}>{sessionData.meta.time}</td></tr>
+            <tr><td className={styles.td}>Cost</td><td className={styles.td}>{sessionData.meta.cost}</td></tr>
+          </tbody></table>
+        </div>
       </div>
     </section>
   );
@@ -295,13 +299,15 @@ export default function MementoDemo() {
       <h3 className={styles.sectionTitle}>{t.architecture.twoPassTitle}</h3>
       <p>{t.architecture.twoPassDesc}</p>
       <h3 className={styles.sectionTitle}>{t.architecture.infrastructureTitle}</h3>
-      <table className={styles.table}>
-        <thead><tr><th className={styles.th}>Machine</th><th className={styles.th}>OS</th><th className={styles.th}>Role</th></tr></thead>
-        <tbody>
-          <tr><td className={styles.td}><span className={styles.code}>SupHouse</span></td><td className={styles.td}>Windows 11</td><td className={styles.td}>Extension + Backend</td></tr>
-          <tr><td className={styles.td}><span className={styles.code}>adambalm</span></td><td className={styles.td}>Ubuntu 24.04</td><td className={styles.td}>LLM Inference (Ollama)</td></tr>
-        </tbody>
-      </table>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead><tr><th className={styles.th}>Machine</th><th className={styles.th}>OS</th><th className={styles.th}>Role</th></tr></thead>
+          <tbody>
+            <tr><td className={styles.td}><span className={styles.code}>SupHouse</span></td><td className={styles.td}>Windows 11</td><td className={styles.td}>Extension + Backend</td></tr>
+            <tr><td className={styles.td}><span className={styles.code}>adambalm</span></td><td className={styles.td}>Ubuntu 24.04</td><td className={styles.td}>LLM Inference (Ollama)</td></tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 
@@ -314,14 +320,16 @@ export default function MementoDemo() {
         <span className={styles.code}>{t.schema.schemaVersion}</span>
       </div>
       <h3 className={styles.sectionTitle}>{t.schema.fieldsTitle}</h3>
-      <table className={styles.table}>
-        <thead><tr><th className={styles.th}>Field</th><th className={styles.th}>Description</th></tr></thead>
-        <tbody>
-          {t.schema.fields.map((f: any, i: number) => (
-            <tr key={i}><td className={styles.td}><span className={styles.code}>{f.name}</span></td><td className={styles.td}>{f.desc}</td></tr>
-          ))}
-        </tbody>
-      </table>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead><tr><th className={styles.th}>Field</th><th className={styles.th}>Description</th></tr></thead>
+          <tbody>
+            {t.schema.fields.map((f: any, i: number) => (
+              <tr key={i}><td className={styles.td}><span className={styles.code}>{f.name}</span></td><td className={styles.td}>{f.desc}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 
@@ -343,18 +351,20 @@ export default function MementoDemo() {
   /* ========== SECTION: Roadmap ========== */
   const renderRoadmap = () => (
     <section data-section="roadmap">
-      <table className={styles.table}>
-        <thead><tr><th className={styles.th}>Phase</th><th className={styles.th}>Name</th><th className={styles.th}>Status</th></tr></thead>
-        <tbody>
-          {t.roadmap.phases.map((p: any, i: number) => (
-            <tr key={i} className={p.status === 'future' ? styles.rowFaded : undefined}>
-              <td className={styles.td}>{p.phase}</td>
-              <td className={styles.td}>{p.name}</td>
-              <td className={styles.td}><span className={`${styles.statusDot} ${getStatusDotClass(p.status)}`} />{p.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead><tr><th className={styles.th}>Phase</th><th className={styles.th}>Name</th><th className={styles.th}>Status</th></tr></thead>
+          <tbody>
+            {t.roadmap.phases.map((p: any, i: number) => (
+              <tr key={i} className={p.status === 'future' ? styles.rowFaded : undefined}>
+                <td className={styles.td}>{p.phase}</td>
+                <td className={styles.td}>{p.name}</td>
+                <td className={styles.td}><span className={`${styles.statusDot} ${getStatusDotClass(p.status)}`} />{p.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 

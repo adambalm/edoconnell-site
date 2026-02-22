@@ -664,14 +664,16 @@ Memento ──(detected themes)──► Basic Memory (proposed interests)
       <p className={styles.paragraph}>{t.provenance.chainFollow}</p>
 
       <h3 className={styles.h3}>{t.provenance.sourcesTitle}</h3>
-      <table className={styles.table}>
-        <thead><tr><th className={styles.th}>Section</th><th className={styles.th}>Note</th><th className={styles.th}>Modified</th></tr></thead>
-        <tbody>
-          {t.provenance.sources.map((s, i) => (
-            <tr key={i}><td className={styles.td}>{s.section}</td><td className={styles.td}>{s.note}</td><td className={styles.td}>{s.date}</td></tr>
-          ))}
-        </tbody>
-      </table>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead><tr><th className={styles.th}>Section</th><th className={styles.th}>Note</th><th className={styles.th}>Modified</th></tr></thead>
+          <tbody>
+            {t.provenance.sources.map((s, i) => (
+              <tr key={i}><td className={styles.td}>{s.section}</td><td className={styles.td}>{s.note}</td><td className={styles.td}>{s.date}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <h3 className={styles.h3}>{t.provenance.casesTitle}</h3>
       <p>{t.provenance.casesIntro}</p>

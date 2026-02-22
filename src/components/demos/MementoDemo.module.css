@@ -64,6 +64,9 @@
 
 .langBtn {
   padding: 0.25em 0.75em;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   border: 1px solid var(--color-border-light);
   background: transparent;
   color: var(--color-text-primary);
@@ -91,6 +94,9 @@
   background: none;
   border: none;
   padding: 0.25em 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.95em;
@@ -104,7 +110,8 @@
   border-bottom-color: var(--color-accent);
 }
 
-.navBtn:hover:not(.navBtnActive) {
+.navBtn:hover:not(.navBtnActive),
+.navBtn:active:not(.navBtnActive) {
   color: var(--color-text-secondary);
 }
 
@@ -212,13 +219,16 @@
 
 .qHeader {
   padding: var(--space-3) var(--space-4);
+  min-height: 44px;
   cursor: pointer;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   transition: background-color var(--transition-fast);
 }
 
-.qHeader:hover {
+.qHeader:hover,
+.qHeader:active {
   background-color: var(--color-bg-warm);
 }
 
@@ -262,6 +272,7 @@
   height: var(--icon-xs);
   background-color: var(--color-feature-blue);
   min-width: 4px;
+  max-width: 180px;
 }
 
 .categoryBarName {
@@ -307,6 +318,12 @@
 /* ========== SCHEMA VERSION ========== */
 .schemaVersion {
   margin-bottom: var(--space-6);
+}
+
+/* ========== TABLE SCROLL WRAPPER ========== */
+.tableWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ========== RESPONSIVE - Tablet ========== */

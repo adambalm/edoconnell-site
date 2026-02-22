@@ -1832,6 +1832,7 @@ export default function SkillForgeVisualizer({ lang: initialLang = 'en', links =
           <section id="panel-economics" role="tabpanel" aria-labelledby="tab-economics" tabIndex={0} data-section="economics">
             <style>{`
               .economics-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+              .economics-grid > * { min-width: 0; }
               @media (min-width: 768px) { .economics-grid { grid-template-columns: 1fr 1fr; gap: 32px; } }
             `}</style>
             <h2 className={styles.sectionTitleLg}>{t(validLang, 'economicsTitle')}</h2>
