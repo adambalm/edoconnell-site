@@ -2,13 +2,13 @@
 
 Astro 5, Sanity v3, Vercel. Server-rendered content pages, statically prerendered indexes, React islands for interactive demos. Embedded Studio at `/admin` with visual editing via the Presentation Tool.
 
-The interesting parts are below the surface. The Sanity content model carries epistemic governance fields — provenance, confidence scores, publication readiness — so content knows not just *what* it says but *who* produced it, *how*, and *at what confidence level*. This isn't decoration. It's queryable structured data that could gate a publishing pipeline.
+The Sanity content model carries epistemic governance fields — provenance, confidence scores, publication readiness — so content tracks not just *what* it says but *who* produced it, *how*, and *at what confidence level*. These fields are queryable structured data. Nothing gates on them yet, but the schema is built so something could.
 
 ## Interactive Demos
 
-Three React islands hydrate inside Astro's static shell. Each is a `client:load` component selected at render time by a CMS-controlled `renderMode` field — the Sanity schema decides what hydrates, not the template.
+Three React islands hydrate inside Astro's static shell. Each is a `client:load` component selected at render time by a CMS-controlled `renderMode` field — the Sanity schema controls which component loads, and the Astro template branches on that value.
 
-**Skill Forge Visualizer** — The most complex component (~500+ lines, ~20 subcomponents). Visualizes a multi-agent deliberation process with swimlane diagrams, gate status indicators, cost-benefit SVG curves, and a Swiss Cheese verification model. Trilingual (EN/ES/ZH). Includes a `RewordGate` component that enforces a 50-character minimum articulation before a gate can close — the UI embodies the protocol it's documenting. Uses KaTeX for mathematical notation with graceful fallback.
+**Skill Forge Visualizer** — The most complex component (~500+ lines, ~20 subcomponents). Visualizes a multi-agent deliberation process with swimlane diagrams, gate status indicators, cost-benefit SVG curves, and a Swiss Cheese verification model. Trilingual (EN/ES/ZH). Includes a `RewordGate` component — a text input with a 50-character minimum before a gate can close. Uses KaTeX for mathematical notation with graceful fallback.
 
 **Context Sage** — Visualizes governed multi-agent collaboration. ASCII swimlane diagrams showing three-role deliberation flow (Human Orchestrator, Generalizing Agent, Inspecting Agent). Case study cards with counterfactual analysis. Trilingual content with language toggle. The data structure is baked into the component (~400 lines of structured content) rather than fetched — this is intentional, since the demo *is* the content.
 
@@ -16,7 +16,7 @@ Three React islands hydrate inside Astro's static shell. Each is a `client:load`
 
 ### How Islands Work Here
 
-The routing logic in `src/pages/demos/[slug].astro` is worth reading. Sanity's `demoItem` schema has a `renderMode` enum (`ISLAND`, `STATIC`, `EXTERNAL`) with cross-field validation: `ISLAND` requires a `componentName`, `EXTERNAL` requires a URL. The Astro template strips stega encoding from logic fields via `stegaClean()` before branching — display fields keep their encoding so visual editing overlays still work. This is the kind of detail that matters in a Sanity integration: knowing which fields are for logic and which are for rendering.
+The routing logic in `src/pages/demos/[slug].astro` is worth reading. Sanity's `demoItem` schema has a `renderMode` enum (`ISLAND`, `STATIC`, `EXTERNAL`) with cross-field validation: `ISLAND` requires a `componentName`, `EXTERNAL` requires a URL. The Astro template strips stega encoding from logic fields via `stegaClean()` before branching — display fields keep their encoding so visual editing overlays still work. The distinction between logic fields and display fields matters when stega is involved.
 
 ```astro
 // Fields used in conditionals must be cleaned
@@ -34,7 +34,7 @@ All data flows through `src/sanity/lib/load-query.ts` — a 43-line wrapper that
 - **Visual editing on:** `previewDrafts` perspective, stega encoding, source maps, authenticated fetch with read token
 - **Visual editing off:** `published` perspective, CDN-backed, no token needed
 
-Every page template calls `loadQuery<T>()` with a typed GROQ query. The wrapper decides whether to encode edit links into field values based on environment configuration, then returns typed data with source maps for the Presentation Tool. One function, two entirely different fetch strategies, zero conditional logic in page templates.
+Every page template calls `loadQuery<T>()` with a typed GROQ query. The wrapper handles perspective, stega, and token logic so page templates don't repeat it.
 
 ### Content Model
 
@@ -49,21 +49,17 @@ Four document types, two reusable objects:
 | `provenance` | Reusable object: author, generating agent, reviewer, context, confidence score (0–1) |
 | `seo` | Reusable object: meta title, description, OG image with asset reference expansion |
 
-The `provenance` object is the load-bearing detail. It tracks *who* made the content (human or AI), *who* reviewed it, and a self-reported `confidenceScore` from the generating agent. This is structured data — queryable, filterable, pipeline-gatable — not a comment in a markdown file. An `article` also carries `epistemicStatus` (draft → working → reviewed → canonical → superseded → deprecated → archived) and `supersededBy` as a typed reference to its replacement.
+The `provenance` object tracks *who* made the content (human or AI), *who* reviewed it, and a self-reported `confidenceScore` from the generating agent. An `article` also carries `epistemicStatus` (draft → working → reviewed → canonical → superseded → deprecated → archived) and `supersededBy` as a typed reference to its replacement. Whether anything downstream actually consumes these fields is a separate question — for now they're an experiment in making content self-describing.
 
 ### Rendering Strategy
 
 Index pages (`/`, `/articles/`, `/demos/`) export `prerender = true` — built once, served from CDN. Content detail pages (`/articles/[slug]`, `/demos/[slug]`) are SSR — a `loadQuery` call on every request, so edits in the Studio appear immediately without a rebuild. The tradeoff is explicit: indexes are fast and cheap; detail pages are fresh and slightly slower.
 
-## Product Philosophy: Why Epistemic Governance
+## Why Epistemic Governance
 
-Most portfolios show what someone built. This one also shows how much they trust what they're showing you.
+This site mixes AI-assisted content with human-authored content. The epistemic governance fields are an experiment in making that mixture legible: every article and demo carries metadata about who wrote it, whether an AI helped, and where the content sits in a lifecycle from `draft` to `canonical` to `archived`.
 
-Every article and demo carries structured metadata about its own reliability: who wrote it, whether an AI helped, what the author's confidence level is, and where the content sits in a lifecycle from `draft` to `canonical` to `archived`. This isn't aspirational — it's implemented in the Sanity schema, rendered in the UI via `DemoMeta` and `ArticleMeta` components, and enforced by validation rules.
-
-The motivation is practical. When AI-assisted content is mixed with human-authored content (as it is here), readers deserve to know which is which. And when content ages or gets superseded, the system should say so rather than leaving stale claims lying around. The `supersededBy` reference field means a deprecated article can point directly to its replacement — no dead ends, no silent rot.
-
-This is also a statement about what "structured content" means beyond the usual CMS pitch. Structured content isn't just "headless so you can reuse it." It's content that carries enough metadata to be *trusted*, *versioned*, and *queried by machines* — not just rendered by them.
+The `DemoMeta` and `ArticleMeta` components render these fields in the UI. The `supersededBy` reference field lets a deprecated article point to its replacement. Whether this is useful at the scale of a personal portfolio is an open question — the hypothesis is that the pattern becomes more valuable as content accumulates and ages.
 
 ## Design System
 
@@ -83,7 +79,7 @@ See `src/styles/global.css` for the full token set.
 - `src/sanity/schemas/demoItem.ts` — Cross-field validation, conditional field visibility, render mode enum
 
 **Content architecture decisions:**
-- `src/sanity/schemas/objects/provenance.ts` — The epistemic governance object
+- `src/sanity/schemas/objects/provenance.ts` — Authorship, confidence, and review tracking
 - `src/sanity/schemas/article.ts` — Full lifecycle status with supersession references
 
 **Accessibility & polish:**
