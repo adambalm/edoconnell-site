@@ -176,7 +176,7 @@ Before any deployment or PR, the implementing agent runs this checklist. This is
 
 **The Medium Is the Message:**
 - [ ] Would a technical reviewer learn something about Astro by reading this code?
-- [ ] Would a hiring manager at a CMS or developer tools company see evidence of structured content thinking?
+- [ ] Does the content architecture demonstrate structured content thinking beyond typical blog-with-CMS patterns?
 - [ ] Does the commit history tell a coherent story of professional engineering?
 
 ### Conventions
