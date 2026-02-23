@@ -7,6 +7,7 @@ const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || 'zu6l9t4j'
 const dataset = process.env.PUBLIC_SANITY_DATASET || 'production'
 
 export default defineConfig({
+  site: 'https://edoconnell.org',
   output: 'server',
   adapter: vercel(),
   vite: {

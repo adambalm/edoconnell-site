@@ -27,7 +27,7 @@ const kindLabels: Record<string, string> = {
 }
 ---
 
-<a href={`/articles/${article.slug.current}/`} class="article-card">
+<a href={`/articles/${article.slug.current}/`} class="article-card" data-kind={kind}>
   <div class="card-body">
     <div class="card-header">
       <h2 class="card-title">{article.title}</h2>
@@ -57,6 +57,7 @@ const kindLabels: Record<string, string> = {
     position: relative;
     padding: var(--space-6);
     border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-border);
     border-radius: 8px;
     text-decoration: none;
     color: inherit;
@@ -64,9 +65,33 @@ const kindLabels: Record<string, string> = {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
+  .article-card[data-kind="brief"] {
+    border-left-color: var(--color-kind-brief);
+  }
+
+  .article-card[data-kind="essay"] {
+    border-left-color: var(--color-kind-essay);
+  }
+
+  .article-card[data-kind="case-study"] {
+    border-left-color: var(--color-kind-case-study);
+  }
+
   .article-card:hover {
     border-color: var(--color-accent);
     box-shadow: 0 0 0 1px var(--color-accent);
+  }
+
+  .article-card[data-kind="brief"]:hover {
+    border-left-color: var(--color-kind-brief);
+  }
+
+  .article-card[data-kind="essay"]:hover {
+    border-left-color: var(--color-kind-essay);
+  }
+
+  .article-card[data-kind="case-study"]:hover {
+    border-left-color: var(--color-kind-case-study);
   }
 
   .card-body {
@@ -106,6 +131,21 @@ const kindLabels: Record<string, string> = {
     background: var(--color-accent-subtle, rgba(139, 38, 53, 0.06));
     color: var(--color-accent);
     white-space: nowrap;
+  }
+
+  .article-card[data-kind="brief"] .card-kind {
+    background: var(--color-kind-brief-subtle);
+    color: var(--color-kind-brief);
+  }
+
+  .article-card[data-kind="essay"] .card-kind {
+    background: var(--color-kind-essay-subtle);
+    color: var(--color-kind-essay);
+  }
+
+  .article-card[data-kind="case-study"] .card-kind {
+    background: var(--color-kind-case-study-subtle);
+    color: var(--color-kind-case-study);
   }
 
   .card-abstract {

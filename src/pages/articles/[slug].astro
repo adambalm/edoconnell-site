@@ -7,6 +7,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import ArticleMeta from '../../components/ArticleMeta.astro'
+import RelatedReading from '../../components/RelatedReading.astro'
 import ReadingProgress from '../../components/ReadingProgress.astro'
 import SidebarTOC from '../../components/SidebarTOC.astro'
 import BackToTop from '../../components/BackToTop.astro'
@@ -126,6 +127,8 @@ const isEssay = stegaClean(article.kind) === 'essay'
           <PortableText value={article.appendix} components={ptComponents} />
         </aside>
       )}
+
+      <RelatedReading currentSlug={stegaClean(article.slug.current)} />
     </div>
 
     {!isEssay && articleHeadings.length > 0 && <SidebarTOC headings={articleHeadings} />}

@@ -24,6 +24,14 @@ const ogImage = page.seo?.ogImage?.asset?.url
     <h1 id="intro-heading">{page.title}</h1>
     {page.subtitle && <p class="subtitle">{page.subtitle}</p>}
 
+    <nav class="home-nav" aria-label="Quick navigation">
+      <a href="/articles/">Articles</a>
+      <span class="nav-sep" aria-hidden="true">&middot;</span>
+      <a href="/demos/">Demos</a>
+      <span class="nav-sep" aria-hidden="true">&middot;</span>
+      <a href="https://docs.google.com/document/d/1cg4dNgaOKsrBFPWAu0qFEQE8c7FgcT5R/preview" target="_blank" rel="noopener">Resume</a>
+    </nav>
+
     {page.body && (
       <div class="body">
         <PortableText value={page.body} />
@@ -38,6 +46,27 @@ const ogImage = page.seo?.ogImage?.asset?.url
     font-family: var(--font-ui);
     font-size: var(--font-size-lg);
     margin-top: var(--space-2);
+  }
+
+  .home-nav {
+    margin-top: var(--space-6);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+  }
+
+  .home-nav a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .home-nav a:hover {
+    color: var(--color-accent);
+  }
+
+  .nav-sep {
+    margin: 0 var(--space-2);
+    color: var(--color-text-muted);
   }
 
   .body {
