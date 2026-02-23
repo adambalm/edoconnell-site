@@ -1,14 +1,15 @@
 /**
- * generate-og-images.mjs — Generate OG images and upload to Sanity.
+ * generate-og-images.mjs — Generate crisp OG images and upload to Sanity.
  *
- * Uses Playwright to screenshot a simple HTML template at 1200x630,
- * then uploads each PNG to Sanity and patches the seo.ogImage field.
+ * Uses Satori (HTML/CSS → SVG vector) + @resvg/resvg-js (SVG → PNG raster)
+ * for sharp text rendering at any size. Embeds Inter font directly.
  *
  * Usage: node scripts/generate-og-images.mjs
  * Requires: SANITY_API_WRITE_TOKEN in .env.local
  */
 
-import { chromium } from 'playwright'
+import satori from 'satori'
+import { Resvg } from '@resvg/resvg-js'
 import { createClient } from '@sanity/client'
 import { readFileSync } from 'fs'
 import { join, dirname } from 'path'
@@ -45,6 +46,10 @@ const client = createClient({
   useCdn: false,
 })
 
+// Load embedded fonts
+const interRegular = readFileSync(join(__dirname, 'fonts', 'Inter-Regular.ttf'))
+const interSemiBold = readFileSync(join(__dirname, 'fonts', 'Inter-SemiBold.ttf'))
+
 const pages = [
   {
     id: 'siteSettings',
@@ -74,7 +79,7 @@ const pages = [
     id: '6e5ebcf2-ae18-41bc-8788-ba4dd9a6cf63',
     title: 'The Bike Shop',
     subtitle: 'On wheel truing, Frankenstein, and the poetics of AI',
-    accent: '#92400E',
+    accent: '#B45309',
   },
   {
     id: 'demo-memento',
@@ -96,84 +101,106 @@ const pages = [
   },
 ]
 
-function ogHtml(title, subtitle, accent) {
-  return `<!DOCTYPE html>
-<html>
-<head>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    width: 1200px;
-    height: 630px;
-    background: #1a1a1a;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Inter', system-ui, sans-serif;
-    text-align: center;
-    padding: 80px;
+/**
+ * Build a Satori-compatible JSX-like virtual DOM object.
+ * Satori requires React-element-shaped objects, not HTML strings.
+ */
+function ogMarkup(title, subtitle, accent) {
+  return {
+    type: 'div',
+    props: {
+      style: {
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#18181b',
+        padding: '80px',
+        fontFamily: 'Inter',
+      },
+      children: [
+        {
+          type: 'div',
+          props: {
+            style: {
+              width: '60px',
+              height: '4px',
+              backgroundColor: accent,
+              borderRadius: '2px',
+              marginBottom: '40px',
+            },
+          },
+        },
+        {
+          type: 'div',
+          props: {
+            style: {
+              color: '#e4e4e7',
+              fontSize: '56px',
+              fontWeight: 600,
+              lineHeight: 1.2,
+              textAlign: 'center',
+              marginBottom: '20px',
+              maxWidth: '960px',
+            },
+            children: title,
+          },
+        },
+        {
+          type: 'div',
+          props: {
+            style: {
+              color: '#a1a1aa',
+              fontSize: '26px',
+              fontWeight: 400,
+              lineHeight: 1.4,
+              textAlign: 'center',
+              maxWidth: '860px',
+            },
+            children: subtitle,
+          },
+        },
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute',
+              bottom: '40px',
+              color: '#52525b',
+              fontSize: '18px',
+              fontWeight: 400,
+              letterSpacing: '0.05em',
+            },
+            children: 'edoconnell.org',
+          },
+        },
+      ],
+    },
   }
-  .accent-bar {
-    width: 60px;
-    height: 3px;
-    background: ${accent};
-    margin-bottom: 32px;
-    border-radius: 2px;
-  }
-  .title {
-    color: #e4e4e7;
-    font-size: 56px;
-    font-weight: 600;
-    line-height: 1.2;
-    margin-bottom: 16px;
-    max-width: 900px;
-  }
-  .subtitle {
-    color: #a1a1aa;
-    font-size: 24px;
-    font-weight: 400;
-    line-height: 1.4;
-    max-width: 800px;
-  }
-  .footer {
-    position: absolute;
-    bottom: 40px;
-    color: #52525b;
-    font-size: 16px;
-    font-weight: 400;
-  }
-</style>
-</head>
-<body>
-  <div class="accent-bar"></div>
-  <div class="title">${title}</div>
-  <div class="subtitle">${subtitle}</div>
-  <div class="footer">edoconnell.org</div>
-</body>
-</html>`
 }
 
 async function main() {
-  console.log('Launching browser...')
-  const browser = await chromium.launch()
-  const context = await browser.newContext({
-    viewport: { width: 1200, height: 630 },
-    deviceScaleFactor: 1,
-  })
-
   for (const page of pages) {
-    console.log(`Generating OG image for: ${page.title}`)
-    const tab = await context.newPage()
-    await tab.setContent(ogHtml(page.title, page.subtitle, page.accent), {
-      waitUntil: 'networkidle',
-    })
-    const buffer = await tab.screenshot({ type: 'png' })
-    await tab.close()
+    console.log(`Generating: ${page.title}`)
 
-    console.log(`  Uploading to Sanity...`)
-    const asset = await client.assets.upload('image', buffer, {
+    const svg = await satori(ogMarkup(page.title, page.subtitle, page.accent), {
+      width: 1200,
+      height: 630,
+      fonts: [
+        { name: 'Inter', data: interRegular, weight: 400, style: 'normal' },
+        { name: 'Inter', data: interSemiBold, weight: 600, style: 'normal' },
+      ],
+    })
+
+    const resvg = new Resvg(svg, {
+      fitTo: { mode: 'width', value: 1200 },
+    })
+    const png = resvg.render().asPng()
+
+    console.log(`  Uploading (${(png.length / 1024).toFixed(0)} KB)...`)
+    const asset = await client.assets.upload('image', Buffer.from(png), {
       filename: `og-${page.id}.png`,
       contentType: 'image/png',
     })
@@ -191,7 +218,6 @@ async function main() {
     console.log(`  Done: ${asset.url}`)
   }
 
-  await browser.close()
   console.log('\nAll OG images generated and uploaded.')
 }
 
