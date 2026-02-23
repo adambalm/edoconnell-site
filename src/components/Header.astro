@@ -17,6 +17,7 @@ const { siteTitle, currentPath } = Astro.props
 const navLinks = [
   { href: '/articles/', label: 'Articles' },
   { href: '/demos/', label: 'Demos' },
+  { href: 'https://docs.google.com/document/d/1cg4dNgaOKsrBFPWAu0qFEQE8c7FgcT5R/preview', label: 'Resume', external: true },
 ]
 ---
 
@@ -27,12 +28,13 @@ const navLinks = [
 
     <div class="desktop-nav">
       <ul>
-        {navLinks.map(({ href, label }) => (
+        {navLinks.map(({ href, label, external }) => (
           <li>
             <a
               href={href}
-              class:list={[{ active: currentPath.startsWith(href) }]}
-              aria-current={currentPath.startsWith(href) ? 'page' : undefined}
+              class:list={[{ active: !external && currentPath.startsWith(href) }]}
+              aria-current={!external && currentPath.startsWith(href) ? 'page' : undefined}
+              {...(external ? { target: '_blank', rel: 'noopener' } : {})}
             >
               {label}
             </a>
@@ -59,12 +61,13 @@ const navLinks = [
   <div class="mobile-menu-inner">
     <nav aria-label="Mobile navigation">
       <ul>
-        {navLinks.map(({ href, label }) => (
+        {navLinks.map(({ href, label, external }) => (
           <li>
             <a
               href={href}
-              class:list={['mobile-link', { active: currentPath.startsWith(href) }]}
-              aria-current={currentPath.startsWith(href) ? 'page' : undefined}
+              class:list={['mobile-link', { active: !external && currentPath.startsWith(href) }]}
+              aria-current={!external && currentPath.startsWith(href) ? 'page' : undefined}
+              {...(external ? { target: '_blank', rel: 'noopener' } : {})}
             >
               {label}
             </a>
