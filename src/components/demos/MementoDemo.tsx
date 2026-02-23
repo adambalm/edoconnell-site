@@ -459,8 +459,8 @@ function TechnicalProfile() {
 
       <h3>Source</h3>
       <p>
-        <a href="https://github.com/adambalm/memento" target="_blank" rel="noopener">
-          github.com/adambalm/memento
+        <a href="https://github.com/adambalm/memento-public" target="_blank" rel="noopener">
+          github.com/adambalm/memento-public
         </a>
       </p>
     </section>

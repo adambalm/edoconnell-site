@@ -49,6 +49,10 @@ jobs:
         if: steps.check.outputs.ready == 'true'
         run: npm run lint --if-present
 
+      - name: SEO metadata check
+        if: steps.check.outputs.ready == 'true'
+        run: npm run check:seo
+
   accessibility:
     runs-on: ubuntu-latest
     needs: build

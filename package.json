@@ -8,6 +8,7 @@
     "build": "astro build",
     "typecheck": "astro check",
     "preview": "astro preview",
+    "check:seo": "node scripts/check-seo.mjs",
     "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
