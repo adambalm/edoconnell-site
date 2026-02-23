@@ -195,7 +195,7 @@ async function main() {
     })
 
     const resvg = new Resvg(svg, {
-      fitTo: { mode: 'width', value: 1200 },
+      fitTo: { mode: 'width', value: 2400 },
     })
     const png = resvg.render().asPng()
 
