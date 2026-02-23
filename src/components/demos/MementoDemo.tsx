@@ -2,420 +2,726 @@
 MANIFEST
 =========
 Artifact: Memento Demo
-Version: 1.0.0
-Generated: 2026-01-05T14:30:00Z
-Generator: Claude (Opus 4.5) via Claude Desktop
-Migrated: 2026-02-14 to edoconnell-site (Astro 5 + React island)
+Version: 2.0.0
+Generated: 2026-02-22
+Generator: Claude (Opus 4.6) via Claude.ai
+Migrated: 2026-02-22 to edoconnell-site (Astro 5 + React island)
 
 SECTIONS:
-- Overview (lines ~180-210)
-- LiveSession (lines ~212-310)
-- Architecture (lines ~312-390)
-- Schema (lines ~392-450)
-- OpenQuestions (lines ~452-500)
-- Roadmap (lines ~502-550)
+- Premise (lines ~15-43)
+- Pipeline (lines ~45-118)
+- Findings (lines ~120-162)
+- Failures (lines ~164-217)
+- FeedbackLoop (lines ~219-258)
+- CommitmentDevice (lines ~260-292)
+- OpenQuestions (lines ~294-339)
+- TechnicalProfile (lines ~341-440)
 
-SUBCOMPONENTS:
-- CategoryBar — visual bar chart for category distribution
-- DeepDiveCard — card displaying deep dive analysis result
+SUBCOMPONENTS: None (section functions only)
 
 DEPENDENCIES:
 - react (useState)
-- No external icon library (using Unicode/CSS)
+- Site design tokens from global.css (--font-prose, --font-mono, --color-*)
 
-CANARY: MEMENTO-DEMO-2026-01-05-VITE-READY
+CANARY: MEMENTO-DEMO-2026-02-22-V2-SITE-INTEGRATED
 */
 
 import { useState } from 'react';
-import styles from './MementoDemo.module.css';
 
-/* ========== DATA: Trilingual Content ========== */
-const content: Record<string, any> = {
-  en: {
-    nav: {
-      overview: 'Overview',
-      liveSession: 'Live Session',
-      architecture: 'Architecture',
-      schema: 'Schema',
-      openQuestions: 'Open Questions',
-      roadmap: 'Roadmap'
-    },
-    overview: {
-      title: 'Memento',
-      subtitle: 'Browser Session Capture & Classification',
-      lead: 'What were you working on? The tabs you have open tell a story, but that story evaporates the moment you close them. Memento captures browser sessions, classifies tabs using local or cloud LLMs, and persists structured artifacts for longitudinal analysis.',
-      partOf: 'Part of Context Sage',
-      partOfDesc: 'Memento is the capture layer of a larger system for governed multi-agent collaboration. It feeds behavioral data\u2014what you actually browse\u2014into a knowledge base that AI agents can query, challenge, and reason about.',
-      statusLabel: 'Status',
-      status: 'MVP functional. Local inference via Ollama, cloud inference via Anthropic API. MCP server enables Claude Desktop integration.',
-      coreInsight: 'The art of distilling intent from browser sessions is new territory. A tab titled "2504.19413" tells you nothing until you know it\'s an arXiv paper. Classification requires context, and context requires collaboration.'
-    },
-    liveSession: {
-      title: 'A Real Session',
-      subtitle: 'Captured December 31, 2025 at 7:57 AM',
-      intro: 'This is not a mock-up. The data below was captured by Memento and classified by Claude 3.5 Haiku via the Anthropic API. 27 tabs across 11 categories, with 4 flagged for deep analysis.',
-      narrativeLabel: 'Session Narrative',
-      narrative: 'The user is exploring various technical domains, with a focus on AI development, content management, and educational projects.',
-      categoriesLabel: 'Categories Detected',
-      deepDiveLabel: 'Deep Dive Results',
-      deepDiveIntro: 'Four tabs were flagged for deeper content extraction:',
-      reasoningLabel: 'Classification Reasoning',
-      metaLabel: 'Session Metadata'
-    },
-    architecture: {
-      title: 'Architecture',
-      subtitle: 'How the pipeline works',
-      flowTitle: 'Data Flow',
-      flowSteps: [
-        { num: '1', label: 'Capture', desc: 'Chrome extension captures all open tabs' },
-        { num: '2', label: 'POST', desc: 'Tab data sent to Node.js backend' },
-        { num: '3', label: 'Classify', desc: 'Model dispatch to Ollama or Anthropic' },
-        { num: '4', label: 'Persist', desc: 'JSON written to memory/sessions/' },
-        { num: '5', label: 'Query', desc: 'MCP server exposes to Claude Desktop' }
-      ],
-      twoPassTitle: 'Two-Pass Classification',
-      twoPassDesc: 'Pass 1 classifies all tabs and triages. Pass 2 extracts structured data from flagged tabs only.',
-      infrastructureTitle: 'Infrastructure'
-    },
-    schema: {
-      title: 'Session Schema',
-      subtitle: 'What gets persisted',
-      intro: 'Each session is a self-contained JSON artifact with full provenance.',
-      schemaVersion: '1.1.0',
-      fieldsTitle: 'Key Fields',
-      fields: [
-        { name: 'timestamp', desc: 'ISO 8601 capture time' },
-        { name: 'narrative', desc: 'LLM-generated summary' },
-        { name: 'groups', desc: 'Tabs by category' },
-        { name: 'reasoning.perTab', desc: 'Classification rationale' },
-        { name: 'meta.engine', desc: 'Which LLM processed' }
-      ]
-    },
-    openQuestions: {
-      title: 'Open Questions',
-      subtitle: 'This is research, not a finished product',
-      intro: 'We don\'t have canonical answers. These are questions we\'re actively exploring:',
-      questions: [
-        { q: 'What taxonomy should categories follow?', detail: 'Generic vs opinionated (Deep Work, Admin, Distraction)' },
-        { q: 'How do we handle low-confidence classifications?', detail: 'Ask? Flag? Default to Other?' },
-        { q: 'What constitutes a "session"?', detail: 'All tabs? Since last capture? Active in last N minutes?' },
-        { q: 'How should sessions aggregate over time?', detail: 'Pattern detection across 100 sessions' },
-        { q: 'What\'s the capability floor for local models?', detail: 'qwen3 works. Does llama3.2?' }
-      ]
-    },
-    roadmap: {
-      title: 'Roadmap',
-      phases: [
-        { phase: '1', name: 'MVP: Capture \u2192 Classify \u2192 Log', status: 'complete' },
-        { phase: '2', name: 'Two-pass Deep Dive', status: 'complete' },
-        { phase: '3', name: 'Engine picker', status: 'complete' },
-        { phase: '4', name: 'MCP Server', status: 'complete' },
-        { phase: '5', name: 'Launchpad Mode', status: 'in-progress' },
-        { phase: '6', name: 'Learning Loop', status: 'planned' },
-        { phase: '7', name: 'Longitudinal Analysis', status: 'future' }
-      ]
-    },
-  },
-  zh: {
-    nav: { overview: '\u6982\u8ff0', liveSession: '\u5b9e\u65f6\u4f1a\u8bdd', architecture: '\u67b6\u6784', schema: '\u6a21\u5f0f', openQuestions: '\u5f00\u653e\u95ee\u9898', roadmap: '\u8def\u7ebf\u56fe' },
-    overview: {
-      title: 'Memento',
-      subtitle: '\u6d4f\u89c8\u5668\u4f1a\u8bdd\u6355\u83b7\u4e0e\u5206\u7c7b',
-      lead: '\u4f60\u5728\u505a\u4ec0\u4e48\uff1f\u6253\u5f00\u7684\u6807\u7b7e\u9875\u8bb2\u8ff0\u6545\u4e8b\uff0c\u4f46\u5173\u95ed\u65f6\u5c31\u6d88\u5931\u4e86\u3002Memento \u6355\u83b7\u4f1a\u8bdd\u5e76\u4f7f\u7528 LLM \u5206\u7c7b\u3002',
-      partOf: 'Context Sage \u7684\u4e00\u90e8\u5206',
-      partOfDesc: 'Memento \u662f\u591a\u4ee3\u7406\u534f\u4f5c\u6cbb\u7406\u7cfb\u7edf\u7684\u6355\u83b7\u5c42\u3002',
-      statusLabel: '\u72b6\u6001',
-      status: 'MVP \u529f\u80fd\u5b8c\u6210\u3002\u652f\u6301 Ollama \u672c\u5730\u63a8\u7406\u548c Anthropic API\u3002',
-      coreInsight: '\u4ece\u6d4f\u89c8\u5668\u4f1a\u8bdd\u4e2d\u63d0\u70bc\u610f\u56fe\u662f\u65b0\u9886\u57df\u3002\u5206\u7c7b\u9700\u8981\u4e0a\u4e0b\u6587\uff0c\u4e0a\u4e0b\u6587\u9700\u8981\u534f\u4f5c\u3002'
-    },
-    liveSession: { title: '\u771f\u5b9e\u4f1a\u8bdd', subtitle: '2025\u5e7412\u670831\u65e5\u6355\u83b7', intro: '\u771f\u5b9e\u6570\u636e\uff0c27\u4e2a\u6807\u7b7e\u9875\uff0c11\u4e2a\u7c7b\u522b\u3002', narrativeLabel: '\u4f1a\u8bdd\u53d9\u8ff0', narrative: '\u7528\u6237\u6b63\u5728\u63a2\u7d22\u6280\u672f\u9886\u57df\u3002', categoriesLabel: '\u68c0\u6d4b\u5230\u7684\u7c7b\u522b', deepDiveLabel: '\u6df1\u5ea6\u5206\u6790', deepDiveIntro: '\u56db\u4e2a\u6807\u7b7e\u9875\u88ab\u6807\u8bb0\uff1a', reasoningLabel: '\u5206\u7c7b\u63a8\u7406', metaLabel: '\u5143\u6570\u636e' },
-    architecture: { title: '\u67b6\u6784', subtitle: '\u6d41\u6c34\u7ebf', flowTitle: '\u6570\u636e\u6d41', flowSteps: [{ num: '1', label: '\u6355\u83b7', desc: '\u6269\u5c55\u6355\u83b7\u6807\u7b7e\u9875' }, { num: '2', label: 'POST', desc: '\u53d1\u9001\u5230\u540e\u7aef' }, { num: '3', label: '\u5206\u7c7b', desc: '\u8def\u7531\u5230\u6a21\u578b' }, { num: '4', label: '\u6301\u4e45\u5316', desc: '\u5199\u5165 JSON' }, { num: '5', label: '\u67e5\u8be2', desc: 'MCP \u66b4\u9732' }], twoPassTitle: '\u4e24\u9636\u6bb5\u5206\u7c7b', twoPassDesc: '\u7b2c\u4e00\u9636\u6bb5\u5206\u7c7b\uff0c\u7b2c\u4e8c\u9636\u6bb5\u6df1\u5ea6\u5206\u6790\u3002', infrastructureTitle: '\u57fa\u7840\u8bbe\u65bd' },
-    schema: { title: '\u4f1a\u8bdd\u6a21\u5f0f', subtitle: '\u6301\u4e45\u5316\u5185\u5bb9', intro: '\u6bcf\u4e2a\u4f1a\u8bdd\u662f\u72ec\u7acb JSON\u3002', schemaVersion: '1.1.0', fieldsTitle: '\u5b57\u6bb5', fields: [{ name: 'timestamp', desc: '\u6355\u83b7\u65f6\u95f4' }, { name: 'narrative', desc: '\u6458\u8981' }, { name: 'groups', desc: '\u5206\u7c7b' }, { name: 'reasoning.perTab', desc: '\u63a8\u7406' }, { name: 'meta.engine', desc: '\u5f15\u64ce' }] },
-    openQuestions: { title: '\u5f00\u653e\u95ee\u9898', subtitle: '\u7814\u7a76\u4e2d', intro: '\u6211\u4eec\u6b63\u5728\u63a2\u7d22\uff1a', questions: [{ q: '\u5206\u7c7b\u6cd5\uff1f', detail: '\u901a\u7528 vs \u6709\u89c2\u70b9' }, { q: '\u4f4e\u7f6e\u4fe1\u5ea6\uff1f', detail: '\u8be2\u95ee\uff1f\u6807\u8bb0\uff1f' }, { q: '\u4f1a\u8bdd\u5b9a\u4e49\uff1f', detail: '\u6240\u6709\u6807\u7b7e\uff1f\u6700\u8fd1\uff1f' }, { q: '\u65f6\u95f4\u805a\u5408\uff1f', detail: '\u6a21\u5f0f\u68c0\u6d4b' }, { q: '\u6a21\u578b\u4e0b\u9650\uff1f', detail: 'qwen3 \u53ef\u4ee5' }] },
-    roadmap: { title: '\u8def\u7ebf\u56fe', phases: [{ phase: '1', name: 'MVP', status: 'complete' }, { phase: '2', name: '\u4e24\u9636\u6bb5', status: 'complete' }, { phase: '3', name: '\u5f15\u64ce\u9009\u62e9', status: 'complete' }, { phase: '4', name: 'MCP', status: 'complete' }, { phase: '5', name: '\u542f\u52a8\u677f', status: 'in-progress' }, { phase: '6', name: '\u5b66\u4e60\u5faa\u73af', status: 'planned' }, { phase: '7', name: '\u7eb5\u5411\u5206\u6790', status: 'future' }] },
-  },
-  es: {
-    nav: { overview: 'Resumen', liveSession: 'Sesi\u00f3n Real', architecture: 'Arquitectura', schema: 'Esquema', openQuestions: 'Preguntas', roadmap: 'Hoja de Ruta' },
-    overview: {
-      title: 'Memento',
-      subtitle: 'Captura y Clasificaci\u00f3n de Sesiones',
-      lead: '\u00bfEn qu\u00e9 trabajabas? Las pesta\u00f1as cuentan una historia que desaparece al cerrarlas. Memento captura y clasifica.',
-      partOf: 'Parte de Context Sage',
-      partOfDesc: 'Memento es la capa de captura del sistema multi-agente.',
-      statusLabel: 'Estado',
-      status: 'MVP funcional. Ollama local y Anthropic API.',
-      coreInsight: 'Destilar intenci\u00f3n de sesiones es territorio nuevo. La clasificaci\u00f3n requiere contexto y colaboraci\u00f3n.'
-    },
-    liveSession: { title: 'Sesi\u00f3n Real', subtitle: '31 diciembre 2025', intro: 'Datos reales: 27 pesta\u00f1as, 11 categor\u00edas.', narrativeLabel: 'Narrativa', narrative: 'Usuario explorando dominios t\u00e9cnicos.', categoriesLabel: 'Categor\u00edas', deepDiveLabel: 'An\u00e1lisis Profundo', deepDiveIntro: 'Cuatro pesta\u00f1as marcadas:', reasoningLabel: 'Razonamiento', metaLabel: 'Metadatos' },
-    architecture: { title: 'Arquitectura', subtitle: 'Pipeline', flowTitle: 'Flujo', flowSteps: [{ num: '1', label: 'Captura', desc: 'Extensi\u00f3n captura' }, { num: '2', label: 'POST', desc: 'Env\u00eda al backend' }, { num: '3', label: 'Clasificar', desc: 'Despacha a modelo' }, { num: '4', label: 'Persistir', desc: 'Escribe JSON' }, { num: '5', label: 'Consultar', desc: 'MCP expone' }], twoPassTitle: 'Dos Pasadas', twoPassDesc: 'Pasada 1 clasifica, Pasada 2 analiza.', infrastructureTitle: 'Infraestructura' },
-    schema: { title: 'Esquema', subtitle: 'Persistencia', intro: 'Cada sesi\u00f3n es JSON autocontenido.', schemaVersion: '1.1.0', fieldsTitle: 'Campos', fields: [{ name: 'timestamp', desc: 'Tiempo' }, { name: 'narrative', desc: 'Resumen' }, { name: 'groups', desc: 'Categor\u00edas' }, { name: 'reasoning.perTab', desc: 'Razones' }, { name: 'meta.engine', desc: 'Motor' }] },
-    openQuestions: { title: 'Preguntas', subtitle: 'Investigaci\u00f3n', intro: 'Explorando:', questions: [{ q: '\u00bfTaxonom\u00eda?', detail: 'Gen\u00e9rica vs con opini\u00f3n' }, { q: '\u00bfBaja confianza?', detail: '\u00bfPreguntar? \u00bfMarcar?' }, { q: '\u00bfDefinici\u00f3n de sesi\u00f3n?', detail: '\u00bfTodas? \u00bfRecientes?' }, { q: '\u00bfAgregaci\u00f3n temporal?', detail: 'Patrones' }, { q: '\u00bfPiso de modelo?', detail: 'qwen3 funciona' }] },
-    roadmap: { title: 'Hoja de Ruta', phases: [{ phase: '1', name: 'MVP', status: 'complete' }, { phase: '2', name: 'Dos pasadas', status: 'complete' }, { phase: '3', name: 'Selector', status: 'complete' }, { phase: '4', name: 'MCP', status: 'complete' }, { phase: '5', name: 'Launchpad', status: 'in-progress' }, { phase: '6', name: 'Aprendizaje', status: 'planned' }, { phase: '7', name: 'Longitudinal', status: 'future' }] },
+const SECTIONS = [
+  { id: "premise", label: "Premise" },
+  { id: "pipeline", label: "Pipeline" },
+  { id: "findings", label: "Findings" },
+  { id: "failures", label: "What Didn't Work" },
+  { id: "feedback", label: "Feedback Loop" },
+  { id: "commitment", label: "Commitment Device" },
+  { id: "open", label: "Open Questions" },
+  { id: "profile", label: "Technical Profile" },
+];
+
+function Premise() {
+  return (
+    <section>
+      <p>
+        For twenty years, corporations have run classification pipelines, longitudinal pattern
+        detection, and intent inference on your browsing data. They cluster your visits, detect
+        your purchase intent, build attention profiles across sessions, and sell the output. The
+        analytical techniques are well-understood. The constraint was always access to the data
+        and the cost of running inference.
+      </p>
+      <p>
+        Local LLMs remove the cost constraint. Browser extensions provide the data access. Memento
+        tests whether these corporate analytical techniques, applied to data you collect about
+        yourself, produce intelligence you can actually use.
+      </p>
+      <p>
+        The test domain is browser sessions. A Chrome extension captures your open tabs. A
+        four-pass LLM pipeline classifies them, maps cross-category connections, and generates
+        a structured session artifact. A longitudinal layer tracks patterns across sessions.
+        A correction system feeds your disagreements back into future classification.
+      </p>
+      <p>
+        Whether these techniques transfer to other self-collected behavioral data — git commit
+        patterns, communication logs, reading history — is an open question that motivated the
+        architecture. The pipeline is designed to be domain-agnostic. Browser tabs are the first
+        test case, not the point.
+      </p>
+    </section>
+  );
+}
+
+function Pipeline() {
+  return (
+    <section>
+      <p>
+        When Memento sends 31 browser tabs to an LLM for classification, the LLM classifies 8
+        and stops. This was the first finding of the project: LLMs are trained to synthesize and
+        compress, not to enumerate exhaustively. Claude Haiku, Qwen 2.5, Llama 3.2 — every model
+        exhibited the same behavior. Coverage ranged from 0% to 26% on sessions with more than
+        10 tabs.
+      </p>
+      <p>
+        The fix required working against the model's summarization instinct. The output schema was
+        simplified from nested JSON objects to a flat index-to-category map. The prompt was
+        rewritten to demand explicit enumeration: "The assignments object MUST have EXACTLY N
+        entries. DO NOT skip any tabs. DO NOT summarize." Token limits were raised from 2,000 to
+        8,000. A parser-level recovery step detects missing tab indices and assigns them to an
+        Unclassified category. After these changes, coverage reached 95%+.
+      </p>
+      <p>
+        The current pipeline runs four passes:
+      </p>
+      <div className="pass-grid">
+        <div className="pass-card">
+          <span className="pass-num">Pass 1</span>
+          <span className="pass-name">Classification + Triage</span>
+          <p>
+            Each tab gets assigned to a category with explicit evidence ("signals") and a confidence
+            level. Tabs flagged for deeper analysis go to Pass 2. The session gets a narrative
+            summary and an intent hypothesis. Ambiguous classifications are listed as uncertainties
+            for human review.
+          </p>
+        </div>
+        <div className="pass-card">
+          <span className="pass-num">Pass 2</span>
+          <span className="pass-name">Deep Dive</span>
+          <p>
+            Tabs flagged in Pass 1 (typically technical documents, research papers, API docs) get
+            individual analysis: summary, key entities, and a relevance assessment. This pass is
+            conditional. Sessions with no flagged tabs skip it.
+          </p>
+        </div>
+        <div className="pass-card">
+          <span className="pass-num">Pass 3</span>
+          <span className="pass-name">Visualization</span>
+          <p>
+            Generates a Mermaid diagram representing the session's structure. Categories become
+            subgraphs. Cross-category connections surface as dotted edges. The diagram is rendered
+            directly in the results page.
+          </p>
+        </div>
+        <div className="pass-card">
+          <span className="pass-num">Pass 4</span>
+          <span className="pass-name">Thematic Analysis</span>
+          <p>
+            Conditional on active projects existing in context.json. Maps tabs to declared projects,
+            identifies cross-category connections that keyword matching would miss (a "Research" tab
+            about authorship theory supporting a "Creative Writing" project), and proposes concrete
+            30-minute tasks. Generates an alternative narrative reframing the session through a
+            thematic rather than categorical lens.
+          </p>
+        </div>
+      </div>
+      <p>
+        Every pass captures a full trace: the prompt sent to the LLM, the raw response, parsing
+        decisions, and timing data. These traces persist in the session artifact and can be
+        inspected, edited, and re-run through a workbench interface. A developer can modify
+        a classification prompt and see new output without re-running the full pipeline.
+      </p>
+      <p>
+        Cost per session with Claude Haiku: approximately $0.006. With local Ollama models: zero,
+        but 3-4x slower.
+      </p>
+    </section>
+  );
+}
+
+function Findings() {
+  return (
+    <section>
+      <p>
+        Single sessions are mildly interesting. You see your tabs organized and narrated, which
+        is useful in the moment but not much more than a tidy bookmark list. The value that
+        surprised was in cross-session patterns.
+      </p>
+      <h3>Ghost Tabs</h3>
+      <p>
+        Tabs that appear in multiple sessions but never receive a disposition (never marked
+        complete, never deliberately closed). After 188 captured sessions, Memento identified
+        tabs that appeared in 40+ sessions across months. The Google Cloud blog post on agent
+        evaluation frameworks appeared in 43 sessions, always co-occurring with Memento
+        development tabs. The system inferred the candidate intention: "learn agent evaluation
+        by applying it to Memento." The user confirmed this was accurate — and had not
+        articulated it to himself before.
+      </p>
+      <h3>Project Health Decay</h3>
+      <p>
+        By tracking which project-associated tabs appear across sessions and when they stop
+        appearing, the system detects project neglect. A project with tabs appearing in 12
+        sessions over two weeks, then zero sessions for 30 days, gets flagged as abandoned.
+        The signal is absence, not activity.
+      </p>
+      <h3>Distraction Signatures</h3>
+      <p>
+        Time-of-day and day-of-week patterns in non-work browsing. The system can surface
+        patterns like repeated YouTube sessions at 4am on Wednesdays. These patterns are
+        invisible in any single session and only emerge from longitudinal aggregation.
+      </p>
+      <h3>Protected Category Semantics</h3>
+      <p>
+        An early classification error: chase.com was always categorized as "Financial." But
+        reading a credit card rewards article on chase.com is Research. Managing your account
+        balance on chase.com is a Transaction that should be protected from accidental closure.
+        The system now distinguishes by URL path patterns and content keywords. The category
+        "Transaction (Protected)" means "you have an active session with state you could lose,"
+        not "this website involves money."
+      </p>
+    </section>
+  );
+}
+
+function Failures() {
+  return (
+    <section>
+      <p>
+        Three significant approaches were tried and either abandoned or remain partially solved.
+        Each produced findings worth preserving.
+      </p>
+
+      <h3>Tab-Level Intent Detection</h3>
+      <p>
+        The first attempt at intent detection worked per-tab: "you opened this URL, therefore
+        you intend X." Users (tested via 3-agent proxy deliberation) rejected per-tab proposals
+        as too shallow. Opening a Wikipedia article about Pierre Menard doesn't mean you intend
+        to learn about Pierre Menard. It means you're working on something that Pierre Menard is
+        one data point within. The intent lives at the thread level, not the tab level. This led
+        to theme detection as a replacement approach.
+      </p>
+
+      <h3>Keyword-Based Theme Clustering</h3>
+      <p>
+        Theme detection groups tabs that recur together across sessions. The current implementation
+        uses keyword co-occurrence: tabs that share terms get clustered. This works for
+        surface-level groupings (all your React docs cluster together) but fails on the cases
+        that matter most.
+      </p>
+      <p>
+        A concrete failure: tabs open during one session included a Wikipedia article on Pierre
+        Menard, a Poetry Foundation page on Emily Dickinson, an essay on the death of the author
+        from varnelis.net, and a Nature paper on psychometric evaluation of LLMs. These share zero
+        keywords. They are the same intellectual thread. Keyword clustering cannot find it.
+        Semantic embedding or user-declared thread seeds might, but neither is implemented.
+      </p>
+      <p>
+        A second problem: when 5 of 10 detected themes all match "Agent Engineering" as their
+        top Basic Memory connection, the matching is too loose to be informative. Everything
+        matching is the same as nothing matching.
+      </p>
+
+      <h3>Detection Without Resolution</h3>
+      <p>
+        The UX testing produced a diagnosis that applies beyond Memento: detection without a
+        resolution mechanism is just another dashboard to look at. The initial theme detection UI
+        offered Confirm / Correct / Dismiss actions. These train the system but produce nothing
+        for the user. The 3-agent test concluded that every action should either produce an
+        artifact (save as a note), enable resumption (reopen the tabs), or close the loop
+        (archive the thread). Training the classifier is a side effect, not a primary action.
+      </p>
+      <p>
+        This remains unresolved. The resolution actions (Save to Basic Memory, Open All Tabs,
+        Archive, Keep Watching) have been specified but not built.
+      </p>
+    </section>
+  );
+}
+
+function FeedbackLoop() {
+  return (
+    <section>
+      <p>
+        When the classifier assigns a tab to the wrong category, you can correct it. The
+        correction is stored. The correction analyzer examines accumulated corrections for
+        patterns: if you've corrected "stackoverflow.com/questions about Python" from Research
+        to Development three times, the system extracts a rule and injects it into future
+        classification prompts.
+      </p>
+      <p>
+        The pipeline: user correction → pattern detection → rule suggestion → learned rule file
+        (JSON) → prompt injection on subsequent classifications. The rules accumulate in{" "}
+        <code>backend/prompts/learned-rules.json</code> and are loaded into the classification
+        prompt at Pass 1.
+      </p>
+      <p>
+        The architecture is the interesting part. Each correction is a human label on a machine
+        prediction. Confirm = true positive. Correct = false positive with ground truth provided.
+        Dismiss = false positive. Over time, this dataset enables measuring whether classification
+        accuracy improves. Precision and recall can be computed from the correction log without
+        a separate evaluation harness.
+      </p>
+      <p>
+        Honest status: the pipeline exists and functions. It has not accumulated enough corrections
+        to evaluate whether classification actually improves over time. The 188 captured sessions
+        have produced a small number of corrections, concentrated in domain-ambiguity cases
+        (stackoverflow as Development vs. Research, YouTube as Entertainment vs. Learning). Whether
+        the learned rules generalize or overfit to specific URL patterns is unknown.
+      </p>
+      <p>
+        The intent detection spec extends this pattern. If the system proposes an intention
+        ("you keep opening this tab because you want to learn agent evaluation") and the user
+        confirms, corrects, or dismisses the proposal, that's the same feedback structure applied
+        at a higher level of abstraction. Confirm/correct/dismiss on intents rather than
+        categories.
+      </p>
+    </section>
+  );
+}
+
+function CommitmentDevice() {
+  return (
+    <section>
+      <p>
+        Launchpad mode locks new session captures until you resolve every tab in the current
+        session. Each tab requires a disposition: complete, trash, defer, promote, regroup.
+        Financial and transactional tabs cannot be trashed. A 10-second undo window follows
+        each action. The session unlock happens only when every item has a disposition.
+      </p>
+      <p>
+        The design draws from Ariely and Wertenbroch's work on commitment devices: voluntary
+        constraints that create immediate consequences for present-biased behavior. You choose
+        to enter Launchpad mode. Once in, the lock creates a cost for not resolving your session.
+        The hypothesis: forced confrontation with your open tabs produces better attention hygiene
+        than voluntary review.
+      </p>
+      <p>
+        The data does not support the hypothesis yet. Across 188 captured sessions, the
+        disposition count is zero. Launchpad mode has been used for testing but not adopted as
+        a regular workflow. Several interpretations are possible: the friction is too high for
+        a single developer using the tool (no external accountability). The all-or-nothing lock
+        is too coarse — a Review Mode was added later (view and resolve without locking, progress
+        saves) but usage data on it is thin. The per-tab resolution granularity may be wrong;
+        resolving 30 individual tabs is tedious in a way that resolving 5 themes would not be.
+      </p>
+      <p>
+        The commitment device concept may be sound while the UX is wrong. Or the concept may not
+        transfer from its origin contexts (savings accounts, gym memberships) to browser session
+        management. The experiment hasn't run long enough to distinguish these possibilities.
+      </p>
+    </section>
+  );
+}
+
+function OpenQuestions() {
+  return (
+    <section>
+      <p>
+        These are unresolved and would benefit from outside input.
+      </p>
+      <h3>Session-Level vs. Intention-Level Organization</h3>
+      <p>
+        The current UI organizes around captured sessions: each capture is a timestamped artifact
+        containing classified tabs. The intent detection spec proposes reorganizing around
+        inferred intentions: recurring unresolved items, sorted by signal strength, with the
+        session history demoted to a data layer underneath. These are different products. The
+        session view is an archive. The intention view is a to-do list generated from behavioral
+        patterns. Which one the project should be is unclear.
+      </p>
+      <h3>Keyword Clustering vs. Semantic Thread Detection</h3>
+      <p>
+        The Pierre Menard / Dickinson / LLM psychometrics problem. Tabs that form a coherent
+        intellectual thread but share no surface-level terms. Possible approaches: embedding-based
+        similarity (expensive to run locally), user-declared thread seeds that anchor future
+        clustering, or Basic Memory connections as a bridge (tabs linking to the same KB note
+        are likely related regardless of keywords). None are implemented.
+      </p>
+      <h3>Discoverability of the Codebase Itself</h3>
+      <p>
+        At 20,600 lines across 57 files, the project contains capabilities its builder has
+        forgotten exist. The prompt workbench — full trace capture, inline inspection, re-run
+        from the browser — was documented only after its existence came into question during a
+        session. The dev intent panel, designed to let AI and human negotiate UI purpose through
+        the interface itself, has no documentation outside a session transcript. Whether a
+        project built through iterative AI collaboration can maintain self-knowledge without
+        conventional engineering discipline (ADRs, sprint reviews, changelogs) is an open
+        question this project is inadvertently testing.
+      </p>
+      <h3>Generalization Beyond Browsing</h3>
+      <p>
+        The four-pass classification pipeline, the correction-to-learning loop, and the
+        longitudinal pattern detection are not browser-specific in their architecture. They
+        operate on timestamped collections of items with metadata. Git commits, email threads,
+        file system snapshots, and reading logs all fit the same shape. Whether the specific
+        prompt engineering and schema design transfer, or whether each new domain requires
+        equivalent iteration, determines whether Memento is a tool or a case study.
+      </p>
+    </section>
+  );
+}
+
+function TechnicalProfile() {
+  return (
+    <section>
+      <div className="stats-grid">
+        <div className="stat">
+          <span className="stat-value">20,600</span>
+          <span className="stat-label">Lines of code</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value">43</span>
+          <span className="stat-label">Backend files</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value">14</span>
+          <span className="stat-label">Renderer files</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value">18</span>
+          <span className="stat-label">MCP tools</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value">v1.3.0</span>
+          <span className="stat-label">Schema version</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value">188</span>
+          <span className="stat-label">Captured sessions</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value">~$0.006</span>
+          <span className="stat-label">Cost/session (Haiku)</span>
+        </div>
+        <div className="stat">
+          <span className="stat-value">$0.00</span>
+          <span className="stat-label">Cost/session (Ollama)</span>
+        </div>
+      </div>
+
+      <h3>Stack</h3>
+      <table>
+        <tbody>
+          <tr><td>Runtime</td><td>Node.js</td></tr>
+          <tr><td>Extension</td><td>Chrome Manifest V3</td></tr>
+          <tr><td>LLM (cloud)</td><td>Anthropic Claude 3.5 Haiku</td></tr>
+          <tr><td>LLM (local)</td><td>Ollama — Qwen 2.5 Coder, Llama 3.2, others</td></tr>
+          <tr><td>Hardware</td><td>RTX 5060 Ti 16GB (Ollama host)</td></tr>
+          <tr><td>Network</td><td>Tailscale (cross-machine inference)</td></tr>
+          <tr><td>AI integration</td><td>MCP server (Claude Desktop, Claude.ai)</td></tr>
+          <tr><td>Knowledge base</td><td>Basic Memory (Obsidian-backed, MCP-queryable)</td></tr>
+          <tr><td>Storage</td><td>JSON session artifacts on disk</td></tr>
+        </tbody>
+      </table>
+
+      <h3>MCP Tools</h3>
+      <p>
+        The MCP server exposes 18 tools to Claude Desktop and Claude.ai, organized in five groups:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Group</th><th>Tools</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Session</td>
+            <td>list, read, get_latest, search</td>
+            <td>Query captured session artifacts</td>
+          </tr>
+          <tr>
+            <td>Context</td>
+            <td>get/set active projects, reclassify</td>
+            <td>Manage classification context, re-run with updated projects</td>
+          </tr>
+          <tr>
+            <td>Lock</td>
+            <td>get_lock_status, clear_lock</td>
+            <td>Inspect and manage Launchpad session locks</td>
+          </tr>
+          <tr>
+            <td>Longitudinal</td>
+            <td>stats, recurring_unfinished, project_health, distraction_signature, sync_attention</td>
+            <td>Cross-session pattern analysis and Basic Memory export</td>
+          </tr>
+          <tr>
+            <td>Corrections</td>
+            <td>correction_stats, correction_suggestions, add/get extractors</td>
+            <td>Feedback loop inspection and domain rule management</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Source</h3>
+      <p>
+        <a href="https://github.com/adambalm/memento" target="_blank" rel="noopener">
+          github.com/adambalm/memento
+        </a>
+      </p>
+    </section>
+  );
+}
+
+const SECTION_COMPONENTS: Record<string, React.FC> = {
+  premise: Premise,
+  pipeline: Pipeline,
+  findings: Findings,
+  failures: Failures,
+  feedback: FeedbackLoop,
+  commitment: CommitmentDevice,
+  open: OpenQuestions,
+  profile: TechnicalProfile,
+};
+
+const cssText = `
+  .memento-content section {
+    font-family: var(--font-prose);
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--color-text);
   }
+  .memento-content p {
+    margin: 0 0 1.1em 0;
+    max-width: 38em;
+  }
+  .memento-content h3 {
+    font-family: var(--font-prose);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 1.8em 0 0.6em 0;
+    letter-spacing: 0.01em;
+  }
+  .memento-content code {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    background: var(--color-bg-subtle);
+    padding: 2px 5px;
+    border-radius: 2px;
+  }
+  .memento-content table {
+    border-collapse: collapse;
+    margin: 1em 0 1.4em 0;
+    font-size: 15px;
+    max-width: 42em;
+  }
+  .memento-content th,
+  .memento-content td {
+    text-align: left;
+    padding: 6px 14px 6px 0;
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-prose);
+    vertical-align: top;
+  }
+  .memento-content th {
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: var(--font-mono);
+  }
+  .memento-content a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .pass-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 1em 0 1.4em 0;
+    max-width: 42em;
+  }
+  .pass-card {
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+  .pass-card p {
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0.5em 0 0 0;
+    color: var(--color-text-muted);
+  }
+  .pass-num {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .pass-name {
+    display: block;
+    font-family: var(--font-prose);
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 2px;
+    color: var(--color-text);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 0 0 1.6em 0;
+    max-width: 42em;
+  }
+  .stat {
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+  }
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--color-text);
+    line-height: 1.2;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 600px) {
+    .pass-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+`;
+
+const inlineStyles = {
+  root: {
+    background: "var(--color-bg)",
+    minHeight: "100vh",
+    padding: "40px 32px",
+    fontFamily: "var(--font-prose)",
+  } as React.CSSProperties,
+  header: {
+    maxWidth: "38em",
+    marginBottom: "32px",
+    borderBottom: "1px solid var(--color-border)",
+    paddingBottom: "24px",
+  } as React.CSSProperties,
+  title: {
+    fontFamily: "var(--font-prose)",
+    fontSize: "36px",
+    fontWeight: 300,
+    color: "var(--color-text)",
+    margin: "0 0 8px 0",
+    letterSpacing: "-0.01em",
+  } as React.CSSProperties,
+  subtitle: {
+    fontSize: "16px",
+    color: "var(--color-text-muted)",
+    margin: "0 0 6px 0",
+    lineHeight: 1.5,
+    maxWidth: "34em",
+  } as React.CSSProperties,
+  date: {
+    fontFamily: "var(--font-mono)",
+    fontSize: "12px",
+    color: "var(--color-text-tertiary)",
+    margin: 0,
+    letterSpacing: "0.02em",
+  } as React.CSSProperties,
+  nav: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: "4px",
+    marginBottom: "32px",
+    maxWidth: "42em",
+  } as React.CSSProperties,
+  navButton: {
+    fontFamily: "var(--font-mono)",
+    fontSize: "12px",
+    letterSpacing: "0.03em",
+    background: "none",
+    border: "1px solid transparent",
+    padding: "6px 12px",
+    cursor: "pointer",
+    color: "var(--color-text-tertiary)",
+    borderRadius: "3px",
+    transition: "all 0.15s",
+  } as React.CSSProperties,
+  navButtonActive: {
+    color: "var(--color-text)",
+    background: "var(--color-bg-subtle)",
+    border: "1px solid var(--color-border)",
+  } as React.CSSProperties,
+  main: {
+    maxWidth: "42em",
+    minHeight: "60vh",
+  } as React.CSSProperties,
+  footer: {
+    maxWidth: "38em",
+    marginTop: "48px",
+    paddingTop: "20px",
+    borderTop: "1px solid var(--color-border)",
+    fontFamily: "var(--font-mono)",
+    fontSize: "12px",
+    color: "var(--color-text-tertiary)",
+    lineHeight: 1.6,
+  } as React.CSSProperties,
 };
 
-/* ========== DATA: Real Session (December 31, 2025) ========== */
-const sessionData = {
-  timestamp: '2025-12-31T07:57:12.197Z',
-  totalTabs: 27,
-  categories: {
-    'Research': 7,
-    'Development: Memento': 3,
-    'Development': 5,
-    'Productivity': 2,
-    'Creative Writing': 2,
-    'Social Media': 1,
-    'Education': 3,
-    'Other': 3,
-    'News': 1
-  } as Record<string, number>,
-  deepDiveResults: [
-    { title: 'MedGemma Integration', summary: 'DICOM and FHIR support for clinical workflows', entities: ['MedGemma', 'FHIR'] },
-    { title: 'Multi-Agent Debate', summary: 'MAD strategies with judge mechanism', entities: ['Gemini-Pro', 'PaLM 2'] },
-    { title: 'Prompt Patterns', summary: '13 patterns for software design', entities: ['ChatGPT', 'Vanderbilt'] },
-    { title: 'Healthcare API', summary: 'MCP Toolbox integration', entities: ['Google Cloud', 'ADK'] }
-  ],
-  sampleReasoning: [
-    { tab: 'Pierre Menard - Wikipedia', category: 'Creative Writing', signals: ['Borges', 'authorship'], confidence: 'high' },
-    { tab: 'Emily Dickinson | Poetry Foundation', category: 'Creative Writing', signals: ['Emily Dickinson'], confidence: 'high' },
-    { tab: 'Multi-Agent Debate Strategies', category: 'Research', signals: ['AI research'], confidence: 'high' },
-    { tab: 'Untitled document - Google Docs', category: 'Productivity', signals: ['untitled'], confidence: 'low' }
-  ],
-  meta: { engine: 'anthropic', model: 'claude-3-5-haiku', passes: 3, time: '42.5s', cost: '$0.007' }
-};
-
-/* ========== SUBCOMPONENT: CategoryBar ========== */
-const CategoryBar = ({ name, count, max }: { name: string; count: number; max: number }) => (
-  <div className={styles.categoryBar}>
-    <div className={styles.categoryBarFill} style={{ width: `${(count / max) * 100}%` }} />
-    <span className={styles.categoryBarName}>{name}</span>
-    <span className={styles.categoryBarCount}>({count})</span>
-  </div>
-);
-
-/* ========== SUBCOMPONENT: DeepDiveCard ========== */
-const DeepDiveCard = ({ title, summary, entities }: { title: string; summary: string; entities: string[] }) => (
-  <div className={styles.deepDiveCard}>
-    <div className={styles.deepDiveTitle}>{title}</div>
-    <p className={styles.deepDiveSummary}>{summary}</p>
-    <div className={styles.deepDiveEntities}>
-      {entities.map((e, j) => (
-        <span key={j} className={styles.entityTag}>{e}</span>
-      ))}
-    </div>
-  </div>
-);
-
-/* ========== MAIN COMPONENT ========== */
 export default function MementoDemo() {
-  const [lang, setLang] = useState('en');
-  const [section, setSection] = useState('overview');
-  const [expandedQ, setExpandedQ] = useState<number | null>(null);
+  const [activeSection, setActiveSection] = useState("premise");
 
-  const t = content[lang];
-  const maxCat = Math.max(...Object.values(sessionData.categories));
-
-  const getStatusDotClass = (status: string) => {
-    if (status === 'complete') return styles.statusDotComplete;
-    if (status === 'in-progress') return styles.statusDotInProgress;
-    return styles.statusDotPlanned;
-  };
-
-  /* ========== SECTION: Overview ========== */
-  const renderOverview = () => (
-    <section data-section="overview">
-      <p className={styles.lead}>{t.overview.lead}</p>
-      <div className={styles.contentBlock}>
-        <div className={styles.label}>{t.overview.partOf}</div>
-        <p>{t.overview.partOfDesc}</p>
-      </div>
-      <div className={styles.contentBlock}>
-        <div className={styles.label}>{t.overview.statusLabel}</div>
-        <p><span className={styles.statusBadge}>MVP</span> {t.overview.status}</p>
-      </div>
-      <div className={styles.pullQuote}>{t.overview.coreInsight}</div>
-    </section>
-  );
-
-  /* ========== SECTION: LiveSession ========== */
-  const renderLiveSession = () => (
-    <section data-section="liveSession">
-      <p className={styles.lead}>{t.liveSession.intro}</p>
-      <div className={styles.contentBlock}>
-        <div className={styles.label}>{t.liveSession.narrativeLabel}</div>
-        <p className={styles.narrative}>{t.liveSession.narrative}</p>
-      </div>
-      <div className={styles.contentBlock}>
-        <div className={styles.label}>{t.liveSession.categoriesLabel}</div>
-        {Object.entries(sessionData.categories).map(([cat, count]) => (
-          <CategoryBar key={cat} name={cat} count={count} max={maxCat} />
-        ))}
-      </div>
-      <div className={styles.contentBlock}>
-        <div className={styles.label}>{t.liveSession.deepDiveLabel}</div>
-        <p className={styles.introText}>{t.liveSession.deepDiveIntro}</p>
-        {sessionData.deepDiveResults.map((r, i) => (
-          <DeepDiveCard key={i} {...r} />
-        ))}
-      </div>
-      <div className={styles.contentBlock}>
-        <div className={styles.label}>{t.liveSession.reasoningLabel}</div>
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead><tr><th className={styles.th}>Tab</th><th className={styles.th}>Category</th><th className={styles.th}>Signals</th><th className={styles.th}>Confidence</th></tr></thead>
-            <tbody>
-              {sessionData.sampleReasoning.map((item, i) => (
-                <tr key={i}><td className={styles.td}>{item.tab}</td><td className={styles.td}>{item.category}</td><td className={styles.td}>{item.signals.join(', ')}</td><td className={styles.td}>{item.confidence}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div>
-        <div className={styles.label}>{t.liveSession.metaLabel}</div>
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}><tbody>
-            <tr><td className={styles.td}>Engine</td><td className={styles.td}><span className={styles.code}>{sessionData.meta.engine}</span></td></tr>
-            <tr><td className={styles.td}>Model</td><td className={styles.td}><span className={styles.code}>{sessionData.meta.model}</span></td></tr>
-            <tr><td className={styles.td}>Passes</td><td className={styles.td}>{sessionData.meta.passes}</td></tr>
-            <tr><td className={styles.td}>Time</td><td className={styles.td}>{sessionData.meta.time}</td></tr>
-            <tr><td className={styles.td}>Cost</td><td className={styles.td}>{sessionData.meta.cost}</td></tr>
-          </tbody></table>
-        </div>
-      </div>
-    </section>
-  );
-
-  /* ========== SECTION: Architecture ========== */
-  const renderArchitecture = () => (
-    <section data-section="architecture">
-      <h3 className={styles.sectionTitle}>{t.architecture.flowTitle}</h3>
-      {t.architecture.flowSteps.map((step: any, i: number) => (
-        <div key={i} className={styles.flowStep}>
-          <div className={styles.flowNum}>{step.num}</div>
-          <div className={styles.flowContent}><strong>{step.label}</strong><div className={styles.flowDesc}>{step.desc}</div></div>
-        </div>
-      ))}
-      <h3 className={styles.sectionTitle}>{t.architecture.twoPassTitle}</h3>
-      <p>{t.architecture.twoPassDesc}</p>
-      <h3 className={styles.sectionTitle}>{t.architecture.infrastructureTitle}</h3>
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead><tr><th className={styles.th}>Machine</th><th className={styles.th}>OS</th><th className={styles.th}>Role</th></tr></thead>
-          <tbody>
-            <tr><td className={styles.td}><span className={styles.code}>SupHouse</span></td><td className={styles.td}>Windows 11</td><td className={styles.td}>Extension + Backend</td></tr>
-            <tr><td className={styles.td}><span className={styles.code}>adambalm</span></td><td className={styles.td}>Ubuntu 24.04</td><td className={styles.td}>LLM Inference (Ollama)</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-
-  /* ========== SECTION: Schema ========== */
-  const renderSchema = () => (
-    <section data-section="schema">
-      <p className={styles.lead}>{t.schema.intro}</p>
-      <div className={styles.schemaVersion}>
-        <div className={styles.label}>Schema Version</div>
-        <span className={styles.code}>{t.schema.schemaVersion}</span>
-      </div>
-      <h3 className={styles.sectionTitle}>{t.schema.fieldsTitle}</h3>
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead><tr><th className={styles.th}>Field</th><th className={styles.th}>Description</th></tr></thead>
-          <tbody>
-            {t.schema.fields.map((f: any, i: number) => (
-              <tr key={i}><td className={styles.td}><span className={styles.code}>{f.name}</span></td><td className={styles.td}>{f.desc}</td></tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-
-  /* ========== SECTION: OpenQuestions ========== */
-  const renderOpenQuestions = () => (
-    <section data-section="openQuestions">
-      <p className={styles.lead}>{t.openQuestions.intro}</p>
-      {t.openQuestions.questions.map((q: any, i: number) => (
-        <div key={i} className={styles.qBox} data-testid={`question-${i}`}>
-          <div className={styles.qHeader} onClick={() => setExpandedQ(expandedQ === i ? null : i)} data-testid={`question-toggle-${i}`}>
-            <span>{q.q}</span><span>{expandedQ === i ? '\u2212' : '+'}</span>
-          </div>
-          {expandedQ === i && <div className={styles.qDetail}>{q.detail}</div>}
-        </div>
-      ))}
-    </section>
-  );
-
-  /* ========== SECTION: Roadmap ========== */
-  const renderRoadmap = () => (
-    <section data-section="roadmap">
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead><tr><th className={styles.th}>Phase</th><th className={styles.th}>Name</th><th className={styles.th}>Status</th></tr></thead>
-          <tbody>
-            {t.roadmap.phases.map((p: any, i: number) => (
-              <tr key={i} className={p.status === 'future' ? styles.rowFaded : undefined}>
-                <td className={styles.td}>{p.phase}</td>
-                <td className={styles.td}>{p.name}</td>
-                <td className={styles.td}><span className={`${styles.statusDot} ${getStatusDotClass(p.status)}`} />{p.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-
-  const renderSection = () => {
-    switch (section) {
-      case 'overview': return renderOverview();
-      case 'liveSession': return renderLiveSession();
-      case 'architecture': return renderArchitecture();
-      case 'schema': return renderSchema();
-      case 'openQuestions': return renderOpenQuestions();
-      case 'roadmap': return renderRoadmap();
-      default: return renderOverview();
-    }
-  };
+  const ActiveComponent = SECTION_COMPONENTS[activeSection];
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.langGroup}>
-          {(['en', 'zh', 'es'] as const).map(l => (
-            <button
-              key={l}
-              className={`${styles.langBtn} ${lang === l ? styles.langBtnActive : ''}`}
-              onClick={() => setLang(l)}
-              data-testid={`lang-${l}`}
-            >
-              {l.toUpperCase()}
-            </button>
-          ))}
-        </div>
-        <h1 className={styles.title}>{t.overview.title}</h1>
-        <p className={styles.subtitle}>{t.overview.subtitle}</p>
+    <div style={inlineStyles.root}>
+      <style>{cssText}</style>
+      <header style={inlineStyles.header}>
+        <h1 style={inlineStyles.title}>Memento</h1>
+        <p style={inlineStyles.subtitle}>
+          Local attention analysis using LLM classification pipelines on self-collected
+          browsing data. An open-source experiment.
+        </p>
+        <p style={inlineStyles.date}>February 2026 — v2.0.0</p>
       </header>
 
-      <nav className={styles.nav}>
-        {Object.entries(t.nav).map(([key, label]) => (
+      <nav style={inlineStyles.nav}>
+        {SECTIONS.map((s) => (
           <button
-            key={key}
-            className={`${styles.navBtn} ${section === key ? styles.navBtnActive : ''}`}
-            onClick={() => setSection(key)}
-            data-testid={`nav-${key}`}
+            key={s.id}
+            onClick={() => setActiveSection(s.id)}
+            style={{
+              ...inlineStyles.navButton,
+              ...(activeSection === s.id ? inlineStyles.navButtonActive : {}),
+            }}
           >
-            {label as string}
+            {s.label}
           </button>
         ))}
       </nav>
 
-      <main>
-        <h2 className={styles.sectionTitle}>{t.nav[section]}</h2>
-        {renderSection()}
+      <main style={inlineStyles.main} className="memento-content">
+        <ActiveComponent />
       </main>
+
+      <footer style={inlineStyles.footer}>
+        <p>
+          Built by Ed O'Connell. Developed iteratively with Claude (Anthropic) across
+          100+ collaboration sessions. Previous demo version: v1.0.0, 2026-01-05.
+        </p>
+      </footer>
     </div>
   );
 }
