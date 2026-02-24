@@ -51,6 +51,10 @@ Four document types, two reusable objects:
 
 The `provenance` object tracks *who* made the content (human or AI), *who* reviewed it, and a self-reported `confidenceScore` from the generating agent. An `article` also carries `epistemicStatus` (draft → working → reviewed → canonical → superseded → deprecated → archived) and `supersededBy` as a typed reference to its replacement. Whether anything downstream actually consumes these fields is a separate question — for now they're an experiment in making content self-describing.
 
+### AI Discoverability
+
+All content pages emit JSON-LD structured data (`schema.org/Article` for articles, `schema.org/SoftwareApplication` for demos) with headline/name, description, author, datePublished, and image. SSR means the full content is in the HTML source — no JS execution required. Demo pages include `<noscript>` fallbacks so crawlers that don't run JavaScript still get the substance. OG images are vector-rendered via Satori at 2x retina resolution.
+
 ### Rendering Strategy
 
 Index pages (`/`, `/articles/`, `/demos/`) export `prerender = true` — built once, served from CDN. Content detail pages (`/articles/[slug]`, `/demos/[slug]`) are SSR — a `loadQuery` call on every request, so edits in the Studio appear immediately without a rebuild. The tradeoff is explicit: indexes are fast and cheap; detail pages are fresh and slightly slower.
@@ -136,6 +140,8 @@ Sanity Studio is embedded in the Astro app — no separate process needed.
 
 - `scripts/seed.mjs` — seed Sanity dataset
 - `scripts/patch-sa-brief-v2.mjs` — editorial patches via Portable Text (workaround for [agent-toolkit #20](https://github.com/sanity-io/agent-toolkit/issues/20))
+- `scripts/generate-og-images.mjs` — Satori + resvg OG image pipeline (2x retina, auto-uploads to Sanity)
+- `scripts/create-bike-shop-essay.mjs` — hand-crafted Portable Text with `em` marks for literary content
 
 ### CI Thresholds
 

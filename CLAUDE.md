@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-> **Last verified:** 2026-02-20
+> **Last verified:** 2026-02-23
 > **Phase:** Executing (AG closed, foundation built)
 
 ## Project Overview
@@ -15,11 +15,13 @@ The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. F
 - **Build:** `npm run build` succeeds. `output: 'server'` — content pages are SSR, index pages are prerendered static.
 - **Sanity project:** `zu6l9t4j` on personal account (see `.env.local`). CORS configured. Dataset seeded (`node scripts/seed.mjs`). All templates wired to CMS via `loadQuery`.
 - **Visual editing:** Stega encoding and VisualEditing component working. Presentation tool configured and verified.
-- **Articles:** SSR route at `/articles/[slug]`. SA Brief published with code blocks (Shiki highlighting via `@sanity/code-input`).
+- **Articles:** SSR route at `/articles/[slug]`. SA Brief and The Bike Shop (essay) published. Shiki highlighting via `@sanity/code-input`.
+- **Demos:** SSR route at `/demos/[slug]`. Three React islands (Memento, Context Sage, Skill Forge) with noscript fallbacks.
+- **SEO infrastructure:** JSON-LD structured data on all content pages (Article for articles, SoftwareApplication for demos). OG images generated via Satori + resvg at 2x retina (2400x1260). Full social meta tags.
 - Dialogue log: `dialogues/001-site-rebuild.md` (gitignored — local context only)
 - Prior site: `github.com/adambalm/portfolio` (React 19 + Vite, deployed to Vercel)
 
-<!-- verified: 2026-02-20 -->
+<!-- verified: 2026-02-23 -->
 
 ## Session Startup — Read Basic Memory Context
 
@@ -192,8 +194,17 @@ Before any deployment or PR, the implementing agent runs this checklist. This is
 - **Fractal quality:** Deep inspection should reveal deeper levels of quality. Semantic HTML, proper CSS inheritance (custom properties, cascade, logical nesting), AI-readable structure.
 - **Voice:** All prose reviewed against `docs/voice-profile.md`. No passion declarations, no consultant-speak, no LinkedIn bio energy.
 - **Analytics hygiene:** Vercel Web Analytics is active. All Playwright scripts — whether run via `npx playwright test` or ad-hoc — MUST suppress analytics. The formal test suite handles this via `storageState` in `playwright.config.ts`. Ad-hoc scripts targeting any URL (localhost or production) must either navigate to `?notrack` first or set `localStorage.setItem('notrack', '1')` via `page.addInitScript()` before the first `page.goto()`. Do not pollute production analytics with test traffic.
+- **JSON-LD structured data:** All content pages emit `<script type="application/ld+json">` in the body. Articles use `schema.org/Article`; demos use `schema.org/SoftwareApplication`. All field values pass through `stegaClean()`. Rendered via `set:html={JSON.stringify(jsonLd)}` in Astro.
+- **OG image pipeline:** `scripts/generate-og-images.mjs` uses Satori (HTML/CSS → SVG) + @resvg/resvg-js (SVG → PNG) for vector-quality OG images. Renders at 2x (2400x1260) for retina clarity. Uploads to Sanity and patches `seo.ogImage` on each document.
 
-<!-- verified: 2026-02-11 -->
+### Lessons Learned
+
+- **React island heading hierarchy:** Demo React components must use `<h2>`, never `<h1>`. The page template (`[slug].astro`) provides the single `<h1>`. Duplicate H1s break accessibility and confuse AI parsers. Fixed in commit `a633f43`.
+- **Portable Text em marks via MCP:** To add italic emphasis to existing PT blocks, use `patch_document_from_json` with a `set` operation on `body[_key=="..."].children`, splitting the single span into multiple spans with `marks: ["em"]` on the emphasized words. The `markDefs: []` array is preserved automatically.
+- **Sanity `seo.metaTitle` vs BaseLayout suffix:** `BaseLayout.astro` appends `— {siteTitle}` to the page title. If `seo.metaTitle` in Sanity also includes the suffix, titles double ("Title — Ed O'Connell — Ed O'Connell"). Store only the bare title in `seo.metaTitle`.
+- **noscript fallback for demos:** React island demos are invisible to JS-disabled crawlers. Each demo has a `<noscript>` block with the demo summary so AI agents and basic scrapers get the substance.
+
+<!-- verified: 2026-02-23 -->
 
 ## Deliberation Context
 

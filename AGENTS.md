@@ -1,7 +1,7 @@
 # AGENTS.md
 
 > Context for AI agents working with or evaluating this codebase.
-> Last verified: 2026-02-20
+> Last verified: 2026-02-23
 
 ## Project
 
@@ -84,8 +84,9 @@ Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (au
 - **Visual editing**: Stega encoding embeds invisible source metadata in content strings. The `VisualEditing` component renders click-to-edit overlays. The `presentationTool` maps documents to preview URLs. All gated by env var — off in production builds, on for editorial preview. **Critical:** Fields used in logic (conditionals, CSS classes, object keys) must be stripped via `stegaClean()` from `@sanity/client/stega`. Display-only fields must NOT be cleaned.
 - **Epistemic governance**: AI-generated and AI-assisted content carries provenance metadata — what agent produced it, when, in what context, with what epistemic status.
 - **Accessibility-first**: Semantic HTML, heading hierarchy, landmark regions, keyboard navigation, visible focus, reduced motion support. Not retrofitted — built in.
+- **AI discoverability**: JSON-LD structured data on all content pages (`schema.org/Article` for articles, `schema.org/SoftwareApplication` for demos). SSR ensures full content is in the HTML source without JS execution. Demo pages include `<noscript>` fallbacks with summary text for crawlers that don't run JavaScript. OG images generated via Satori at 2x retina.
 
-<!-- verified: 2026-02-20 -->
+<!-- verified: 2026-02-23 -->
 
 ## File Structure
 
