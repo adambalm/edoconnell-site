@@ -739,7 +739,7 @@ Memento ──(detected themes)──► Basic Memory (proposed interests)
             </button>
           ))}
         </div>
-        <h1 className={styles.title}>{t.landing.title}</h1>
+        <h2 className={styles.title}>{t.landing.title}</h2>
         <p className={styles.subtitle}>{t.landing.subtitle}</p>
       </header>
 

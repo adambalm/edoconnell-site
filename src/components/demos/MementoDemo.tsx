@@ -689,7 +689,7 @@ export default function MementoDemo() {
     <div style={inlineStyles.root}>
       <style>{cssText}</style>
       <header style={inlineStyles.header}>
-        <h1 style={inlineStyles.title}>Memento</h1>
+        <h2 style={inlineStyles.title}>Memento</h2>
         <p style={inlineStyles.subtitle}>
           Local attention analysis using LLM classification pipelines on self-collected
           browsing data. An open-source experiment.

@@ -1617,7 +1617,7 @@ export default function SkillForgeVisualizer({ lang: initialLang = 'en', links =
       <header className={styles.mainHeader}>
         <div className={styles.mainHeaderContent}>
           <div>
-            <h1 className={styles.mainTitle}>{t(validLang, 'title')}</h1>
+            <h2 className={styles.mainTitle}>{t(validLang, 'title')}</h2>
             <p className={styles.mainSubtitle}>{t(validLang, 'subtitle')}</p>
           </div>
           <div className={styles.langGroup} role="group" aria-label="Language selection">
