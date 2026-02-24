@@ -88,9 +88,33 @@ const componentName = stegaClean(demo.componentName)
 if (renderMode === 'EXTERNAL' && demo.externalUrl) {
   return Astro.redirect(demo.externalUrl)
 }
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://edoconnell.org').href
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: stegaClean(demo.title),
+  description: stegaClean(pageDesc || ''),
+  url: canonicalUrl,
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Web',
+  ...(demo.provenance?.date && { datePublished: stegaClean(demo.provenance.date) }),
+  author: {
+    '@type': 'Person',
+    name: stegaClean(demo.provenance?.author || "Ed O'Connell"),
+    url: 'https://edoconnell.org',
+  },
+  ...(pageOgImage && { image: pageOgImage }),
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+}
 ---
 
 <BaseLayout title={pageTitle} description={pageDesc} ogImage={pageOgImage}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <article class="demo-page">
     <header class="demo-header">
       <h1>{demo.title}</h1>
@@ -125,6 +149,13 @@ if (renderMode === 'EXTERNAL' && demo.externalUrl) {
       {renderMode === 'ISLAND' && !['Memento', 'ContextSage', 'SkillForge'].includes(componentName || '') && (
         <p class="missing-note">Demo component "{demo.componentName}" is not yet available.</p>
       )}
+
+      <noscript>
+        <div class="noscript-fallback">
+          <p>This is an interactive demo that requires JavaScript.</p>
+          {demo.summary && <p>{demo.summary}</p>}
+        </div>
+      </noscript>
     </section>
   </article>
 </BaseLayout>
@@ -184,5 +215,11 @@ if (renderMode === 'EXTERNAL' && demo.externalUrl) {
     text-align: center;
     color: var(--color-text-muted, #555);
     font-style: italic;
+  }
+
+  .noscript-fallback {
+    padding: var(--space-6, 1.5rem);
+    color: var(--color-text-muted, #555);
+    line-height: 1.6;
   }
 </style>

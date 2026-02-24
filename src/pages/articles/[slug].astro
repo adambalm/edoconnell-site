@@ -102,9 +102,32 @@ const articleHeadings = (article.body || [])
   .filter((h: { text: string }) => h.text.length > 0)
 
 const isEssay = stegaClean(article.kind) === 'essay'
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://edoconnell.org').href
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: stegaClean(article.title),
+  description: stegaClean(pageDesc || ''),
+  url: canonicalUrl,
+  mainEntityOfPage: canonicalUrl,
+  ...(article.provenance?.date && { datePublished: stegaClean(article.provenance.date) }),
+  author: {
+    '@type': 'Person',
+    name: stegaClean(article.provenance?.author || "Ed O'Connell"),
+    url: 'https://edoconnell.org',
+  },
+  publisher: {
+    '@type': 'Person',
+    name: "Ed O'Connell",
+    url: 'https://edoconnell.org',
+  },
+  ...(pageOgImage && { image: pageOgImage }),
+}
 ---
 
 <BaseLayout title={pageTitle} description={pageDesc} ogImage={pageOgImage}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <ReadingProgress />
   <article class:list={['article-page', { essay: isEssay }]}>
     <div class="article-content">
