@@ -1,8 +1,8 @@
 # Strictness Modes — Transport CLI Enforcement Spec (v0)
 
-> **Version:** 0.5.7
+> **Version:** 0.5.8
 > **Date:** 2026-03-01
-> **Status:** HO-directed v0 — deterministic enforcement, manifest qualification gate, v0/v0.5 pacing split resolved, CONSULT default, config schema formalized, mode-dependent cap enforcement, IA inspection findings resolved (v0.5.3), no semantic inference. **v0.5.5: Background section added. v0.5.6: IA precision pass on Background. v0.5.7: Added semantic-layer design boundary note (Section J); created NotebookLM read-aloud version.**
+> **Status:** HO-directed v0 — deterministic enforcement, manifest qualification gate, v0/v0.5 pacing split resolved, CONSULT default, config schema formalized, mode-dependent cap enforcement, IA inspection findings resolved (v0.5.3), no semantic inference. **v0.5.5: Background section. v0.5.6: IA precision pass. v0.5.7: Semantic boundary note, NotebookLM version. v0.5.8: Override habituation risk acknowledgment (Section E).**
 > **Scope:** Cross-project. Applies to any transport CLI invocation across GLOBAL protocol pack + PROJECT overlays.
 > **Prior art:** Unified Design Cycle abbreviated cycles, ECM (Engagement Constraint Matrix) severity levels, TAC (Test/Acceptance Criteria) verification types, LCE (Language-Constrained Execution) enforceability tiers. None defined switchable modes — this spec synthesizes them.
 > **HO decision:** Deterministic escalation via explicit tags + `scope` field. No guessing. Future semantic layer may propose tags; HO must accept them explicitly before enforcement applies.
@@ -373,6 +373,18 @@ HO acknowledged running below computed minimum mode.
 ```
 
 This is an audit trail, not a punishment. Ed might have good reasons. The record ensures the next agent reviewing the log knows the ceremony was consciously reduced.
+
+### Known Risk: Override Habituation
+
+The override mechanism is susceptible to habituation. Because COMMIT and RATIFY require significant ceremony (15-60 minutes), a user under time pressure may normalize passing `--override-risk acknowledge` to stay in DELIBERATE. Over time, this could degrade the strictness layer into a logging system rather than an enforcement tool.
+
+This is not a design flaw — it is an inherent limit of any system where the human retains override authority. The mitigations are:
+
+1. **The audit trail itself.** Override frequency is visible in the log. A pattern of habitual overrides is reviewable evidence, not hidden state.
+2. **v0.5 surface protocol.** Surface points force deeper engagement, making it harder to rubber-stamp without reading.
+3. **This is in LCE's "irreducibly human" tier.** No mechanical enforcement can prevent a human from choosing to override. The system's job is to make the choice visible and auditable, not to lock the human out.
+
+If override frequency becomes a concern in practice, a future version could add a mechanical counter (similar to the CONSULT escalation nudge) that surfaces an advisory after N overrides per project or time window.
 
 ---
 
