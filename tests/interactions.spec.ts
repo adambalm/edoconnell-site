@@ -122,6 +122,15 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL('/demos/')
   })
 
+  test('desktop nav "Contact" links to /contact/', async ({ page }) => {
+    const vw = page.viewportSize()
+    test.skip(!!vw && vw.width < 768, 'Desktop nav hidden on mobile')
+    await page.goto('/')
+    const link = page.locator('nav[aria-label="Primary"] a[href="/contact/"]')
+    await link.click()
+    await expect(page).toHaveURL('/contact/')
+  })
+
   test('active page state shown on current nav link', async ({ page }) => {
     const vw = page.viewportSize()
     test.skip(!!vw && vw.width < 768, 'Desktop nav hidden on mobile')
@@ -180,6 +189,7 @@ test.describe('Mobile menu', () => {
     const menu = page.locator('#mobile-menu')
     await expect(menu.locator('a[href="/articles/"]')).toBeVisible()
     await expect(menu.locator('a[href="/demos/"]')).toBeVisible()
+    await expect(menu.locator('a[href="/contact/"]')).toBeVisible()
   })
 
   test('Escape key closes menu', async ({ page }) => {
@@ -453,6 +463,53 @@ test.describe('Skip link', () => {
     // Focus should move to the main element
     const main = page.locator('main#main')
     await expect(main).toBeFocused()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Contact form
+// ---------------------------------------------------------------------------
+
+test.describe('Contact form', () => {
+  test('form exists with required fields', async ({ page }) => {
+    await page.goto('/contact/')
+    const form = page.locator('#contact-form')
+    await expect(form).toBeAttached()
+    await expect(page.locator('#contact-name')).toBeAttached()
+    await expect(page.locator('#contact-email')).toBeAttached()
+    await expect(page.locator('#contact-message')).toBeAttached()
+  })
+
+  test('labels are associated with inputs', async ({ page }) => {
+    await page.goto('/contact/')
+    await expect(page.locator('label[for="contact-name"]')).toBeAttached()
+    await expect(page.locator('label[for="contact-email"]')).toBeAttached()
+    await expect(page.locator('label[for="contact-message"]')).toBeAttached()
+  })
+
+  test('required fields have aria-required', async ({ page }) => {
+    await page.goto('/contact/')
+    await expect(page.locator('#contact-name')).toHaveAttribute('aria-required', 'true')
+    await expect(page.locator('#contact-email')).toHaveAttribute('aria-required', 'true')
+    await expect(page.locator('#contact-message')).toHaveAttribute('aria-required', 'true')
+  })
+
+  test('honeypot field is hidden from users', async ({ page }) => {
+    await page.goto('/contact/')
+    const honeypot = page.locator('#contact-website')
+    await expect(honeypot).toBeAttached()
+    await expect(honeypot).not.toBeVisible()
+    await expect(honeypot).toHaveAttribute('tabindex', '-1')
+    // Verify the honeypot's parent div has aria-hidden (hides from screen readers)
+    const wrapper = honeypot.locator('..')
+    await expect(wrapper).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  test('submit button has accessible text', async ({ page }) => {
+    await page.goto('/contact/')
+    const btn = page.locator('.form-submit')
+    await expect(btn).toBeVisible()
+    await expect(btn).toHaveText('Send message')
   })
 })
 

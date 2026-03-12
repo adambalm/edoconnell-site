@@ -23,8 +23,8 @@ export const page = defineType({
       options: { source: 'title', maxLength: 96 },
       validation: (rule) => rule.required(),
       readOnly: ({ document }) =>
-        ['page-home', 'page-demos'].includes(document?._id?.replace('drafts.', '') ?? ''),
-      description: 'URL path segment. Locked for structural pages (home, demos).',
+        ['page-home', 'page-demos', 'page-contact'].includes(document?._id?.replace('drafts.', '') ?? ''),
+      description: 'URL path segment. Locked for structural pages (home, demos, contact).',
     }),
     defineField({
       name: 'body',

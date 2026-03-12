@@ -1,0 +1,240 @@
+---
+/**
+ * ContactForm — HTML form with honeypot spam prevention.
+ *
+ * Progressive enhancement: works as a native form POST without JS.
+ * With JS, intercepts submit, sends fetch, replaces form with success message.
+ */
+interface Props {
+  success?: boolean
+  error?: string
+}
+
+const { success = false, error } = Astro.props
+---
+
+{success ? (
+  <div class="form-success" role="status">
+    <p>Message sent. I'll get back to you soon.</p>
+  </div>
+) : (
+  <form
+    id="contact-form"
+    method="POST"
+    action="/api/contact"
+    class="contact-form"
+    novalidate
+  >
+    {error && (
+      <div class="form-error" role="alert">
+        <p>{error}</p>
+      </div>
+    )}
+
+    <div class="form-field">
+      <label for="contact-name">Name</label>
+      <input
+        type="text"
+        id="contact-name"
+        name="name"
+        required
+        aria-required="true"
+        autocomplete="name"
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="contact-email">Email</label>
+      <input
+        type="email"
+        id="contact-email"
+        name="email"
+        required
+        aria-required="true"
+        autocomplete="email"
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="contact-message">Message</label>
+      <textarea
+        id="contact-message"
+        name="message"
+        rows="6"
+        required
+        aria-required="true"
+      ></textarea>
+    </div>
+
+    <!-- Honeypot — invisible to humans, screen readers, and keyboard users -->
+    <div class="honeypot" aria-hidden="true">
+      <label for="contact-website">Website</label>
+      <input
+        type="text"
+        id="contact-website"
+        name="website"
+        tabindex="-1"
+        autocomplete="off"
+      />
+    </div>
+
+    <!-- Timing-based bot detection -->
+    <input type="hidden" name="timestamp" value="" />
+
+    <button type="submit" class="form-submit">Send message</button>
+  </form>
+)}
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null
+  if (form) {
+    // Set timestamp on load for timing-based bot detection
+    const tsInput = form.querySelector('input[name="timestamp"]') as HTMLInputElement
+    if (tsInput) tsInput.value = Date.now().toString()
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const submitBtn = form.querySelector('.form-submit') as HTMLButtonElement
+      submitBtn.disabled = true
+      submitBtn.textContent = 'Sending...'
+
+      // Remove any existing error
+      const existingError = form.querySelector('.form-error')
+      if (existingError) existingError.remove()
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          body: new FormData(form),
+        })
+
+        const data = await res.json()
+
+        if (res.ok) {
+          // Replace form with success message
+          const wrapper = form.parentElement!
+          form.remove()
+          const successDiv = document.createElement('div')
+          successDiv.className = 'form-success'
+          successDiv.setAttribute('role', 'status')
+          successDiv.innerHTML = '<p>Message sent. I\'ll get back to you soon.</p>'
+          wrapper.appendChild(successDiv)
+        } else {
+          // Show error
+          const errorDiv = document.createElement('div')
+          errorDiv.className = 'form-error'
+          errorDiv.setAttribute('role', 'alert')
+          errorDiv.innerHTML = `<p>${data.error || 'Something went wrong. Please try again.'}</p>`
+          form.prepend(errorDiv)
+          submitBtn.disabled = false
+          submitBtn.textContent = 'Send message'
+        }
+      } catch {
+        const errorDiv = document.createElement('div')
+        errorDiv.className = 'form-error'
+        errorDiv.setAttribute('role', 'alert')
+        errorDiv.innerHTML = '<p>Network error. Please try again.</p>'
+        form.prepend(errorDiv)
+        submitBtn.disabled = false
+        submitBtn.textContent = 'Send message'
+      }
+    })
+  }
+</script>
+
+<style>
+  .contact-form {
+    max-width: 40ch;
+  }
+
+  .form-field {
+    margin-bottom: var(--space-6);
+  }
+
+  .form-field label {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+    color: var(--color-text);
+  }
+
+  .form-field input,
+  .form-field textarea {
+    width: 100%;
+    padding: var(--space-3);
+    font-family: var(--font-prose);
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    transition: border-color 0.2s ease;
+  }
+
+  .form-field input:focus,
+  .form-field textarea:focus {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-offset);
+    border-color: var(--color-accent);
+  }
+
+  .form-field textarea {
+    resize: vertical;
+    min-height: 8rem;
+  }
+
+  .form-submit {
+    display: inline-block;
+    padding: var(--space-3) var(--space-6);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: #fff;
+    background: var(--color-accent);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .form-submit:hover {
+    background: var(--color-accent-hover);
+  }
+
+  .form-submit:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-offset);
+  }
+
+  .form-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .honeypot {
+    display: none;
+  }
+
+  .form-error {
+    padding: var(--space-3) var(--space-4);
+    margin-bottom: var(--space-6);
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    border-radius: 4px;
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+  }
+
+  .form-success {
+    padding: var(--space-4) var(--space-6);
+    background: rgba(22, 163, 74, 0.08);
+    border: 1px solid rgba(22, 163, 74, 0.3);
+    border-radius: 4px;
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-base);
+  }
+</style>

@@ -127,6 +127,11 @@ const jsonLd = {
 ---
 
 <BaseLayout title={pageTitle} description={pageDesc} ogImage={pageOgImage}>
+  <script is:inline>
+    if (sessionStorage.getItem('transition-in')) {
+      document.documentElement.dataset.transitionIn = '';
+    }
+  </script>
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <ReadingProgress />
   <article class:list={['article-page', { essay: isEssay }]}>
@@ -157,6 +162,16 @@ const jsonLd = {
     {!isEssay && articleHeadings.length > 0 && <SidebarTOC headings={articleHeadings} />}
   </article>
   <BackToTop />
+
+  <!-- SVG filter for entrance transition (zero dimensions, invisible) -->
+  <svg aria-hidden="true" class="svg-defs">
+    <defs>
+      <filter id="resolve">
+        <feTurbulence id="resolve-turb" type="fractalNoise" baseFrequency="0.034" numOctaves="3" seed="2" result="noise" />
+        <feDisplacementMap id="resolve-displace" in="SourceGraphic" in2="noise" scale="220" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
 </BaseLayout>
 
 <style>
@@ -305,4 +320,114 @@ const jsonLd = {
   .essay .article-body :global(p) {
     margin-bottom: var(--space-5, 1.25rem);
   }
+
+  /* Entrance transition — prevent FOUC */
+  :global([data-transition-in]) .article-page {
+    opacity: 0;
+  }
+
+  .svg-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
 </style>
+
+<script>
+  const hasTransition = sessionStorage.getItem('transition-in')
+
+  if (hasTransition) {
+    sessionStorage.removeItem('transition-in')
+
+    const article = document.querySelector<HTMLElement>('.article-page')
+    const turb = document.getElementById('resolve-turb')
+    const displace = document.getElementById('resolve-displace')
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    if (article && turb && displace && !prefersReduced) {
+      const glyphs = '!<>-_\\/[]{}—=+*^?#\u00b7\u2022\u00d7\u00f7'
+
+      // Collect text nodes
+      const textNodes: { node: Text; original: string }[] = []
+      const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT)
+      while (walker.nextNode()) {
+        const node = walker.currentNode as Text
+        if (node.textContent && node.textContent.trim().length > 0) {
+          textNodes.push({ node, original: node.textContent })
+        }
+      }
+
+      // Scramble all text before first visible frame
+      for (const { node, original } of textNodes) {
+        let scrambled = ''
+        for (let i = 0; i < original.length; i++) {
+          const ch = original[i]
+          if (ch === ' ' || ch === '\n' || ch === '\r' || ch === '\t') {
+            scrambled += ch
+          } else {
+            scrambled += glyphs[Math.floor(Math.random() * glyphs.length)]
+          }
+        }
+        node.textContent = scrambled
+      }
+
+      // Apply filter and reveal (scrambled + high turbulence)
+      article.style.filter = 'url(#resolve)'
+      article.style.opacity = '1'
+
+      // Animate: turbulence decreases + text resolves
+      const totalDuration = 1000
+      const start = performance.now()
+
+      function resolveTick(now: number) {
+        const elapsed = now - start
+        const t = Math.min(elapsed / totalDuration, 1)
+
+        // Turbulence: fast decrease over first 500ms (ease-out quad)
+        const turbT = Math.min(elapsed / 500, 1)
+        const turbEased = 1 - (1 - turbT) * (1 - turbT)
+        displace!.setAttribute('scale', String(220 * (1 - turbEased)))
+        turb!.setAttribute('baseFrequency', String(0.034 - turbEased * 0.022))
+
+        // Text: resolves from 200ms to 1000ms
+        const textT = Math.max(0, Math.min((elapsed - 200) / 800, 1))
+        for (const { node, original } of textNodes) {
+          let result = ''
+          for (let i = 0; i < original.length; i++) {
+            const ch = original[i]
+            if (ch === ' ' || ch === '\n' || ch === '\r' || ch === '\t') {
+              result += ch
+              continue
+            }
+            if (Math.random() < textT) {
+              result += ch
+            } else {
+              result += glyphs[Math.floor(Math.random() * glyphs.length)]
+            }
+          }
+          node.textContent = result
+        }
+
+        if (t < 1) {
+          requestAnimationFrame(resolveTick)
+        } else {
+          // Restore exact originals and clean up
+          for (const { node, original } of textNodes) {
+            node.textContent = original
+          }
+          article!.style.filter = ''
+          article!.style.opacity = ''
+          document.documentElement.removeAttribute('data-transition-in')
+          displace!.setAttribute('scale', '0')
+          turb!.setAttribute('baseFrequency', '0.012')
+        }
+      }
+
+      requestAnimationFrame(resolveTick)
+    } else {
+      // Reduced motion or missing elements — show immediately
+      document.documentElement.removeAttribute('data-transition-in')
+    }
+  }
+</script>

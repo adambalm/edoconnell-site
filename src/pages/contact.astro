@@ -1,0 +1,81 @@
+---
+/**
+ * /contact — Contact page with CMS editorial intro and HTML form.
+ *
+ * SSR (no prerender) — reads query params for the no-JS form flow.
+ * Body content from Sanity `page-contact` document. Form submission
+ * handled by /api/contact endpoint.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro'
+import ContactForm from '../components/ContactForm.astro'
+import { loadQuery } from '../sanity/lib/load-query'
+import { PortableText } from 'astro-portabletext'
+
+interface PageData {
+  title: string
+  body: any[] | null
+  seo: {
+    metaTitle?: string
+    metaDescription?: string
+    ogImage?: { asset?: { url?: string } }
+  } | null
+}
+
+let page: PageData = {
+  title: 'Contact',
+  body: null,
+  seo: null,
+}
+
+try {
+  const { data } = await loadQuery<PageData>({
+    query: `*[_id == "page-contact"][0]{
+      title,
+      body,
+      seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
+    }`,
+  })
+  if (data) page = data
+} catch (e) {
+  console.warn('[contact] Sanity fetch failed — using fallback content:', e instanceof Error ? e.message : e)
+}
+
+const pageTitle = page.seo?.metaTitle || page.title
+const metaDescription = page.seo?.metaDescription
+const ogImage = page.seo?.ogImage?.asset?.url
+
+const url = new URL(Astro.request.url)
+const success = url.searchParams.get('success') === 'true'
+const error = url.searchParams.get('error') ?? undefined
+---
+
+<BaseLayout title={pageTitle} description={metaDescription} ogImage={ogImage}>
+  <article class="contact-page">
+    <h1>{page.title}</h1>
+
+    {page.body && (
+      <div class="contact-body">
+        <PortableText value={page.body} />
+      </div>
+    )}
+
+    <ContactForm success={success} error={error} />
+  </article>
+</BaseLayout>
+
+<style>
+  .contact-page {
+    max-width: var(--measure, 65ch);
+    margin: 0 auto;
+  }
+
+  .contact-body {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-8);
+    line-height: 1.7;
+  }
+
+  .contact-body :global(p) {
+    margin-bottom: var(--space-4);
+  }
+</style>

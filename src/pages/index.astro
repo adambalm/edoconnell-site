@@ -20,7 +20,7 @@ const ogImage = page.seo?.ogImage?.asset?.url
 ---
 
 <BaseLayout title="Home" description={metaDescription} ogImage={ogImage}>
-  <section aria-labelledby="intro-heading">
+  <section id="home-content" aria-labelledby="intro-heading">
     <h1 id="intro-heading">{page.title}</h1>
     {page.subtitle && <p class="subtitle">{page.subtitle}</p>}
 
@@ -29,7 +29,7 @@ const ogImage = page.seo?.ogImage?.asset?.url
       <span class="nav-sep" aria-hidden="true">&middot;</span>
       <a href="/demos/">Demos</a>
       <span class="nav-sep" aria-hidden="true">&middot;</span>
-      <a href="https://docs.google.com/document/d/1cg4dNgaOKsrBFPWAu0qFEQE8c7FgcT5R/preview" target="_blank" rel="noopener">Resume</a>
+      <a href="/contact/">Contact</a>
     </nav>
 
     {page.body && (
@@ -38,6 +38,16 @@ const ogImage = page.seo?.ogImage?.asset?.url
       </div>
     )}
   </section>
+
+  <!-- SVG filter for page transition (zero dimensions, invisible) -->
+  <svg aria-hidden="true" class="svg-defs">
+    <defs>
+      <filter id="dissolve">
+        <feTurbulence id="turb" type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="2" result="noise" />
+        <feDisplacementMap id="displace" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
 </BaseLayout>
 
 <style>
@@ -73,4 +83,122 @@ const ogImage = page.seo?.ogImage?.asset?.url
     margin-top: var(--space-12);
     line-height: 1.7;
   }
+
+  .svg-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
 </style>
+
+<script>
+  const content = document.getElementById('home-content')
+  if (!content) throw new Error('Missing #home-content')
+
+  const turb = document.getElementById('turb')!
+  const displace = document.getElementById('displace')!
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // Find the bike shop link (rendered by PortableText)
+  const bikeShopLink = content.querySelector<HTMLAnchorElement>('a[href*="the-bike-shop"]')
+
+  let savedTextNodes: { node: Text; original: string }[] = []
+
+  function restoreText() {
+    for (const { node, original } of savedTextNodes) {
+      node.textContent = original
+    }
+    savedTextNodes = []
+  }
+
+  // Reset on back-navigation (bfcache)
+  window.addEventListener('pageshow', () => {
+    content.removeAttribute('style')
+    displace.setAttribute('scale', '0')
+    turb.setAttribute('baseFrequency', '0.012')
+    document.documentElement.style.backgroundColor = ''
+    restoreText()
+  })
+
+  if (bikeShopLink && !prefersReduced) {
+    bikeShopLink.addEventListener('click', (e) => {
+      e.preventDefault()
+      const href = bikeShopLink.getAttribute('href')!
+      textScrambleDissolve(href)
+    })
+  }
+
+  function textScrambleDissolve(href: string) {
+    document.documentElement.style.backgroundColor = '#000'
+    const glyphs = '!<>-_\\/[]{}—=+*^?#\u00b7\u2022\u00d7\u00f7'
+
+    // Collect visible text nodes
+    savedTextNodes = []
+    const walker = document.createTreeWalker(content!, NodeFilter.SHOW_TEXT)
+    while (walker.nextNode()) {
+      const node = walker.currentNode as Text
+      if (node.textContent && node.textContent.trim().length > 0) {
+        savedTextNodes.push({ node, original: node.textContent })
+      }
+    }
+
+    const scrambleDuration = 800
+    const scrambleStart = performance.now()
+
+    function scrambleTick(now: number) {
+      const elapsed = now - scrambleStart
+      const t = Math.min(elapsed / scrambleDuration, 1)
+
+      for (const { node, original } of savedTextNodes) {
+        let result = ''
+        for (let i = 0; i < original.length; i++) {
+          const ch = original[i]
+          if (ch === ' ' || ch === '\n' || ch === '\r' || ch === '\t') {
+            result += ch
+            continue
+          }
+          const corruptChance = t < 0.3 ? t * 1.5 : t < 0.7 ? 0.45 + (t - 0.3) * 1.25 : 0.95
+          if (Math.random() > corruptChance) {
+            result += ch
+          } else if (t > 0.5 && Math.random() < (t - 0.5) * 2) {
+            result += ' '
+          } else {
+            result += glyphs[Math.floor(Math.random() * glyphs.length)]
+          }
+        }
+        node.textContent = result
+      }
+
+      if (t < 1) requestAnimationFrame(scrambleTick)
+    }
+
+    requestAnimationFrame(scrambleTick)
+
+    // Turbulence dissolve kicks in at 400ms
+    setTimeout(() => {
+      content!.style.filter = 'url(#dissolve)'
+      const dissolveStart = performance.now()
+      const dissolveDuration = 650
+
+      function dissolveTick(now: number) {
+        const elapsed = now - dissolveStart
+        const t = Math.min(elapsed / dissolveDuration, 1)
+        const eased = t * t
+
+        displace.setAttribute('scale', String(eased * 220))
+        turb.setAttribute('baseFrequency', String(0.012 + eased * 0.022))
+        content!.style.opacity = String(1 - t)
+
+        if (t < 1) requestAnimationFrame(dissolveTick)
+      }
+
+      requestAnimationFrame(dissolveTick)
+    }, 400)
+
+    setTimeout(() => {
+      sessionStorage.setItem('transition-in', '1')
+      window.location.href = href
+    }, 1200)
+  }
+</script>
