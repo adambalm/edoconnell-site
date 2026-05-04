@@ -1,0 +1,23 @@
+---
+import BaseLayout from './BaseLayout.astro'
+
+interface Frontmatter {
+  title?: string
+  description?: string
+  source?: string
+  page?: number
+  date?: string
+}
+
+const { frontmatter } = Astro.props as { frontmatter: Frontmatter }
+const title = frontmatter?.title ?? 'Untitled'
+const description =
+  frontmatter?.description ??
+  (frontmatter?.source && frontmatter?.page
+    ? `Transcribed page ${frontmatter.page} of ${frontmatter.source}.`
+    : undefined)
+---
+
+<BaseLayout title={title} description={description}>
+  <slot />
+</BaseLayout>
