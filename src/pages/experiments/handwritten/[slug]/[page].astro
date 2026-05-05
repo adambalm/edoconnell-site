@@ -1,0 +1,37 @@
+---
+/**
+ * /experiments/handwritten/[slug]/[page]
+ *
+ * Renders one transcribed Supernote page from the `handwritten` content
+ * collection. Prerendered at build time so visits cost zero function
+ * invocations and zero Sanity API calls — content updates ship via redeploy.
+ */
+export const prerender = true
+
+import { getCollection, type CollectionEntry } from 'astro:content'
+import HandwrittenPageLayout from '../../../../layouts/HandwrittenPageLayout.astro'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('handwritten')
+  return entries.map((entry) => {
+    const parts = entry.id.split('/')
+    const slug = parts[0]
+    const page = parts.slice(1).join('/')
+    return {
+      params: { slug, page },
+      props: { entry },
+    }
+  })
+}
+
+interface Props {
+  entry: CollectionEntry<'handwritten'>
+}
+
+const { entry } = Astro.props
+const { Content } = await entry.render()
+---
+
+<HandwrittenPageLayout frontmatter={entry.data}>
+  <Content />
+</HandwrittenPageLayout>

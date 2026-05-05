@@ -12,25 +12,51 @@ interface Props {
   ogImage?: string
 }
 
-let settings = {
+interface SiteSettings {
+  siteTitle: string
+  siteDescription: string
+  noindex: boolean
+  seo: { metaTitle?: string; metaDescription?: string; ogImage?: { asset?: { url?: string } } } | null
+}
+
+const defaultSettings: SiteSettings = {
   siteTitle: "Ed O'Connell",
-  siteDescription: "Portfolio of Ed O'Connell: AI demos, structured content systems, and essays on language, institutions, and digital infrastructure.",
+  siteDescription:
+    "Portfolio of Ed O'Connell: AI demos, structured content systems, and essays on language, institutions, and digital infrastructure.",
   noindex: true,
-  seo: null as { metaTitle?: string; metaDescription?: string; ogImage?: { asset?: { url?: string } } } | null,
+  seo: null,
 }
-try {
-  const { data } = await loadQuery<typeof settings>({
-    query: `*[_type == "siteSettings"][0]{
-      siteTitle,
-      siteDescription,
-      noindex,
-      seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
-    }`,
-  })
-  if (data) settings = data
-} catch (e) {
-  console.warn('[BaseLayout] Sanity fetch failed — using fallback settings:', e instanceof Error ? e.message : e)
+
+// Module-level cache. For prerendered pages this fetch fires once per build
+// and is reused across every page. For SSR pages it fires once per server
+// cold start. Without the cache, every render of any page that includes
+// BaseLayout (effectively every page on the site) hits Sanity for siteSettings.
+let _settingsPromise: Promise<SiteSettings> | null = null
+function getSiteSettings(): Promise<SiteSettings> {
+  if (_settingsPromise) return _settingsPromise
+  _settingsPromise = (async () => {
+    try {
+      const { data } = await loadQuery<SiteSettings>({
+        query: `*[_type == "siteSettings"][0]{
+          siteTitle,
+          siteDescription,
+          noindex,
+          seo { metaTitle, metaDescription, ogImage { asset->{ url } } }
+        }`,
+      })
+      return data ?? defaultSettings
+    } catch (e) {
+      console.warn(
+        '[BaseLayout] Sanity fetch failed — using fallback settings:',
+        e instanceof Error ? e.message : e,
+      )
+      return defaultSettings
+    }
+  })()
+  return _settingsPromise
 }
+
+const settings = await getSiteSettings()
 
 const currentPath = Astro.url.pathname
 const { title, description = settings.siteDescription, ogImage } = Astro.props
