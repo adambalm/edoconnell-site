@@ -16,7 +16,9 @@ export async function getStaticPaths() {
   return entries.map((entry) => {
     const parts = entry.id.split('/')
     const slug = parts[0]
-    const page = parts.slice(1).join('/')
+    // Astro 5 legacy `type: 'content'` includes the file extension in entry.id
+    // (e.g. "go-on-now/p1.md"). Strip it so the URL stays /<slug>/<page>.
+    const page = parts.slice(1).join('/').replace(/\.mdx?$/, '')
     return {
       params: { slug, page },
       props: { entry },
