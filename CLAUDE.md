@@ -1,7 +1,7 @@
 # CLAUDE.md
 
-> **Last verified:** 2026-02-23
-> **Phase:** Executing (AG closed, foundation built)
+> **Last verified:** 2026-05-06 (load-bearing claims re-tested: build, deploy, schemas, routes, Sanity config; pre-existing claims dated 2026-02-23 below not all re-verified individually)
+> **Phase:** Executing (AG closed, foundation built; handwriting/experiments work in progress)
 
 ## Project Overview
 
@@ -18,6 +18,8 @@ The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. F
 - **Articles:** SSR route at `/articles/[slug]`. SA Brief and The Bike Shop (essay) published. Shiki highlighting via `@sanity/code-input`.
 - **Demos:** SSR route at `/demos/[slug]`. Three React islands (Memento, Context Sage, Skill Forge) with noscript fallbacks.
 - **SEO infrastructure:** JSON-LD structured data on all content pages (Article for articles, SoftwareApplication for demos). OG images generated via Satori + resvg at 2x retina (2400x1260). Full social meta tags.
+- **Content Collections (added 2026-05):** `src/content/handwritten/` — Astro Content Collection backing `/experiments/handwritten/[slug]/[page]` (prerendered). Schema in `src/content/config.ts` with `.passthrough()` so pipeline-emitted frontmatter additions don't break builds. Source pipeline: ghost-writer-v3 (handwritten transcription, currently hand-carried into the collection).
+- **Experiments gate (working tree, not yet deployed):** `src/middleware.ts` provides Basic-Auth on `/experiments/*` via `EXPERIMENTS_PASSWORD`; `public/robots.txt` adds `Disallow: /experiments/`. Both untracked at time of writing — privacy posture for `/experiments/*` is currently *not* enforced in production.
 - Dialogue log: `dialogues/001-site-rebuild.md` (gitignored — local context only)
 - Prior site: `github.com/adambalm/portfolio` (React 19 + Vite, deployed to Vercel)
 
@@ -142,7 +144,7 @@ This runs automatically via the `prepare` script after `npm install` once the pr
 
 Three-job pipeline that activates automatically when the project is initialized:
 
-1. **build** — `npm ci`, TypeScript check, `astro build`, lint
+1. **build** — `npm ci`, TypeScript check, `astro build`, SEO metadata check (`npm run check:seo`)
 2. **accessibility** — Playwright + axe-core a11y audit via `astro dev` (Vercel adapter doesn't support `astro preview`). Hybrid page discovery: prerendered pages from `dist/client/`, SSR pages by crawling index page links at runtime.
 3. **lighthouse** — Lighthouse CI with threshold enforcement (>= 95 accessibility + best practices, warn on performance and SEO). SEO is warn-only because intentional `noindex` during development scores ~0.6.
 

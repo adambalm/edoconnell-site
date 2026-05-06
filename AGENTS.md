@@ -1,7 +1,7 @@
 # AGENTS.md
 
 > Context for AI agents working with or evaluating this codebase.
-> Last verified: 2026-02-23
+> Last verified: 2026-05-06 (load-bearing architecture and stack claims re-tested; sub-section verification dates below are unchanged unless re-tested)
 
 ## Project
 
