@@ -1,0 +1,275 @@
+---
+/**
+ * /case-studies/sca-headless-cms — overview.
+ *
+ * Entry page of a three-page case-study site. Companion pages:
+ *   - /case-studies/sca-headless-cms/build    (architecture deep dive)
+ *   - /case-studies/sca-headless-cms/process  (AI workflow + Type 2 fun)
+ *
+ * Hardcoded content for now. Visual editing in Sanity for this page is
+ * deferred until prose settles; the original Sanity draft document remains
+ * unused but can be re-attached if we want body-from-Sanity later.
+ */
+export const prerender = true
+
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import CaseStudyHero from '../../../components/case-study/CaseStudyHero.astro'
+import EvidenceCard from '../../../components/case-study/EvidenceCard.astro'
+import Aside from '../../../components/case-study/Aside.astro'
+import ReadingProgress from '../../../components/ReadingProgress.astro'
+
+const HERO_STATS = [
+  { value: '79 → 100', label: 'Lighthouse a11y' },
+  { value: '46 → 93', label: 'Lighthouse perf' },
+  { value: '11', label: 'Page-builder blocks' },
+  { value: '~5 min', label: 'Alt-text backfill' },
+]
+
+type StatusLabel = 'shipped' | 'demo' | 'exploratory'
+
+interface EvidenceLink {
+  title: string
+  url: string
+  description: string
+  statusLabel: StatusLabel
+  hostLabel?: string
+}
+
+const PILLARS = [
+  {
+    num: '01',
+    href: '/case-studies/sca-headless-cms/build',
+    label: 'The build',
+    description:
+      'Schema, page-builder vocabulary, the state machine for student projects, the Webflow migration. With code.',
+  },
+  {
+    num: '02',
+    href: '/case-studies/sca-headless-cms/process',
+    label: 'The process',
+    description:
+      'How I work with AI assistance, what I verify by hand, the agent-toolkit issue I filed, where the friction was.',
+  },
+  {
+    num: '03',
+    href: '#proof',
+    label: 'The proof',
+    description:
+      'Live URLs you can click. Production site, four reference pages, the issue filed upstream.',
+  },
+]
+
+const evidenceLinks: EvidenceLink[] = [
+  {
+    title: 'Springfield Commonwealth Academy',
+    url: 'https://www.springfieldcommonwealthacademy.org/',
+    description: 'Public production site running on Astro, Sanity, and Vercel.',
+    statusLabel: 'shipped',
+  },
+  {
+    title: 'Block library',
+    url: 'https://www.springfieldcommonwealthacademy.org/admin/block-library',
+    description:
+      'All eleven page-builder blocks rendered with live sample data. Each block lists its schema and renderer file paths.',
+    statusLabel: 'shipped',
+  },
+  {
+    title: 'Reskinning guide',
+    url: 'https://www.springfieldcommonwealthacademy.org/admin/reskinning-guide',
+    description:
+      'Three-layer styling architecture — chrome, design tokens, per-block CSS — with worked examples and a live theme toggle.',
+    statusLabel: 'shipped',
+  },
+  {
+    title: 'Pricing breakdown',
+    url: 'https://www.springfieldcommonwealthacademy.org/admin/pricing',
+    description:
+      'Sanity, Vercel, GitHub, Codex monthly costs against a WordPress alternative. Unknowns are flagged, not papered over.',
+    statusLabel: 'shipped',
+  },
+  {
+    title: 'Platform overview',
+    url: 'https://www.springfieldcommonwealthacademy.org/admin/platform-overview',
+    description:
+      'Stakeholder-readable summary of what the platform contains and where to find the moving parts.',
+    statusLabel: 'shipped',
+  },
+  {
+    title: 'Solution Architecture brief',
+    url: 'https://edoconnell.org/articles/solution-architecture-brief',
+    description:
+      'Written sample on this site about structured content for AI-discoverable systems.',
+    statusLabel: 'shipped',
+  },
+  {
+    title: 'agent-toolkit issue #20',
+    url: 'https://github.com/sanity-io/agent-toolkit/issues/20',
+    description:
+      'Behavior gap I documented in the markdown-to-Portable-Text path. Filed upstream against sanity-io/agent-toolkit.',
+    statusLabel: 'shipped',
+  },
+]
+
+const PAGE_TITLE = 'Editors got the keys'
+const PAGE_DESC =
+  'How a school site moved from Webflow to Sanity. Lighthouse accessibility went from 79 to 100; a content agent backfilled alt text across the site in five minutes.'
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://edoconnell.org').href
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: PAGE_TITLE,
+  description: PAGE_DESC,
+  url: canonicalUrl,
+  mainEntityOfPage: canonicalUrl,
+  datePublished: '2026-05-07',
+  author: { '@type': 'Person', name: "Ed O'Connell", url: 'https://edoconnell.org' },
+  publisher: { '@type': 'Person', name: "Ed O'Connell", url: 'https://edoconnell.org' },
+}
+---
+
+<BaseLayout title={PAGE_TITLE} description={PAGE_DESC}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <ReadingProgress />
+
+  <article class="cs">
+    <CaseStudyHero
+      title={PAGE_TITLE}
+      date="2026-05-07"
+      eyebrow="Case Study · Springfield Commonwealth Academy"
+      stats={HERO_STATS}
+    >
+      <Fragment slot="lede">
+        Migrating Springfield Commonwealth Academy from Webflow to Astro and Sanity.
+        Lighthouse accessibility went from 79 to 100. <em>Eleven page-builder blocks</em>
+        gave editors a vocabulary they could compose without engineering. A Sanity content
+        agent backfilled alt text across the site in about five minutes — "that would have
+        taken me all day," the VP of marketing said.
+      </Fragment>
+    </CaseStudyHero>
+
+    <nav class="cs-pillars" aria-label="Sections of this case study">
+      {
+        PILLARS.map((p) => (
+          <a class="cs-pillar" href={p.href}>
+            <p class="cs-pillar__num">{p.num}</p>
+            <p class="cs-pillar__label">{p.label}</p>
+            <p class="cs-pillar__desc">{p.description}</p>
+            <span class="cs-pillar__arrow" aria-hidden="true">Read →</span>
+          </a>
+        ))
+      }
+    </nav>
+
+    <section class="cs-section" id="why-structured-content">
+      <p class="cs-section__num">01<small>Premise</small></p>
+      <h2 class="cs-section__title">Why structured content</h2>
+      <p>
+        "Treat content like data all the way down" is easy to say. The work is enforcing it
+        where the temptation is a string field. Block schemas instead of WYSIWYG. Document
+        references instead of hand-typed names. A <code>provenance</code> object instead of a
+        hidden assumption about who wrote a thing.
+      </p>
+      <p>
+        The trade-off is ramp time. Editors learn the schema; engineers learn what editors
+        actually do. The pay-off is that the same content can render to a page, an OG card, a
+        JSON-LD payload, or this case study — without being rewritten for any of them.
+      </p>
+
+      <blockquote class="cs-pullquote">
+        <p>Treat content like data all the way down.</p>
+      </blockquote>
+    </section>
+
+    <section class="cs-section" id="overview">
+      <p class="cs-section__num">02<small>Overview</small></p>
+      <h2 class="cs-section__title">What's here</h2>
+      <p>
+        A school site running on Astro and Sanity, deployed to Vercel. Eleven editor-composable
+        blocks. A four-stage state machine for student-project provisioning. A content
+        extraction pipeline from the previous Webflow build — nine info pages, seven program
+        pages, eighty-seven images. Four internal reference pages so editors and successors
+        can navigate the platform without me in the room.
+      </p>
+      <p>
+        For depth: <a href="/case-studies/sca-headless-cms/build">the build</a> covers the
+        schema, the migration, and a working GROQ snippet.
+        <a href="/case-studies/sca-headless-cms/process">The process</a> covers AI workflow,
+        verification, and where the friction was.
+      </p>
+    </section>
+
+    <section class="cs-section" id="proof">
+      <p class="cs-section__num">03<small>Proof</small></p>
+      <h2 class="cs-section__title">The proof, clickable</h2>
+      <p>
+        Live URLs. Each one is reachable; each one is internal documentation, public production,
+        a portfolio sample, or an issue filed upstream. The four
+        <code>/admin/*</code> pages on the school site are unindexed but fully reachable —
+        URL is not access control, but the noindex header is the right level of restriction
+        for working internal documentation.
+      </p>
+
+      <div class="cs-evidence-grid" data-testid="evidence-grid">
+        {
+          evidenceLinks.map((link) => (
+            <EvidenceCard
+              title={link.title}
+              url={link.url}
+              description={link.description}
+              statusLabel={link.statusLabel}
+            />
+          ))
+        }
+      </div>
+    </section>
+
+    <Aside label="Type 2 fun">
+      <p>
+        Visual Editing across origins. Stega encoding showing up where I didn't want it. An
+        agent toolkit silently rewriting prose. None of these were on the planning doc; all of
+        them landed as fixes, hand-crafted Portable Text scripts, or upstream filings.
+      </p>
+      <p>
+        Sanity calls that <em>Type 2 fun</em>. Hard in the moment, structured content in
+        retrospect.
+      </p>
+    </Aside>
+
+    <section class="cs-section" id="refining">
+      <p class="cs-section__num">04<small>Refining</small></p>
+      <h2 class="cs-section__title">What I am still refining</h2>
+      <ul>
+        <li>
+          The student-project workflow has no formal review or consent stage between
+          provisioning complete and public visibility — the visibility toggle is the only gate.
+          For real student work, this is a real gap, not a polish item.
+        </li>
+        <li>
+          Provisioning is polling-driven, not webhook-driven. Deliberate; the migration path is
+          on the list.
+        </li>
+        <li>
+          Tool selection between Claude, GPT, and Gemini for a given role is empirical, not
+          formalized. I have habits, not a rubric.
+        </li>
+        <li>
+          Most multi-agent work has been solo or two-party. Team-scale evidence is limited —
+          this case study is itself the largest collaborative artifact I've shipped.
+        </li>
+      </ul>
+    </section>
+
+    <footer class="cs-footer">
+      <p>Reach me at <a href="mailto:espoconnell@gmail.com">espoconnell@gmail.com</a>.</p>
+      <p class="cs-footer__nav">
+        <a href="/case-studies/sca-headless-cms/build">Read the build →</a>
+        <a href="/case-studies/sca-headless-cms/process">Read the process →</a>
+      </p>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  @import '../../../styles/case-study.css';
+</style>

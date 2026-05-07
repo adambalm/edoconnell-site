@@ -1,0 +1,162 @@
+---
+type StatusLabel = 'shipped' | 'demo' | 'exploratory'
+
+interface Props {
+  title: string
+  url: string
+  description: string
+  statusLabel: StatusLabel
+  hostLabel?: string
+}
+
+const { title, url, description, statusLabel, hostLabel } = Astro.props
+
+const statusText = {
+  shipped: 'Shipped',
+  demo: 'Demo',
+  exploratory: 'Exploratory',
+}[statusLabel]
+
+const isExternal = url.startsWith('http')
+const host = (() => {
+  try {
+    return hostLabel ?? new URL(url).host.replace(/^www\./, '')
+  } catch {
+    return hostLabel ?? ''
+  }
+})()
+---
+
+<article class:list={['ev-card', `ev-card--${statusLabel}`]}>
+  <div class="ev-card__strip"></div>
+  <div class="ev-card__body">
+    <div class="ev-card__meta">
+      <span class="ev-card__status">{statusText}</span>
+      {host && <span class="ev-card__host">{host}</span>}
+    </div>
+    <h3 class="ev-card__title">
+      <a
+        href={url}
+        target={isExternal ? '_blank' : undefined}
+        rel={isExternal ? 'noopener noreferrer' : undefined}
+      >
+        {title}
+        {isExternal && <span class="ev-card__external" aria-hidden="true">↗</span>}
+      </a>
+    </h3>
+    <p class="ev-card__desc">{description}</p>
+  </div>
+</article>
+
+<style>
+  .ev-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-surface);
+    transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  }
+
+  .ev-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  }
+
+  .ev-card__strip {
+    height: 4px;
+    width: 100%;
+  }
+
+  .ev-card--shipped .ev-card__strip {
+    background: var(--color-kind-case-study);
+  }
+  .ev-card--demo .ev-card__strip {
+    background: var(--color-kind-brief);
+  }
+  .ev-card--exploratory .ev-card__strip {
+    background: var(--color-text-tertiary);
+  }
+
+  .ev-card--shipped:hover {
+    border-color: var(--color-kind-case-study);
+  }
+  .ev-card--demo:hover {
+    border-color: var(--color-kind-brief);
+  }
+
+  .ev-card__body {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .ev-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .ev-card__status {
+    font-weight: 600;
+  }
+
+  .ev-card--shipped .ev-card__status {
+    color: var(--color-kind-case-study);
+  }
+  .ev-card--demo .ev-card__status {
+    color: var(--color-kind-brief);
+  }
+  .ev-card--exploratory .ev-card__status {
+    color: var(--color-text-tertiary);
+  }
+
+  .ev-card__host {
+    color: var(--color-text-tertiary);
+    font-family: var(--font-mono);
+    text-transform: lowercase;
+    letter-spacing: 0;
+    font-size: var(--font-size-xs);
+  }
+
+  .ev-card__title {
+    margin: 0;
+    font-family: var(--font-prose);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .ev-card__title a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .ev-card__title a:hover,
+  .ev-card__title a:focus-visible {
+    color: var(--color-accent);
+  }
+
+  .ev-card__external {
+    display: inline-block;
+    margin-left: 0.25em;
+    color: var(--color-text-muted);
+    font-size: 0.85em;
+    transform: translateY(-1px);
+  }
+
+  .ev-card__desc {
+    margin: 0;
+    font-family: var(--font-prose);
+    font-size: var(--font-size-base);
+    line-height: var(--leading-normal);
+    color: var(--color-text-muted);
+  }
+</style>
