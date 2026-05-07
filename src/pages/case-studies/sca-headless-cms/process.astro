@@ -16,14 +16,14 @@ const TOC = [
   { href: '#alt-text-afternoon', label: 'The alt-text afternoon' },
   { href: '#agent-toolkit', label: 'The agent-toolkit gap' },
   { href: '#decisions', label: 'The decision trail' },
-  { href: '#adrs', label: 'Thirty ADRs' },
+  { href: '#adrs', label: 'ADRs as insurance' },
 ]
 
 const provenanceSnippet = `provenance: {
   author: "Ed O'Connell",
   generatedBy: 'AI-assisted with human authorship and review',
   reviewedBy: "Ed O'Connell",
-  context: 'Portfolio case study, May 2026',
+  context: 'Sanity-backed article draft',
   date: '2026-05-07',
 }`
 
@@ -130,16 +130,18 @@ const jsonLd = {
       <p class="cs-section__num">02<small>Provenance</small></p>
       <h2 class="cs-section__title">Provenance metadata</h2>
       <p>
-        Every AI-assisted document on this site carries a <code>provenance</code> object —
-        author, generator, reviewer, context, date. The object is visible in the Studio,
-        queryable via GROQ, and visible in source maps when stega encoding is on. The case
-        for it is simple: the origin of the content is part of the content.
+        In this content model, Sanity-backed articles and demos can carry a
+        <code>provenance</code> object — author, generator, reviewer, context, date. The
+        object is visible in the Studio, queryable via GROQ, and visible in source maps when
+        stega encoding is on. The case for it is simple: the origin of the content is part
+        of the content.
       </p>
+      <p>A representative shape:</p>
       <pre class="cs-code"><code>{provenanceSnippet}</code></pre>
       <p>
-        This isn't a watermark. It's a queryable shape. A future filter — "show me everything
-        on this site that was AI-drafted but not yet AI-reviewed" — is a one-line GROQ
-        change, not a project. The right time to commit to this kind of metadata is at
+        This isn't a watermark. It's a queryable shape. A future filter — "show me every
+        Sanity-backed document that was AI-drafted but not yet AI-reviewed" — is a one-line
+        GROQ change, not a project. The right time to commit to this kind of metadata is at
         authoring, when the data is fresh; the wrong time is later, when you have to backfill.
       </p>
     </section>
@@ -255,12 +257,12 @@ const jsonLd = {
 
     <section class="cs-section" id="adrs">
       <p class="cs-section__num">06<small>Decision records</small></p>
-      <h2 class="cs-section__title">Thirty ADRs</h2>
+      <h2 class="cs-section__title">ADRs as insurance</h2>
       <p>
         Every architectural decision lives in a single <code>decisions.md</code> file in the
-        repo. The current count is thirty entries. Each entry includes context, options
-        considered, the choice, and — when applicable — reversal instructions: what would
-        need to change to undo this decision and what the cost of the undo would be.
+        repo. Each entry includes context, options considered, the choice, and — when
+        applicable — reversal instructions: what would need to change to undo this decision
+        and what the cost of the undo would be.
       </p>
       <p>
         ADRs are usually presented as discipline. They're really insurance. The cost of

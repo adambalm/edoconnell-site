@@ -36,7 +36,7 @@ const REQUIRED_HEADINGS_PROCESS = [
   'Provenance metadata',
   'The agent-toolkit gap',
   'The decision trail',
-  'Thirty ADRs',
+  'ADRs as insurance',
 ]
 
 const FORBIDDEN_STRINGS = [
