@@ -1,0 +1,97 @@
+---
+interface TocEntry {
+  href: string
+  label: string
+}
+
+interface Props {
+  entries: TocEntry[]
+  heading?: string
+}
+
+const { entries, heading = 'On this page' } = Astro.props
+---
+
+<nav class="cs-toc" aria-label="On this page">
+  <p class="cs-toc__heading">{heading}</p>
+  <ol class="cs-toc__list">
+    {
+      entries.map((entry) => (
+        <li>
+          <a href={entry.href}>{entry.label}</a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .cs-toc {
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: var(--space-6) var(--space-8);
+    margin: 0 0 var(--space-12);
+  }
+
+  .cs-toc__heading {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-4);
+  }
+
+  .cs-toc__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: cs-toc-counter;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  @media (min-width: 700px) {
+    .cs-toc__list {
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--space-8);
+    }
+  }
+
+  .cs-toc__list li {
+    counter-increment: cs-toc-counter;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    font-family: var(--font-prose);
+    font-size: var(--font-size-base);
+    line-height: var(--leading-normal);
+    max-width: none;
+  }
+
+  .cs-toc__list li::before {
+    content: counter(cs-toc-counter, decimal-leading-zero);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-kind-case-study);
+    letter-spacing: 0.05em;
+    min-width: 2ch;
+  }
+
+  .cs-toc__list a {
+    color: var(--color-text);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 150ms ease, color 150ms ease;
+  }
+
+  .cs-toc__list a:hover,
+  .cs-toc__list a:focus-visible {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+  }
+</style>

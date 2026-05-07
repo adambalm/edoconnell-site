@@ -1,0 +1,68 @@
+---
+interface Props {
+  label?: string
+  variant?: 'accent' | 'neutral'
+}
+
+const { label, variant = 'accent' } = Astro.props
+---
+
+<aside class:list={['cs-aside', `cs-aside--${variant}`]}>
+  {label && <p class="cs-aside__label">{label}</p>}
+  <div class="cs-aside__body">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .cs-aside {
+    margin: var(--space-8) 0;
+    padding: var(--space-6) var(--space-8);
+    border-radius: 8px;
+    background: var(--color-bg-subtle);
+    border-left: 4px solid var(--color-kind-case-study);
+  }
+
+  .cs-aside--neutral {
+    border-left-color: var(--color-border);
+  }
+
+  .cs-aside__label {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-kind-case-study);
+    margin: 0 0 var(--space-3);
+  }
+
+  .cs-aside--neutral .cs-aside__label {
+    color: var(--color-text-muted);
+  }
+
+  .cs-aside__body :global(p) {
+    margin: 0 0 var(--space-3);
+    font-family: var(--font-prose);
+    font-size: var(--font-size-md);
+    line-height: var(--leading-normal);
+    color: var(--color-text);
+    max-width: none;
+  }
+
+  .cs-aside__body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .cs-aside__body :global(em) {
+    font-style: italic;
+  }
+
+  .cs-aside__body :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--color-bg-secondary);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+  }
+</style>

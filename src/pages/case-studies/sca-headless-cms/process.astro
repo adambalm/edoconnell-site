@@ -1,0 +1,292 @@
+---
+/**
+ * /case-studies/sca-headless-cms/process — AI workflow + Type 2 fun + decision trail.
+ */
+export const prerender = true
+
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import CaseStudyHero from '../../../components/case-study/CaseStudyHero.astro'
+import TableOfContents from '../../../components/case-study/TableOfContents.astro'
+import Aside from '../../../components/case-study/Aside.astro'
+import ReadingProgress from '../../../components/ReadingProgress.astro'
+
+const TOC = [
+  { href: '#verification', label: 'The verification stack' },
+  { href: '#provenance', label: 'Provenance metadata' },
+  { href: '#alt-text-afternoon', label: 'The alt-text afternoon' },
+  { href: '#agent-toolkit', label: 'The agent-toolkit gap' },
+  { href: '#decisions', label: 'The decision trail' },
+  { href: '#adrs', label: 'Thirty ADRs' },
+]
+
+const provenanceSnippet = `provenance: {
+  author: "Ed O'Connell",
+  generatedBy: 'AI-assisted with human authorship and review',
+  reviewedBy: "Ed O'Connell",
+  context: 'Portfolio case study, May 2026',
+  date: '2026-05-07',
+}`
+
+const PAGE_TITLE = 'The Process'
+const PAGE_DESC =
+  'SCA Headless CMS — how I work with AI assistance, what I verify by hand, the agent-toolkit issue I filed, and where the friction was.'
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? 'https://edoconnell.org').href
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: PAGE_TITLE,
+  description: PAGE_DESC,
+  url: canonicalUrl,
+  mainEntityOfPage: canonicalUrl,
+  datePublished: '2026-05-07',
+  author: { '@type': 'Person', name: "Ed O'Connell", url: 'https://edoconnell.org' },
+  publisher: { '@type': 'Person', name: "Ed O'Connell", url: 'https://edoconnell.org' },
+  isPartOf: {
+    '@type': 'CreativeWork',
+    name: 'SCA Headless CMS',
+    url: 'https://edoconnell.org/case-studies/sca-headless-cms',
+  },
+}
+---
+
+<BaseLayout title={PAGE_TITLE} description={PAGE_DESC}>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <ReadingProgress />
+
+  <article class="cs">
+    <p class="cs-breadcrumb">
+      <a href="/case-studies/sca-headless-cms">SCA Headless CMS</a>
+      <span aria-hidden="true">/</span>
+      <span>The process</span>
+    </p>
+
+    <CaseStudyHero
+      title="The Process"
+      date="2026-05-07"
+      eyebrow="Case Study · Workflow · Springfield Commonwealth Academy"
+    >
+      <Fragment slot="lede">
+        AI generates code and prose. <em>Verification is the part I don't delegate.</em>
+        What that means in practice, what got documented along the way, and where the
+        friction landed.
+      </Fragment>
+    </CaseStudyHero>
+
+    <TableOfContents entries={TOC} />
+
+    <section class="cs-section" id="verification">
+      <p class="cs-section__num">01<small>Verification</small></p>
+      <h2 class="cs-section__title">The verification stack</h2>
+      <p>
+        AI is good at generation. It is uneven at telling you when its output is wrong. The
+        verification stack exists because that asymmetry is real, not philosophical.
+      </p>
+      <p>What runs, in order of cost:</p>
+      <ul>
+        <li><code>astro check</code> — TypeScript shape errors, instant.</li>
+        <li>
+          <code>axe-core</code> via Playwright — accessibility regressions across mobile,
+          tablet, desktop.
+        </li>
+        <li>
+          Per-page Playwright spec — this case study has its own, asserting required
+          headings, correct JSON-LD, no forbidden internal vocabulary, no console errors.
+        </li>
+        <li>Lighthouse CI — thresholds at 95+ for accessibility and best practices.</li>
+        <li>
+          Manual GROQ reads when something looks suspicious in HTML. Stega encoding hides
+          things that read clean.
+        </li>
+      </ul>
+      <p>
+        None of this is unusual. Treating it as the floor and not the ceiling is the part I'm
+        careful about.
+      </p>
+
+      <blockquote class="cs-pullquote">
+        <p>Generation that doesn't pass the floor doesn't ship.</p>
+      </blockquote>
+    </section>
+
+    <Aside label="Working rules" variant="neutral">
+      <p>
+        A few outtakes from the verification rules. Each one rules out a mistake I have made
+        before:
+      </p>
+      <ol class="cs-outtakes">
+        <li>"Inferences cannot be premises for action."</li>
+        <li>"Mechanical operations do not verify outcomes."</li>
+        <li>"The read is the test that justifies the write."</li>
+        <li>"Stale documents are inferences."</li>
+      </ol>
+      <p>
+        Every mutation needs a verification step that justifies it. The shape of the rule
+        outlasts the specific incident that taught it.
+      </p>
+    </Aside>
+
+    <section class="cs-section" id="provenance">
+      <p class="cs-section__num">02<small>Provenance</small></p>
+      <h2 class="cs-section__title">Provenance metadata</h2>
+      <p>
+        Every AI-assisted document on this site carries a <code>provenance</code> object —
+        author, generator, reviewer, context, date. The object is visible in the Studio,
+        queryable via GROQ, and visible in source maps when stega encoding is on. The case
+        for it is simple: the origin of the content is part of the content.
+      </p>
+      <pre class="cs-code"><code>{provenanceSnippet}</code></pre>
+      <p>
+        This isn't a watermark. It's a queryable shape. A future filter — "show me everything
+        on this site that was AI-drafted but not yet AI-reviewed" — is a one-line GROQ
+        change, not a project. The right time to commit to this kind of metadata is at
+        authoring, when the data is fresh; the wrong time is later, when you have to backfill.
+      </p>
+    </section>
+
+    <section class="cs-section" id="alt-text-afternoon">
+      <p class="cs-section__num">03<small>Agent at work</small></p>
+      <h2 class="cs-section__title">The alt-text afternoon</h2>
+      <p>
+        Late spring 2026. A schema validation pass (ADR-024 added
+        <code>rule.required().warning(...)</code> on alt-text fields) flagged missing alt
+        on dozens of image-bearing documents — news posts, hero images, program pages.
+        Filling it by hand would have meant clicking through every document in the Studio,
+        every photo, every byline.
+      </p>
+      <p>
+        Sanity's content agent did it in one pass. A few minutes of agent-generated alt text
+        against the actual image content, a few more of human review against the school's
+        brand voice, then publish across the site.
+      </p>
+      <blockquote class="cs-pullquote">
+        <p>"That would have taken me all day," the VP of marketing said when it finished.</p>
+      </blockquote>
+      <p>
+        The speed mattered. The bigger thing was that an editor — not the engineer who set
+        up the agent — watched it run, reviewed each generation against the school's brand,
+        and signed off. Agent-driven content that an editor can review in real time gets
+        used. Agent-driven content the editor can't review doesn't ship.
+      </p>
+    </section>
+
+    <section class="cs-section" id="agent-toolkit">
+      <p class="cs-section__num">04<small>Behavior gap</small></p>
+      <h2 class="cs-section__title">The agent-toolkit gap</h2>
+      <p>
+        Sanity's agent-toolkit MCP server has a tool called
+        <code>patch_document_from_markdown</code>. The tool's stated purpose is to apply a
+        markdown patch to a document. What it actually did, on the documents I tested, was
+        rewrite the prose silently — same general shape, different sentences, in a voice that
+        wasn't the voice of the source. There was no diff returned that disclosed the
+        rewrite.
+      </p>
+      <p>
+        I caught it because the resulting prose didn't sound like the original. The fact that
+        I noticed at all is the lucky case; the unlucky case is publishing rewritten content
+        without realizing.
+      </p>
+      <p>
+        I filed it upstream as
+        <a href="https://github.com/sanity-io/agent-toolkit/issues/20" target="_blank" rel="noopener noreferrer">
+          sanity-io/agent-toolkit issue #20
+        </a>. The framing in the issue is what it should be: a documented behavior gap, not
+        a found bug. The tool's authors get to decide whether the gap is a defect or a
+        documentation problem; I'm only responsible for naming what I observed and where.
+      </p>
+      <p>
+        For my own pipeline, the workaround is to author Portable Text by hand in a script
+        instead of going through the markdown route. Slower; safer; reproducible. Examples
+        live alongside this site's content scripts.
+      </p>
+    </section>
+
+    <Aside label="Type 2 fun">
+      <p>
+        Visual Editing across origins, when the embedded Studio sits on the same domain as
+        the frontend but the iframe needs an authenticated session. Stega encoding showing up
+        inside string equality checks because I forgot to <code>stegaClean()</code>. The
+        agent-toolkit silent rewrite that took two sessions of debugging because the prose
+        looked plausible. None of these were on the planning doc.
+      </p>
+      <p>
+        Sanity's culture page calls that <em>Type 2 fun</em> — friction is part of the work,
+        and the reward shows up in retrospect. Most of the things I learned about this stack,
+        I learned from one of these moments. Each one became documentation, an upstream
+        filing, or a script that someone else can reuse.
+      </p>
+    </Aside>
+
+    <section class="cs-section" id="decisions">
+      <p class="cs-section__num">05<small>Decisions</small></p>
+      <h2 class="cs-section__title">The decision trail</h2>
+      <p>
+        Why migrate at all: editor velocity and a content layer that could outlast a single
+        site design. Editors waited on a marketing contractor for routine copy changes. There
+        was no way to ship a new content type without rebuilding the page that displayed it.
+        The site looked fine. Underneath, it was inert.
+      </p>
+      <p>
+        Why headless specifically: separation of concerns. A schema editors can use, a query
+        language engineers can use, and a render layer that can target a website today and
+        something else tomorrow without a rewrite of the source.
+      </p>
+      <p>
+        Why Sanity in particular: Portable Text. Sanity's structured-content philosophy
+        treats prose as a typed array of blocks rather than an opaque HTML blob. That means
+        AI agents can read and write it; that means the same content can render to a web
+        page, an OG card, a search index, a JSON-LD payload — without rewriting it. GROQ is
+        the second reason: SQL-shaped retrieval over typed documents. The third reason is
+        Visual Editing — click-to-edit overlays that work without a custom CMS UI. None of
+        these is unique to Sanity, but Sanity's combination is what felt right for a small
+        team that needed both editor velocity and content-as-data.
+      </p>
+      <p>
+        WordPress was a real alternative — easier ramp, larger ecosystem, broader hireable
+        skill base. The
+        <a href="https://www.springfieldcommonwealthacademy.org/admin/pricing">pricing page</a>
+        names the trade-off honestly: the platforms are roughly cost-comparable for a site
+        this size. What you give up by choosing WordPress is the structured layer
+        underneath. What you give up by choosing Sanity is the breadth of plugin ecosystem.
+        For a school site whose content has a future beyond the current site design, the
+        first trade-off was worth more.
+      </p>
+    </section>
+
+    <section class="cs-section" id="adrs">
+      <p class="cs-section__num">06<small>Decision records</small></p>
+      <h2 class="cs-section__title">Thirty ADRs</h2>
+      <p>
+        Every architectural decision lives in a single <code>decisions.md</code> file in the
+        repo. The current count is thirty entries. Each entry includes context, options
+        considered, the choice, and — when applicable — reversal instructions: what would
+        need to change to undo this decision and what the cost of the undo would be.
+      </p>
+      <p>
+        ADRs are usually presented as discipline. They're really insurance. The cost of
+        writing them is twenty minutes; the cost of not writing them is finding out, three
+        months later, why you can't change something obvious. Most of the deferred items on
+        this project are deferred precisely because their ADRs document why now isn't the
+        right moment, and the cost of revisiting later is small because the reasoning is
+        captured.
+      </p>
+      <p>
+        For an interview audience: every claim on this page can be traced backward to an
+        ADR or a commit. The
+        <a href="/case-studies/sca-headless-cms#proof">evidence section on the overview</a>
+        is the public-facing surface; the repo is the source of truth.
+      </p>
+    </section>
+
+    <footer class="cs-footer">
+      <p class="cs-footer__nav">
+        <a href="/case-studies/sca-headless-cms/build">Read the build →</a>
+        <a href="/case-studies/sca-headless-cms">← Back to overview</a>
+      </p>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  @import '../../../styles/case-study.css';
+</style>
