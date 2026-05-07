@@ -55,7 +55,7 @@ const PILLARS = [
     href: '#proof',
     label: 'The proof',
     description:
-      'Live URLs you can click. Production site, four reference pages, the issue filed upstream.',
+      'Live URLs you can click. Production site, internal reference pages, the issue filed upstream.',
   },
 ]
 
@@ -173,7 +173,7 @@ const jsonLd = {
       <p>
         The trade-off is ramp time. Editors learn the schema; engineers learn what editors
         actually do. The pay-off is that the same content can render to a page, an OG card, a
-        JSON-LD payload, or this case study — without being rewritten for any of them.
+        JSON-LD payload, or a search index — without being rewritten for any of them.
       </p>
 
       <blockquote class="cs-pullquote">
@@ -187,9 +187,10 @@ const jsonLd = {
       <p>
         A school site running on Astro and Sanity, deployed to Vercel. Eleven editor-composable
         blocks. A four-stage state machine for student-project provisioning. A content
-        extraction pipeline from the previous Webflow build — nine info pages, seven program
-        pages, eighty-seven images. Four internal reference pages so editors and successors
-        can navigate the platform without me in the room.
+        extraction pipeline from the previous Webflow build — images rehosted as Sanity
+        assets, navigation rebuilt as document references rather than hand-coded links.
+        Internal reference pages so editors and successors can navigate the platform without
+        me in the room.
       </p>
       <p>
         For depth: <a href="/case-studies/sca-headless-cms/build">the build</a> covers the

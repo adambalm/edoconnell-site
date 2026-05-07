@@ -222,26 +222,19 @@ const jsonLd = {
         hand-coded links.
       </p>
       <p>
-        The numbers: nine info pages, seven program pages, eighty-seven images. Each piece of
-        content moved through a custom extraction script, a Portable Text conversion pass, and
-        a manual review before going into the dataset. The news archive came across in the
-        same pass. The legacy <code>webflow.io</code> staging snapshot is preserved as a
+        Each piece moved through a custom extraction script, a Portable Text conversion pass,
+        and a manual review before going into the dataset. The news archive came across in
+        the same pass. The legacy <code>webflow.io</code> staging snapshot is preserved as a
         reference for anyone who wants to compare.
       </p>
       <p>
         Migration ran beyond editorial content. Basketball and soccer alumni rosters — names,
         class years, achievements — moved into Sanity as structured documents queryable by
-        athlete, year, and program. Thirty-plus events from a school spreadsheet column
-        became Sanity event documents queryable by date and category, imported by a script
-        that ran once and stayed in version control. The schemas are unglamorous; the test
+        athlete, year, and program. A school year of events from a spreadsheet column became
+        Sanity event documents queryable by date and category, imported by a script that ran
+        once and stayed in version control. The schemas are unglamorous; the test
         is whether the data layer holds. Rows with consistent shape are materially different
         from a static HTML page that happens to contain the same content.
-      </p>
-      <p>
-        The trade-off is named honestly on the
-        <a href="https://www.springfieldcommonwealthacademy.org/admin/pricing">pricing page</a>:
-        the platform is roughly cost-comparable to a managed WordPress build for a site this
-        size. What you gain isn't price; it's the data layer underneath.
       </p>
     </section>
 
@@ -249,7 +242,7 @@ const jsonLd = {
       <p class="cs-section__num">06<small>References</small></p>
       <h2 class="cs-section__title">The reference pages</h2>
       <p>
-        Four pages live at <code>/admin/*</code> on the public site. They're unindexed but
+        Reference pages live at <code>/admin/*</code> on the public site — unindexed but
         fully reachable. The audience is editors and developers who inherit the platform,
         not search engines.
       </p>
