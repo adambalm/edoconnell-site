@@ -29,7 +29,7 @@ const formattedDate = date
 
 <header class="cs-hero">
   <p class="cs-hero__eyebrow">{eyebrow}</p>
-  <h1 class="cs-hero__title">{title}</h1>
+  <h1 class="cs-hero__title">{title}<slot name="title-suffix" /></h1>
   {subtitle && (
     <p class="cs-hero__lede">
       <slot name="lede">{subtitle}</slot>
