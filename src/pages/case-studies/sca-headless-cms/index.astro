@@ -139,14 +139,6 @@ const jsonLd = {
       eyebrow="Case Study · Springfield Commonwealth Academy"
       stats={HERO_STATS}
     >
-      <Fragment slot="title-suffix">
-        <button
-          type="button"
-          class="cs-fn-ref"
-          popovertarget="fn-turtles"
-          aria-label="Origin of the title"
-        >1</button>
-      </Fragment>
       <Fragment slot="lede">
         Migrating Springfield Commonwealth Academy from Webflow to Astro and Sanity.
         Lighthouse accessibility went from 79 to 100. <em>Eleven page-builder blocks</em>
@@ -268,41 +260,6 @@ const jsonLd = {
         </li>
       </ul>
     </section>
-
-    <div id="fn-turtles" popover class="cs-fn-popover">
-      <p>
-        The following anecdote is told of William James. After a lecture on cosmology and
-        the structure of the solar system, James was accosted by a little old lady. "Your
-        theory that the sun is the centre of the solar system, and the earth is a ball
-        which rotates around it has a very convincing ring to it, Mr. James, but it's
-        wrong. I've got a better theory," said the little old lady. "And what is that,
-        madam?" inquired James politely. "That we live on a crust of earth which is on the
-        back of a giant turtle." Not wishing to demolish this absurd little theory by
-        bringing to bear the masses of scientific evidence he had at his command, James
-        decided to gently dissuade his opponent by making her see some of the inadequacies
-        of her position. "If your theory is correct, madam," he asked, "what does this
-        turtle stand on?" "You're a very clever man, Mr. James, and that's a very good
-        question," replied the little old lady, "but I have an answer to it. And it's
-        this: The first turtle stands on the back of a second, far larger, turtle, who
-        stands directly under him." "But what does this second turtle stand on?" persisted
-        James patiently. To this, the little old lady crowed triumphantly, "It's no use,
-        Mr. James—it's turtles all the way down."
-      </p>
-      <p class="cs-fn-popover__attr">
-        — J. R. Ross,
-        <a
-          href="https://en.wikipedia.org/wiki/Turtles_all_the_way_down"
-          target="_blank"
-          rel="noopener noreferrer"
-        ><em>Constraints on Variables in Syntax</em>, 1967</a>.
-      </p>
-      <button
-        type="button"
-        class="cs-fn-popover__close"
-        popovertarget="fn-turtles"
-        popovertargetaction="hide"
-      >Close</button>
-    </div>
 
     <footer class="cs-footer">
       <p>Reach me at <a href="mailto:espoconnell@gmail.com">espoconnell@gmail.com</a>.</p>
