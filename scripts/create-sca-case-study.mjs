@@ -92,7 +92,7 @@ function buildBody() {
   blocks.push(
     block(
       'normal',
-      'An Astro frontend on Vercel. A Sanity Studio. A schema with eleven page-builder blocks and a separate, state-machine-backed document type for student projects. A content extraction pipeline from the Webflow source, including image rehosting. Four reference pages — block library, reskinning guide, pricing breakdown, platform overview — written for editors and successors, not just for me.'
+      'An Astro frontend on Vercel. A Sanity Studio. A schema with eleven page-builder blocks and a separate, state-machine-backed document type for student projects. A content extraction pipeline from the Webflow source, including image rehosting. Reference pages — block library, reskinning guide, platform overview — written for editors and successors, not just for me.'
     )
   )
 
