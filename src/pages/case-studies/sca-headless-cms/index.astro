@@ -56,6 +56,7 @@ const PILLARS = [
     label: 'The proof',
     description:
       'Live URLs you can click. Production site, internal reference pages, the issue filed upstream.',
+    arrow: 'Jump to proof ↓',
   },
 ]
 
@@ -78,13 +79,6 @@ const evidenceLinks: EvidenceLink[] = [
     url: 'https://www.springfieldcommonwealthacademy.org/admin/reskinning-guide',
     description:
       'Three-layer styling architecture — chrome, design tokens, per-block CSS — with worked examples and a live theme toggle.',
-    statusLabel: 'shipped',
-  },
-  {
-    title: 'Pricing breakdown',
-    url: 'https://www.springfieldcommonwealthacademy.org/admin/pricing',
-    description:
-      'Sanity, Vercel, GitHub, Codex monthly costs against a WordPress alternative. Unknowns are flagged, not papered over.',
     statusLabel: 'shipped',
   },
   {
@@ -155,7 +149,7 @@ const jsonLd = {
             <p class="cs-pillar__num">{p.num}</p>
             <p class="cs-pillar__label">{p.label}</p>
             <p class="cs-pillar__desc">{p.description}</p>
-            <span class="cs-pillar__arrow" aria-hidden="true">Read →</span>
+            <span class="cs-pillar__arrow" aria-hidden="true">{p.arrow ?? 'Read →'}</span>
           </a>
         ))
       }
@@ -205,7 +199,7 @@ const jsonLd = {
       <h2 class="cs-section__title">The proof, clickable</h2>
       <p>
         Live URLs. Each one is reachable; each one is internal documentation, public production,
-        a portfolio sample, or an issue filed upstream. The four
+        a portfolio sample, or an issue filed upstream. The three
         <code>/admin/*</code> pages on the school site are unindexed but fully reachable —
         URL is not access control, but the noindex header is the right level of restriction
         for working internal documentation.
