@@ -373,6 +373,99 @@
   }
 }
 
+/* ─── Footnote (popover marker + panel) ─────────────────────────────────── */
+
+.cs-fn-ref {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-weight: 600;
+  font-size: 0.32em;
+  line-height: 1;
+  vertical-align: super;
+  margin-left: 0.18em;
+  padding: 0.25em 0.5em;
+  background: transparent;
+  border: 1px solid var(--color-kind-case-study-subtle);
+  border-radius: 999px;
+  color: var(--color-kind-case-study);
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.cs-fn-ref:hover,
+.cs-fn-ref:focus-visible {
+  background: var(--color-kind-case-study-subtle);
+  border-color: var(--color-kind-case-study);
+  outline: none;
+}
+
+.cs-fn-popover {
+  max-width: 560px;
+  width: calc(100vw - 2rem);
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  font-family: var(--font-prose);
+  font-size: var(--font-size-base);
+  line-height: 1.55;
+  color: var(--color-text);
+  margin: auto;
+}
+
+.cs-fn-popover::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.cs-fn-popover p {
+  margin: 0 0 var(--space-5);
+  max-width: none;
+}
+
+.cs-fn-popover p:last-of-type {
+  margin-bottom: var(--space-6);
+}
+
+.cs-fn-popover__attr {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.cs-fn-popover__attr a {
+  color: var(--color-kind-case-study);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-kind-case-study-subtle);
+  transition: border-color 150ms ease;
+}
+
+.cs-fn-popover__attr a:hover,
+.cs-fn-popover__attr a:focus-visible {
+  border-bottom-color: var(--color-kind-case-study);
+}
+
+.cs-fn-popover__close {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.cs-fn-popover__close:hover,
+.cs-fn-popover__close:focus-visible {
+  background: var(--color-border);
+  outline: none;
+}
+
 /* ─── Footer ────────────────────────────────────────────────────────────── */
 
 .cs-footer {
