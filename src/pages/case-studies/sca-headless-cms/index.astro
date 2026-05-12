@@ -17,13 +17,6 @@ import CaseStudyHero from '../../../components/case-study/CaseStudyHero.astro'
 import EvidenceCard from '../../../components/case-study/EvidenceCard.astro'
 import ReadingProgress from '../../../components/ReadingProgress.astro'
 
-const HERO_STATS = [
-  { value: '11', label: 'Composable page-builder blocks' },
-  { value: '1', label: 'State-machined document type' },
-  { value: '1', label: 'Upstream issue filed' },
-  { value: '~5 min', label: 'Agent-driven alt-text backfill' },
-]
-
 type StatusLabel = 'shipped' | 'demo' | 'exploratory'
 
 interface EvidenceLink {
@@ -124,7 +117,6 @@ const jsonLd = {
       title={PAGE_TITLE}
       date="2026-05-07"
       eyebrow="Case Study · Springfield Commonwealth Academy"
-      stats={HERO_STATS}
     >
       <Fragment slot="lede">
         Migrating Springfield Commonwealth Academy from Webflow to Astro and Sanity.
