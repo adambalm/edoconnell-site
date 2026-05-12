@@ -173,29 +173,49 @@ const jsonLd = {
       <h2 class="cs-section__title">The agent-toolkit gap</h2>
       <p>
         Sanity's agent-toolkit MCP server has a tool called
-        <code>patch_document_from_markdown</code>. The tool's stated purpose is to apply a
-        markdown patch to a document. What it actually did, on the documents I tested, was
-        rewrite the prose silently — same general shape, different sentences, in a voice that
-        wasn't the voice of the source. There was no diff returned that disclosed the
-        rewrite.
+        <code>patch_document_from_markdown</code>. The name implies a format conversion:
+        markdown → Portable Text → applied as a patch.
       </p>
       <p>
-        I caught it because the resulting prose didn't sound like the original. The fact that
-        I noticed at all is the lucky case; the unlucky case is publishing rewritten content
-        without realizing.
+        On the documents I tested, the output didn't match the input. Three reproductions,
+        at different scales of input:
+      </p>
+      <ul>
+        <li>
+          <strong>Margaret test</strong> — 4 controlled sentences in; 1 sentence came back rewritten.
+        </li>
+        <li>
+          <strong>Context Sage framing</strong> — 2 editorial paragraphs in; a bulleted
+          explainer came back with invented bold headers and a "not a truth claim" qualifier deleted.
+        </li>
+        <li>
+          <strong>Full article test</strong> — a 1,700-word essay in; a third-person book
+          report came back, headings stripped, links removed, closing line deleted.
+        </li>
+      </ul>
+      <p>
+        The mechanism turns out to be that the markdown-input MCP tools route through a model
+        that maps markdown onto the document's Portable Text schema. Sanity's own docs
+        acknowledge this — <em>"some models may struggle to map markdown onto complex
+        Portable Text schemas"</em> — but the tool itself offers no diff, no verbatim mode,
+        and no point-of-use disclosure of the model mediation.
       </p>
       <p>
-        I filed it upstream as
+        The JSON-input equivalent, <code>patch_document_from_json</code>, does not go
+        through a model. It applies the patch deterministically.
+      </p>
+      <p>
+        I opened
         <a href="https://github.com/sanity-io/agent-toolkit/issues/20" target="_blank" rel="noopener noreferrer">
           sanity-io/agent-toolkit issue #20
-        </a>. The framing in the issue is what it should be: a documented behavior gap, not
-        a found bug. The tool's authors get to decide whether the gap is a defect or a
-        documentation problem; I'm only responsible for naming what I observed and where.
+        </a> to surface the disclosure-vs-consent gap — what I tested, what came back, and
+        the gap between what the docs note about model behavior and what the tool surfaces
+        at invocation time.
       </p>
       <p>
-        For my own pipeline, the workaround is to author Portable Text by hand in a script
-        instead of going through the markdown route. Slower; safer; reproducible. Examples
-        live alongside this site's content scripts.
+        The workaround in my own pipeline: convert markdown to Portable Text JSON locally
+        with a deterministic script (bold, code, links, headings), then patch via
+        <code>patch_document_from_json</code>. Slower, verifiably faithful to the input.
       </p>
     </section>
 
