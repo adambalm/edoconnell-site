@@ -338,6 +338,7 @@ em.aside {
     <a href="#licensing" class="dot" data-label="Licensing"></a>
     <a href="#decisions" class="dot" data-label="Decisions"></a>
     <a href="#sources" class="dot" data-label="Sources"></a>
+    <a href="#parallel" class="dot" data-label="Parallel"></a>
     <a href="#summer-camp" class="dot" data-label="Camp"></a>
     <a href="#appendix" class="dot" data-label="Links"></a>
   </nav>
@@ -593,6 +594,11 @@ em.aside {
       <p>Authorize creating role-based organizational units (<code>/Students</code>, <code>/Staff</code>, <code>/Alumni</code>) so future audits are not manual?</p>
       <p class="default"><strong>Suggested default:</strong> yes, scoped for completion before end of summer.</p>
     </li>
+    <li>
+      <h3>Website-platform compliance (Sanity, Vercel)</h3>
+      <p>Authorize Vercel Pro upgrade for commercial-use compliance, and named per-editor seats on Sanity (no additional cost within current allotment)?</p>
+      <p class="default"><strong>Suggested default:</strong> yes. $240–$480/yr Vercel depending on seat count; Sanity seats already paid for. See the parallel-finding section for the reasoning.</p>
+    </li>
   </ol>
 </section>
 
@@ -630,6 +636,47 @@ em.aside {
     <li>A Decisions tab where you or a delegate can record answers to the seven questions</li>
   </ul>
   <p class="closing">A written policy draft for whichever defaults you decide to keep can follow once you've signed off.</p>
+</section>
+
+<section id="parallel" class="slide">
+  <header class="slide-header">
+    <p class="eyebrow">Parallel finding</p>
+    <h2>The same governance question, at three layers of the stack</h2>
+    <p class="subhead">A simultaneous review of the website platform (Sanity + Vercel) surfaced the same shared-account pattern that drives the admin@ recommendation on slide 4.</p>
+  </header>
+
+  <h3>Current website-platform spend (verified 2026-05-12)</h3>
+  <ul class="kv">
+    <li><span class="k">Sanity CMS (Growth, 2 editor seats)</span><span class="v">$360 / yr</span></li>
+    <li><span class="k">Vercel hosting (Hobby, free tier)</span><span class="v">$0 / yr</span></li>
+    <li><span class="k">Verified total</span><span class="v">$360 / yr</span></li>
+  </ul>
+
+  <aside class="callout warn">
+    <p><strong>Vercel Hobby is not licensed for commercial use.</strong> Vercel's published terms restrict the Hobby tier to non-commercial personal projects. The terms explicitly name client work and revenue-generating projects as prohibited. A school's primary website is commercial use under any reasonable reading. Enforcement is account suspension at Vercel's discretion — not a metered overage. <strong>Recommended upgrade: Vercel Pro at $240/yr per admin seat.</strong></p>
+    <p>This is the same shape of decision as Google's October 2025 K-12 pricing change you heard on slide 5 — a non-capacity, compliance-driven upgrade trigger. Different platform, same shape.</p>
+  </aside>
+
+  <h3>The shared-account pattern, at all three platforms</h3>
+  <p>The <code>admin@</code> finding on slide 4 is not a Workspace-specific quirk. The same pattern shows up at every commercial platform SCA runs.</p>
+
+  <table class="recon">
+    <thead>
+      <tr><th>Platform</th><th>Pattern today</th><th>Recommended posture</th><th>Annual cost</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Google Workspace</td><td>Single shared <code>admin@</code> super-admin, no per-actor attribution</td><td>Named per-person super-admin grants + hardware keys</td><td>$0 (within Education tier)</td></tr>
+      <tr><td>Sanity CMS</td><td>2 editor seats — named or shared, not yet verified</td><td>One seat per actual editor; nobody shares a seat</td><td>$180 / editor / yr (already paying for 2)</td></tr>
+      <tr><td>Vercel hosting</td><td>Hobby tier — ToS-non-compliant for commercial use; access pattern unverified</td><td>Vercel Pro, one seat per admin</td><td>$240 / admin / yr</td></tr>
+    </tbody>
+  </table>
+
+  <aside class="callout recommendation">
+    <p><strong>One governance principle spans all three platforms.</strong> Per-person access control with audit trail, clean revocation on staff departure, working second-factor, and ToS-compliant licensing. The marginal cost on the commercial platforms is roughly $420/yr per additional editor — about one piece of office furniture per year per person. The risk gap if the principle is not adopted — no audit trail, no clean revocation, broken second-factor, ToS-non-compliant — is the same at each platform.</p>
+    <p>The named-seats decision applied to all three platforms is the smaller artifact of this conversation. The principle is the larger one. <strong>This is what decision #8 on the previous slide is asking.</strong></p>
+  </aside>
+
+  <p class="caption">Total annual compliance delta from this finding alone: <strong>+$240 – $480/yr</strong> for Vercel Pro, depending on seat count. Sanity seats are already paid for under the current Growth plan. Small relative to the ~$15,000 Workspace upgrade math on slide 5, but it lives in the same conversation about platform compliance and access governance — and it is the one piece of that conversation that resolves to a binary compliance decision today, not a strategic one for later.</p>
 </section>
 
 <section id="summer-camp" class="slide">
