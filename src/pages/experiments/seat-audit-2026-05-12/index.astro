@@ -1,0 +1,770 @@
+---
+// Self-contained Workspace audit briefing.
+// Auth-gated via src/middleware.ts (basic auth on /experiments/*).
+// noindex,nofollow set per page; public/robots.txt also Disallows /experiments/.
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Workspace Audit · SCA · 2026-05-12</title>
+<style is:global>
+:root {
+  --bg: #fafaf9;
+  --bg-elev: #fff;
+  --ink: #1c1b1a;
+  --ink-2: #4a4845;
+  --ink-3: #807c77;
+  --rule: #e6e3df;
+  --accent: #1a3a5c;
+  --ok: #2d6f4c;
+  --info: #2e5a8a;
+  --warn: #b16d2a;
+  --alert: #a83232;
+  --highlight: #fff8e6;
+  --warn-bg: #fdf4e8;
+  --rec-bg: #eef3ee;
+  --num-font: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --text-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, "Helvetica Neue", Arial, sans-serif;
+  --serif: Charter, "Iowan Old Style", "Source Serif Pro", Georgia, serif;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg); color: var(--ink);
+  font-family: var(--text-font);
+  font-size: 18px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code {
+  font-family: var(--num-font); font-size: 0.92em;
+  background: rgba(0,0,0,0.05);
+  padding: 0.05em 0.35em; border-radius: 3px;
+}
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--rule);
+  padding: 14px 32px 8px;
+}
+.topbar-inner {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 8px;
+}
+.eyebrow {
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
+.eyebrow.large { font-size: 14px; color: var(--accent); }
+.date { font-family: var(--num-font); font-size: 13px; color: var(--ink-3); }
+.progress { display: flex; gap: 8px; align-items: center; }
+.dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--rule);
+  display: block;
+  transition: background 0.2s, transform 0.2s;
+  position: relative;
+}
+.dot:hover { transform: scale(1.4); }
+.dot.active { background: var(--accent); }
+.dot::after {
+  content: attr(data-label);
+  position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  font-size: 10px; color: var(--ink-3);
+  white-space: nowrap; opacity: 0;
+  transition: opacity 0.2s; pointer-events: none;
+}
+.dot:hover::after, .dot.active::after { opacity: 1; }
+main { padding: 0; }
+.slide {
+  min-height: calc(100vh - 64px);
+  padding: 56px 96px 96px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; flex-direction: column; gap: 28px;
+}
+.slide-header {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 18px; margin-bottom: 4px;
+}
+.slide-header h2 {
+  font-family: var(--serif);
+  font-size: 38px; font-weight: 600;
+  margin: 8px 0 4px; letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.slide-header .subhead {
+  margin: 4px 0 0; color: var(--ink-2); font-size: 17px;
+}
+.slide h3 {
+  font-size: 14px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ink-3);
+  margin: 0 0 14px;
+}
+.cover {
+  justify-content: center; align-items: center; text-align: center;
+  border-bottom: 0; padding-top: 0;
+}
+.cover-inner { max-width: 880px; }
+.cover h1 {
+  font-family: var(--serif);
+  font-size: 64px; font-weight: 600;
+  margin: 12px 0 28px; letter-spacing: -0.02em;
+}
+.cover .meta { color: var(--ink-3); font-size: 16px; }
+.cover .navhint { margin-top: 48px; color: var(--ink-3); font-size: 14px; }
+.cover .navhint a {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid var(--accent); padding-bottom: 1px;
+}
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 24px; margin: 24px 0 12px;
+}
+.stat {
+  background: var(--bg-elev);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 24px 22px 22px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.stat.warn { background: var(--warn-bg); border-color: #e7c8a0; }
+.stat-num {
+  font-family: var(--num-font);
+  font-size: 44px; font-weight: 600; line-height: 1;
+  margin: 0; color: var(--ink); letter-spacing: -0.02em;
+}
+.stat.warn .stat-num { color: var(--warn); }
+.stat-label {
+  margin: 0; color: var(--ink-2);
+  font-size: 13px; font-weight: 500; letter-spacing: 0.01em;
+}
+.prose { max-width: 920px; }
+.prose.narrow { max-width: 780px; }
+.prose p { margin: 14px 0; color: var(--ink); }
+.prose p + p { margin-top: 18px; }
+.two-col {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 56px; align-items: start;
+}
+.kv {
+  list-style: none; padding: 0; margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.kv li {
+  display: flex; justify-content: space-between;
+  padding: 11px 0; border-bottom: 1px solid var(--rule);
+  font-size: 16px;
+}
+.kv .k { color: var(--ink-2); }
+.kv .v {
+  color: var(--ink);
+  font-family: var(--num-font); font-weight: 600;
+}
+.kv .v em {
+  font-family: var(--text-font); font-weight: 400; font-style: normal;
+  color: var(--ink-3); margin-left: 6px; font-size: 0.88em;
+}
+.bar-chart { display: flex; flex-direction: column; gap: 14px; margin: 4px 0 16px; }
+.bar-row {
+  display: grid; grid-template-columns: 130px 1fr;
+  align-items: center; gap: 14px;
+}
+.bar-label {
+  font-size: 14px; color: var(--ink-2);
+  text-align: right; font-family: var(--num-font);
+}
+.bar {
+  background: var(--rule); border-radius: 3px;
+  height: 28px; display: block; position: relative; overflow: hidden;
+}
+.bar-fill {
+  display: flex; align-items: center; justify-content: flex-end;
+  height: 100%; color: #fff;
+  font-family: var(--num-font); font-weight: 600;
+  padding-right: 10px; font-size: 13px; border-radius: 3px;
+}
+.caption { color: var(--ink-2); font-size: 15px; line-height: 1.55; margin: 14px 0 0; }
+.callout {
+  background: var(--bg-elev);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 18px 22px; margin: 8px 0;
+  font-size: 16px; color: var(--ink-2);
+}
+.callout p { margin: 0; }
+.callout p + p { margin-top: 10px; }
+.callout.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+.callout.recommendation { border-left-color: var(--ok); background: var(--rec-bg); }
+.callout h3 { margin: 0 0 10px; color: var(--ink); }
+.callout ul { margin: 6px 0 0; padding-left: 20px; }
+.callout li { margin: 4px 0; }
+.recon, .licensing {
+  width: 100%; border-collapse: collapse;
+  font-size: 15px; margin: 8px 0 4px;
+}
+.recon th, .recon td, .licensing th, .licensing td {
+  text-align: left; padding: 11px 14px;
+  border-bottom: 1px solid var(--rule); vertical-align: top;
+}
+.recon th, .licensing th {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--ink-3); font-weight: 600;
+  border-bottom: 2px solid var(--ink);
+}
+.recon .num, .licensing .num {
+  font-family: var(--num-font); font-weight: 600; white-space: nowrap;
+}
+.recon .num.muted, .licensing .num.muted { color: var(--ink-3); font-weight: 400; }
+.recon .row-action, .licensing .row-action { background: var(--highlight); }
+.recon .row-action td, .licensing .row-action td { border-bottom-color: #f0d999; }
+.timeline {
+  list-style: none; padding: 0 0 0 28px; margin: 8px 0;
+  border-left: 2px solid var(--rule);
+}
+.timeline li { position: relative; padding: 0 0 24px 24px; }
+.timeline li::before {
+  content: ''; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--bg-elev); border: 2px solid var(--ink-3);
+  position: absolute; left: -32px; top: 6px;
+}
+.timeline li.emphasize::before { border-color: var(--alert); background: var(--alert); }
+.timeline .time {
+  font-family: var(--num-font); font-size: 14px; font-weight: 700;
+  color: var(--ink); margin: 0 0 4px;
+}
+.timeline .time .today { color: var(--alert); font-weight: 600; }
+.timeline .event { margin: 0; color: var(--ink-2); font-size: 15px; }
+.decisions {
+  list-style: none; counter-reset: dec;
+  padding: 0; margin: 0; display: grid; gap: 14px;
+}
+.decisions li {
+  counter-increment: dec;
+  background: var(--bg-elev); border: 1px solid var(--rule);
+  border-radius: 6px; padding: 18px 22px; position: relative;
+}
+.decisions li::before {
+  content: counter(dec);
+  position: absolute; top: 16px; right: 22px;
+  font-family: var(--num-font); font-size: 32px; font-weight: 600;
+  color: var(--rule); line-height: 1;
+}
+.decisions li.emphasize { border-color: var(--ok); background: var(--rec-bg); }
+.decisions li.emphasize::before { color: var(--ok); }
+.decisions h3 {
+  margin: 0 0 8px; color: var(--ink);
+  text-transform: none; letter-spacing: 0; font-size: 17px;
+}
+.decisions p { margin: 4px 0; color: var(--ink-2); font-size: 15px; }
+.decisions .default { margin-top: 10px; color: var(--ink-2); }
+.closing {
+  margin-top: 22px; padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-2); font-style: italic;
+}
+em.aside {
+  color: var(--ink-3); font-style: normal;
+  font-size: 14px; font-weight: 400; letter-spacing: 0;
+}
+.footer-nav {
+  position: fixed; bottom: 18px; right: 24px;
+  background: var(--bg-elev); border: 1px solid var(--rule);
+  border-radius: 24px; padding: 6px 12px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-family: var(--num-font); z-index: 100;
+}
+.footer-nav button {
+  background: transparent; border: 0;
+  font-size: 18px; cursor: pointer;
+  padding: 4px 10px; border-radius: 4px;
+  color: var(--ink-2);
+}
+.footer-nav button:hover { background: var(--rule); color: var(--ink); }
+#counter { font-size: 13px; color: var(--ink-3); min-width: 36px; text-align: center; }
+@media (max-width: 1100px) {
+  .slide { padding: 40px 48px 64px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; gap: 28px; }
+  .cover h1 { font-size: 44px; }
+  .slide-header h2 { font-size: 28px; }
+}
+@media print {
+  .topbar, .footer-nav { display: none; }
+  .slide { page-break-after: always; min-height: auto; }
+}
+.appendix h3 {
+  margin-top: 24px;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 6px;
+}
+.linklist {
+  list-style: none; padding: 0; margin: 0 0 14px;
+  display: grid; gap: 6px;
+}
+.linklist li { font-size: 15px; line-height: 1.5; }
+.linklist a {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid transparent; font-weight: 500;
+}
+.linklist a:hover { border-bottom-color: var(--accent); }
+.linklist .hint {
+  color: var(--ink-3); font-weight: 400;
+  font-size: 14px; margin-left: 4px;
+}
+.linklist.mono li { font-size: 13px; color: var(--ink-2); }
+.linklist.mono code { background: transparent; padding: 0; font-size: 0.95em; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="eyebrow">Workspace Audit · Springfield Commonwealth Academy</span>
+    <span class="date">2026-05-12</span>
+  </div>
+  <nav class="progress" aria-label="Section progress">
+    <a href="#cover" class="dot active" data-label="Cover"></a>
+    <a href="#summary" class="dot" data-label="Summary"></a>
+    <a href="#accounts" class="dot" data-label="Accounts"></a>
+    <a href="#reconciliation" class="dot" data-label="Reconciliation"></a>
+    <a href="#admin" class="dot" data-label="admin@"></a>
+    <a href="#licensing" class="dot" data-label="Licensing"></a>
+    <a href="#decisions" class="dot" data-label="Decisions"></a>
+    <a href="#sources" class="dot" data-label="Sources"></a>
+    <a href="#summer-camp" class="dot" data-label="Camp"></a>
+    <a href="#appendix" class="dot" data-label="Links"></a>
+  </nav>
+</header>
+
+<main>
+
+<section id="cover" class="slide cover">
+  <div class="cover-inner">
+    <p class="eyebrow large">Google Workspace Audit</p>
+    <h1>Springfield Commonwealth Academy</h1>
+    <p class="meta">Briefing for Angelene Huang · Prepared by Ed O'Connell · 2026-05-12</p>
+  </div>
+  <p class="navhint">Use arrow keys to navigate · <a href="#summary">Begin</a></p>
+</section>
+
+<section id="summary" class="slide">
+  <header class="slide-header">
+    <p class="eyebrow">1 / 7</p>
+    <h2>The audit in one page</h2>
+  </header>
+  <div class="stats-grid">
+    <div class="stat">
+      <p class="stat-num">574</p>
+      <p class="stat-label">Total Workspace accounts</p>
+    </div>
+    <div class="stat">
+      <p class="stat-num">251 / 323</p>
+      <p class="stat-label">Active / Suspended</p>
+    </div>
+    <div class="stat">
+      <p class="stat-num">~35</p>
+      <p class="stat-label">Clear off-boarding candidates</p>
+    </div>
+    <div class="stat warn">
+      <p class="stat-num">6 / 1</p>
+      <p class="stat-label">Foreign-IP admin logins · Shared super-admin accounts</p>
+    </div>
+  </div>
+  <div class="prose narrow">
+    <p>Springfield Commonwealth Academy holds 574 Google Workspace accounts on the free Education Fundamentals tier. Of those, 251 are active and 323 are suspended. About 35 of the active accounts have no recent sign-in activity, which makes them candidates for off-boarding after verification.</p>
+    <p>A review of the admin activity log over the last 180 days surfaced authenticated sign-ins to the shared <code>admin@springfieldca.org</code> account from outside the United States, including a session on February 7 that suspended roughly 76 accounts. The pattern is consistent with routine semester-end work by an authorized administrator. It is also consistent with a compromise, and the school cannot today distinguish between those two readings because <code>admin@</code> is shared and has no per-person attribution.</p>
+    <p>This briefing presents the seat count, the SIS reconciliation state, the admin-account question, and the licensing implications of Google's October 2025 policy change.</p>
+  </div>
+</section>
+
+<section id="accounts" class="slide">
+  <header class="slide-header">
+    <p class="eyebrow">2 / 7</p>
+    <h2>Who has Workspace accounts today</h2>
+  </header>
+  <div class="two-col">
+    <div>
+      <h3>Population</h3>
+      <ul class="kv">
+        <li><span class="k">Total accounts</span><span class="v">574</span></li>
+        <li><span class="k">Active</span><span class="v">251 <em>(44%)</em></span></li>
+        <li><span class="k">Suspended</span><span class="v">323 <em>(56%)</em></span></li>
+        <li><span class="k">Created in 2024</span><span class="v">295 <em>(growth year)</em></span></li>
+      </ul>
+      <p class="caption">More than half of all accounts ever created are already suspended. Every one of those suspensions was a manual action; there is no automation between Workspace and Gradelink today.</p>
+    </div>
+    <div>
+      <h3>Last sign-in (251 active accounts)</h3>
+      <div class="bar-chart" role="img" aria-label="Login recency: 148 within 90 days, 68 within 1 year, 13 older than 1 year, 22 never logged in">
+        <div class="bar-row">
+          <span class="bar-label">&lt;90 days</span>
+          <span class="bar"><span class="bar-fill" style="width:100%;background:var(--ok)">148</span></span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">90 days – 1 year</span>
+          <span class="bar"><span class="bar-fill" style="width:46%;background:var(--info)">68</span></span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">&gt; 1 year</span>
+          <span class="bar"><span class="bar-fill" style="width:9%;background:var(--warn)">13</span></span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Never</span>
+          <span class="bar"><span class="bar-fill" style="width:15%;background:var(--warn)">22</span></span>
+        </div>
+      </div>
+      <p class="caption"><strong>The bottom two rows — about 35 accounts — are deactivation candidates regardless of what Gradelink says.</strong> Nobody has touched these in a year, or never.</p>
+    </div>
+  </div>
+  <aside class="callout">
+    <p><strong>Structural note.</strong> 569 of 574 accounts sit in the root organizational unit. There is no <code>/Students</code>, <code>/Staff</code>, or <code>/Alumni</code> grouping in Workspace. Whether an account belongs to a current student, a former teacher, or a graduate is a question Workspace itself cannot answer. Role information lives only in Gradelink.</p>
+  </aside>
+</section>
+
+<section id="reconciliation" class="slide">
+  <header class="slide-header">
+    <p class="eyebrow">3 / 7</p>
+    <h2>What Workspace says vs. what Gradelink says</h2>
+    <p class="subhead">Joining 574 Workspace accounts with 218 Gradelink records on school email.</p>
+  </header>
+  <table class="recon">
+    <thead>
+      <tr>
+        <th scope="col">Recommendation</th>
+        <th scope="col">Count</th>
+        <th scope="col">What it means</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Keep</td><td class="num">73</td><td>Active in both systems. No action.</td></tr>
+      <tr class="row-action"><td><strong>Deactivate candidate</strong></td><td class="num"><strong>33</strong></td><td>Active in Workspace, inactive in Gradelink. The cleanest action pool — the school's own records say these should be off.</td></tr>
+      <tr class="row-action"><td><strong>Reactivate?</strong></td><td class="num"><strong>61</strong></td><td>Suspended in Workspace, active in Gradelink. Could be re-enrollments that were never reactivated, or Gradelink data quality issues. Needs spot-check.</td></tr>
+      <tr class="row-action"><td><strong>Provisioning gap</strong></td><td class="num"><strong>4</strong></td><td>Active in Gradelink, no Workspace account at all.</td></tr>
+      <tr><td>Investigate — orphan</td><td class="num">145</td><td>Active in Workspace, no Gradelink match. Mostly admin/service/distribution accounts and email mismatches.</td></tr>
+      <tr><td>Normal</td><td class="num">262</td><td>Suspended in Workspace, inactive or absent in Gradelink. Working as intended.</td></tr>
+      <tr><td>Edge / other</td><td class="num">10</td><td>Records that don't fit the above categories.</td></tr>
+    </tbody>
+  </table>
+  <aside class="callout">
+    <p><strong>Data quality limits.</strong> 25 of 82 staff records in Gradelink have no school email and cannot be reconciled this way. Some student status flags in Gradelink are missing — students whose Withdrawal Date and Graduation Date are both blank will appear "active" in our inference even when they are not. <strong>The 61 "Reactivate?" number is an upper bound; the true count is smaller, but we cannot say how much smaller without spot-checking.</strong></p>
+  </aside>
+</section>
+
+<section id="admin" class="slide">
+  <header class="slide-header">
+    <p class="eyebrow">4 / 7</p>
+    <h2>The <code>admin@</code> account</h2>
+    <p class="subhead">What 180 days of audit log reveals.</p>
+  </header>
+
+  <ol class="timeline">
+    <li>
+      <p class="time">2026-01-24</p>
+      <p class="event">Successful login to <code>admin@</code> from a Chinese IP (CN-33). First non-US admin login in the captured window.</p>
+    </li>
+    <li class="emphasize">
+      <p class="time">2026-02-07, 01:47–02:40 UTC</p>
+      <p class="event">Single 53-minute session from a Chinese IP (CN-44). Sequence: login → view Alert Center → 76 accounts suspended in succession.</p>
+    </li>
+    <li>
+      <p class="time">2026-02-10 – 02-11</p>
+      <p class="event">Different Chinese IP (CN-53). ~10 of the February 7 suspensions are reversed by the same <code>admin@</code> actor across two days.</p>
+    </li>
+    <li>
+      <p class="time">2026-04-08</p>
+      <p class="event">One more <code>admin@</code> login from a Chinese IP (CN-31).</p>
+    </li>
+    <li>
+      <p class="time">2026-05-03 – 05-04</p>
+      <p class="event">Separate event pattern: password-spray attempt against <code>admin@</code> from rotating US IPs (GA, CA, FL, MO). All failed.</p>
+    </li>
+    <li>
+      <p class="time">2026-05-12 <span class="today">(today)</span></p>
+      <p class="event">Admin password rotated.</p>
+    </li>
+  </ol>
+
+  <div class="two-col">
+    <aside class="callout">
+      <h3>What we can determine</h3>
+      <ul>
+        <li>The events happened.</li>
+        <li>The source IPs and the accounts affected.</li>
+        <li>The actor was authenticated as <code>admin@springfieldca.org</code> in each case.</li>
+      </ul>
+    </aside>
+    <aside class="callout warn">
+      <h3>What we cannot determine</h3>
+      <ul>
+        <li><strong>Which human performed these actions.</strong> <code>admin@</code> is a shared super-admin account. Multiple people may have access. The logs do not record which one.</li>
+        <li>The February 7 pattern — login, browse alerts, bulk suspend, partially reverse — is consistent with semester-end work by an authorized administrator. It is also consistent with a compromise that suspended accounts and then partially reversed when pushed back on. The logs do not let us choose between those two readings.</li>
+      </ul>
+    </aside>
+  </div>
+
+  <aside class="callout recommendation">
+    <p><strong>Recommendation.</strong> Retire <code>admin@</code> as a routinely-used account. Move super-admin grants to per-person accounts, each protected by a hardware security key. Keep <code>admin@</code> as a break-glass account only, credentials sealed, access logged separately. <strong><code>admin@</code> is also the only super-admin account in the entire domain</strong> — no second admin exists to recover from a lost password or to intervene against a compromised one. This is the most important finding in the audit.</p>
+  </aside>
+</section>
+
+<section id="licensing" class="slide">
+  <header class="slide-header">
+    <p class="eyebrow">5 / 7</p>
+    <h2>What this means for licensing</h2>
+  </header>
+  <div class="two-col">
+    <div>
+      <h3>Current state</h3>
+      <ul class="kv">
+        <li><span class="k">All 574 accounts on</span><span class="v">Education Fundamentals (free)</span></li>
+        <li><span class="k">Workspace cost today</span><span class="v">$0 / seat</span></li>
+        <li><span class="k">Gemini AI Ultra</span><span class="v">1 license (paid, separate)</span></li>
+        <li><span class="k">Google Voice Premier</span><span class="v">2 licenses (paid, separate)</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3>What changed (Google policy, October 2025)</h3>
+      <p>Before 2025-10-01: schools received 1 free staff license for every 4 paid student licenses on Education Standard and Plus.</p>
+      <p>After 2025-10-01 (new orders) and 2026-02-01 (renewals): <strong>that ratio is gone</strong>. Upgrades require purchasing licenses equal to total enrollment plus all staff.</p>
+    </div>
+  </div>
+  <h3>Cost sensitivity to seat count <em class="aside">(Education Standard, ~$4 / staff / month, illustrative)</em></h3>
+  <table class="licensing">
+    <thead>
+      <tr><th>Cleaned seat count</th><th>Estimated annual cost</th><th>Difference from baseline</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>574 — no cleanup</td><td class="num">~$27,500 / yr</td><td class="num muted">—</td></tr>
+      <tr><td>~500 — suspended-only cleanup</td><td class="num">~$24,000 / yr</td><td class="num">−$3,500</td></tr>
+      <tr class="row-action"><td><strong>~250 — cleanup + Gradelink-verified</strong></td><td class="num"><strong>~$12,000 / yr</strong></td><td class="num"><strong>−$15,500</strong></td></tr>
+    </tbody>
+  </table>
+  <aside class="callout">
+    <p><strong>The seat audit is the financial prerequisite for any upgrade conversation.</strong> Not recommending an upgrade today — recommending that the seat count be defensible before that conversation happens.</p>
+  </aside>
+</section>
+
+<section id="decisions" class="slide">
+  <header class="slide-header">
+    <p class="eyebrow">6 / 7</p>
+    <h2>Decisions</h2>
+    <p class="subhead">Seven questions, each with a recommended default. The Sheet has a tab for the answers.</p>
+  </header>
+  <ol class="decisions">
+    <li>
+      <h3>Off-boarding rule</h3>
+      <p>When a student withdraws or graduates, when should the Workspace account be suspended?</p>
+      <p class="default"><strong>Suggested default:</strong> end of academic term, with a 14-day grace period.</p>
+    </li>
+    <li>
+      <h3>Suspended-retention rule</h3>
+      <p>When does a suspended account convert to deletion?</p>
+      <p class="default"><strong>Suggested default:</strong> 12 months after suspension, with Vault retention policy applied for compliance.</p>
+    </li>
+    <li>
+      <h3>Reconciliation cadence</h3>
+      <p>Run this Workspace × Gradelink audit how often?</p>
+      <p class="default"><strong>Suggested default:</strong> end of each academic semester.</p>
+    </li>
+    <li>
+      <h3>SIS data quality ownership</h3>
+      <p>Who closes the 25 missing-school-email gap and the duplicate records in Gradelink?</p>
+      <p class="default"><strong>Suggested default:</strong> Registrar's office owns Gradelink hygiene. IT owns the reconciliation report.</p>
+    </li>
+    <li>
+      <h3>Authorize the clear-35 cleanup</h3>
+      <p>Spot-check and deactivate the ~35 Workspace accounts with no recent login and no Gradelink presence?</p>
+      <p class="default"><strong>Suggested default:</strong> yes, after a 14-day grace period.</p>
+    </li>
+    <li class="emphasize">
+      <h3>Super-admin account attribution</h3>
+      <p>Retire shared <code>admin@</code> and move to per-person super-admin accounts with hardware security keys?</p>
+      <p class="default"><strong>Suggested default:</strong> yes, within 30 days. The most important finding in this audit.</p>
+    </li>
+    <li>
+      <h3>OU restructure project</h3>
+      <p>Authorize creating role-based organizational units (<code>/Students</code>, <code>/Staff</code>, <code>/Alumni</code>) so future audits are not manual?</p>
+      <p class="default"><strong>Suggested default:</strong> yes, scoped for completion before end of summer.</p>
+    </li>
+  </ol>
+</section>
+
+<section id="sources" class="slide">
+  <header class="slide-header">
+    <p class="eyebrow">7 / 7</p>
+    <h2>Sources, methodology, what you take with you</h2>
+  </header>
+  <div class="two-col">
+    <div>
+      <h3>Where the data came from</h3>
+      <ul>
+        <li><strong>Workspace:</strong> GAM 7.32.04, pulled 2026-05-12. <code>print users</code>, <code>print licenses</code>, <code>report admin</code>, <code>report login</code>.</li>
+        <li><strong>Gradelink:</strong> Admin Reports → Student Roster (with Show Inactive Students), and Staff Reports tab (filter All), both exported 2026-05-12.</li>
+        <li><strong>Reconciliation:</strong> Python join on lowercased school email, status inferred from Withdrawal + Graduation date columns for students.</li>
+        <li><strong>Admin activity:</strong> Google Workspace Admin Reports API, default 180-day window.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Known limitations</h3>
+      <ul>
+        <li>Some Gradelink inactive records have neither Withdrawal nor Graduation Date populated and appear "active" in inference.</li>
+        <li>Gradelink does not expose its Status field in exportable reports.</li>
+        <li>25 staff records in Gradelink have no school email and are unmatchable.</li>
+        <li>The admin audit log API does not extend earlier than ~180 days; older activity is not visible.</li>
+      </ul>
+    </div>
+  </div>
+  <h3>What you take with you</h3>
+  <p>The companion Sheet contains the per-account data behind every section above. It has separate tabs for:</p>
+  <ul>
+    <li>All 574 Workspace accounts</li>
+    <li>The 180-day admin activity log</li>
+    <li>The reconciliation join with the recommendation column for every record</li>
+    <li>A Decisions tab where you or a delegate can record answers to the seven questions</li>
+  </ul>
+  <p class="closing">A written policy draft for whichever defaults you decide to keep can follow once you've signed off.</p>
+</section>
+
+<section id="summer-camp" class="slide">
+  <header class="slide-header">
+    <p class="eyebrow">Adjacent topic</p>
+    <h2>Summer camp accounts — a concrete test of the policy framework</h2>
+    <p class="subhead">The decisions above are not theoretical. The first cohort to exercise them is the summer-camp roster being provisioned in the next few weeks.</p>
+  </header>
+
+  <h3>Why this belongs in this conversation</h3>
+  <p>Provisioning summer-camp students is a smaller, cleaner version of every structural finding in this audit. A bounded cohort with a known start date, known end date, no FERPA-record history to migrate, and explicit parental consent at the front. If the off-boarding rule, the OU structure, and the AI-tooling policy are answered for camp, they are answered in principle for the school year that follows.</p>
+
+  <h3>The proposed structure</h3>
+  <ul class="kv">
+    <li><span class="k">Domain</span><span class="v">@springfieldca.org (same as school)</span></li>
+    <li><span class="k">Organizational unit</span><span class="v">/Summer Camp 2026</span></li>
+    <li><span class="k">Provisioning</span><span class="v">GAM batch from CSV roster</span></li>
+    <li><span class="k">Lifecycle</span><span class="v">Auto-suspend day +1 after camp ends; delete day +90</span></li>
+    <li><span class="k">Drive content</span><span class="v">Archived to a designated retention account before suspension</span></li>
+    <li><span class="k">Parental consent</span><span class="v">One document per family, names the AI tools explicitly</span></li>
+  </ul>
+  <p class="caption">Putting the cohort in its own organizational unit means policies (Drive sharing, Gmail external send, AI tool access) can apply to the whole group at once and the entire OU can be suspended in a single action when camp ends. This is the operational pattern that today's audit is recommending for the school as a whole — camp lets us pilot it first.</p>
+
+  <h3>The decision underneath — AI access via school accounts vs. personal accounts</h3>
+  <p>One question is large enough that it should land in front of you as a direct comparison. Where do the AI tools the campers will use (Gemini, NotebookLM) actually live?</p>
+
+  <table class="recon">
+    <thead>
+      <tr>
+        <th scope="col">Dimension</th>
+        <th scope="col">School-managed accounts</th>
+        <th scope="col">Personal Google accounts</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Direct cost to the school</strong></td><td>AI add-on or Education Plus license per camper</td><td>$0</td></tr>
+      <tr><td><strong>Eligibility for under-18</strong></td><td>Admin-controlled. Workspace under-18 policy applies — needs verification before commit.</td><td>Restricted. Many AI features are blocked on personal accounts for users under 18 even with parental consent.</td></tr>
+      <tr><td><strong>Use of student work to train AI models</strong></td><td>Prohibited by Workspace contract terms.</td><td>Permitted under consumer ToS. Student work may be retained and used.</td></tr>
+      <tr><td><strong>FERPA / education-record protection</strong></td><td>School holds and controls records under existing framework.</td><td>No school control. Records held by Google under consumer terms.</td></tr>
+      <tr><td><strong>Audit and incident response</strong></td><td>Admin Console logs every action. School can investigate any complaint.</td><td>School has no visibility. Cannot help and cannot prove compliance.</td></tr>
+      <tr><td><strong>Instructor feedback on student work</strong></td><td>Possible — student work is in shared school environment.</td><td>Not possible at scale. Each student is in a personal silo.</td></tr>
+      <tr><td><strong>Operational support during camp</strong></td><td>School IT can reset passwords, recover access, transfer files.</td><td>School cannot. Account recovery goes through the family.</td></tr>
+      <tr><td><strong>What happens to student work after camp</strong></td><td>Archived under defined retention policy.</td><td>Disappears if family deletes the account. Persists indefinitely under Google's profile if they don't.</td></tr>
+      <tr><td><strong>Real liability to the school</strong></td><td>School is operating the camp and holds the tools and records to manage that responsibility.</td><td>School is still operating the camp. "Personal accounts" is not a recognized defense — operational authority is the locus, not domain.</td></tr>
+    </tbody>
+  </table>
+
+  <aside class="callout recommendation">
+    <p><strong>Recommendation.</strong> School-managed accounts in <code>/Summer Camp 2026</code>, scoped to free Fundamentals plus the specific AI add-ons the curriculum requires. The cost is real but bounded — and can be costed into the camp tuition or eaten as a marketing investment. The protection difference is structural and not recoverable by being careful at run-time.</p>
+    <p>The personal-accounts approach trades a visible cost line for a set of invisible structural exposures that are harder to argue about after something goes wrong. The school is operating the program either way.</p>
+  </aside>
+
+  <h3>What needs to happen before any of this is committed to parents</h3>
+  <ol>
+    <li><strong>Verify under-18 Gemini and NotebookLM availability</strong> on one provisioned test account in <code>/Summer Camp 2026</code>. Ten minutes of admin-console work. Settles the eligibility question definitively before marketing materials go out.</li>
+    <li><strong>Draft the parental consent template</strong> that explicitly names the AI tools, the data flows, the retention policy, and the account deletion date. This is the long-pole item — legal review takes longer than the technical provisioning.</li>
+    <li><strong>Finalize the naming convention</strong> for the OU and account format so the provisioning script, the consent form, and the camp roster all align.</li>
+  </ol>
+  <p>Once those three items are settled, the actual account creation is a couple of hours of <code>gam csv</code> work and the cohort can be rolled on demand.</p>
+</section>
+
+<section id="appendix" class="slide appendix">
+  <header class="slide-header">
+    <p class="eyebrow">Appendix</p>
+    <h2>Quick links</h2>
+    <p class="subhead">For Ed — fast navigation during the meeting once any security questions are cleared.</p>
+  </header>
+
+  <h3>Audit Sheets (shared with Angelene · view-only)</h3>
+  <ul class="linklist">
+    <li><a href="https://docs.google.com/spreadsheets/d/13rgqhkhs-ECjGE76o9N5QkAEsNlGEhQ-0DQmvjJC_Wo/edit" target="_blank" rel="noopener">Accounts <span class="hint">— all 574 Workspace accounts</span></a></li>
+    <li><a href="https://docs.google.com/spreadsheets/d/1lOq5H9f9z-KknOW3ea_X2s1yX7NmNeb1EbowEBHJPuc/edit" target="_blank" rel="noopener">Admin Activity <span class="hint">— 423 admin events, last 180 days</span></a></li>
+    <li><a href="https://docs.google.com/spreadsheets/d/1JoGtISrlqRT_XqiP3xmHI-gJl0nFDjI0fDUWvX_ObBw/edit" target="_blank" rel="noopener">Reconciliation <span class="hint">— Workspace × Gradelink join, 588 rows with recommendation column</span></a></li>
+  </ul>
+
+  <h3>Admin Console — for live verification</h3>
+  <ul class="linklist">
+    <li><a href="https://admin.google.com/ac/users" target="_blank" rel="noopener">Users <span class="hint">— look up any row from the Accounts sheet</span></a></li>
+    <li><a href="https://admin.google.com/ac/reporting/highlights" target="_blank" rel="noopener">Reports — Highlights</a></li>
+    <li><a href="https://admin.google.com/ac/reporting/audit/admin" target="_blank" rel="noopener">Reports — Admin audit log <span class="hint">— source for the Feb 7 event timeline</span></a></li>
+    <li><a href="https://admin.google.com/ac/reporting/audit/login" target="_blank" rel="noopener">Reports — Login audit log</a></li>
+    <li><a href="https://admin.google.com/ac/billing/subscriptions" target="_blank" rel="noopener">Billing &amp; license assignments</a></li>
+    <li><a href="https://admin.google.com/ac/ac/alerts" target="_blank" rel="noopener">Security — Alert Center</a></li>
+  </ul>
+
+  <h3>Licensing references (if she wants the source)</h3>
+  <ul class="linklist">
+    <li><a href="https://support.google.com/a/answer/14206754" target="_blank" rel="noopener">Google's K-12 pricing change announcement <span class="hint">— support.google.com</span></a></li>
+    <li><a href="https://edu.google.com/intl/ALL_us/workspace-for-education/editions/compare-editions/" target="_blank" rel="noopener">Education editions comparison</a></li>
+  </ul>
+</section>
+
+</main>
+
+<nav class="footer-nav" aria-label="Slide navigation">
+  <button id="prev" type="button" aria-label="Previous">←</button>
+  <span id="counter" aria-live="polite">1 / 8</span>
+  <button id="next" type="button" aria-label="Next">→</button>
+</nav>
+
+<script is:inline>
+(function(){
+  const sections = Array.from(document.querySelectorAll('section.slide'));
+  const dots = Array.from(document.querySelectorAll('.progress .dot'));
+  const counter = document.getElementById('counter');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  function go(i){
+    i = Math.max(0, Math.min(sections.length-1, i));
+    sections[i].scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  function currentIndex(){
+    const y = window.scrollY + window.innerHeight/3;
+    for (let i=sections.length-1; i>=0; i--){
+      if (sections[i].offsetTop <= y) return i;
+    }
+    return 0;
+  }
+  function update(){
+    const i = currentIndex();
+    dots.forEach((d,j)=>d.classList.toggle('active', j===i));
+    counter.textContent = (i+1) + ' / ' + sections.length;
+  }
+  prev.addEventListener('click', ()=>go(currentIndex()-1));
+  next.addEventListener('click', ()=>go(currentIndex()+1));
+  document.addEventListener('keydown', e=>{
+    if (e.key==='ArrowRight' || e.key==='PageDown' || e.key===' ') { e.preventDefault(); go(currentIndex()+1); }
+    if (e.key==='ArrowLeft' || e.key==='PageUp') { e.preventDefault(); go(currentIndex()-1); }
+    if (e.key==='Home') { e.preventDefault(); go(0); }
+    if (e.key==='End') { e.preventDefault(); go(sections.length-1); }
+  });
+  window.addEventListener('scroll', update, {passive:true});
+  update();
+})();
+</script>
+
+</body>
+</html>
