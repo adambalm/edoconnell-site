@@ -15,14 +15,13 @@ export const prerender = true
 import BaseLayout from '../../../layouts/BaseLayout.astro'
 import CaseStudyHero from '../../../components/case-study/CaseStudyHero.astro'
 import EvidenceCard from '../../../components/case-study/EvidenceCard.astro'
-import Aside from '../../../components/case-study/Aside.astro'
 import ReadingProgress from '../../../components/ReadingProgress.astro'
 
 const HERO_STATS = [
-  { value: '79 → 100', label: 'Lighthouse a11y' },
-  { value: '46 → 93', label: 'Lighthouse perf' },
-  { value: '11', label: 'Page-builder blocks' },
-  { value: '~5 min', label: 'Alt-text backfill' },
+  { value: '11', label: 'Composable page-builder blocks' },
+  { value: '1', label: 'State-machined document type' },
+  { value: '1', label: 'Upstream issue filed' },
+  { value: '~5 min', label: 'Agent-driven alt-text backfill' },
 ]
 
 type StatusLabel = 'shipped' | 'demo' | 'exploratory'
@@ -169,10 +168,6 @@ const jsonLd = {
         actually do. The pay-off is that the same content can render to a page, an OG card, a
         JSON-LD payload, or a search index — without being rewritten for any of them.
       </p>
-
-      <blockquote class="cs-pullquote">
-        <p>Treat content like data all the way down.</p>
-      </blockquote>
     </section>
 
     <section class="cs-section" id="overview">
@@ -219,18 +214,6 @@ const jsonLd = {
       </div>
     </section>
 
-    <Aside label="Type 2 fun">
-      <p>
-        Visual Editing across origins. Stega encoding showing up where I didn't want it. An
-        agent toolkit silently rewriting prose. None of these were on the planning doc; all of
-        them landed as fixes, hand-crafted Portable Text scripts, or upstream filings.
-      </p>
-      <p>
-        Sanity calls that <em>Type 2 fun</em>. Hard in the moment, structured content in
-        retrospect.
-      </p>
-    </Aside>
-
     <section class="cs-section" id="refining">
       <p class="cs-section__num">04<small>Refining</small></p>
       <h2 class="cs-section__title">What I am still refining</h2>
@@ -247,10 +230,6 @@ const jsonLd = {
         <li>
           Tool selection between Claude, GPT, and Gemini for a given role is empirical. The
           decision rules work; documenting them is the next layer.
-        </li>
-        <li>
-          Multi-agent and human collaboration is a phase this project has reached but
-          hasn't yet studied carefully — its own case study, eventually.
         </li>
       </ul>
     </section>
