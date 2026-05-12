@@ -112,10 +112,12 @@ const jsonLd = {
       </p>
       <StackRow items={STACK} />
       <p>
-        The rest is enforcement, and enforcement is where the work lives. Generation that
-        doesn't pass typecheck, axe-core, Playwright, and Lighthouse doesn't ship. None of
-        this is unusual. Treating it as the floor and not the ceiling is the part I'm careful
-        about.
+        The rest of the stack is enforcement. Anything that doesn't pass typecheck, axe-core,
+        Playwright, and Lighthouse doesn't ship.
+      </p>
+      <p>
+        The setup is unremarkable. Running it consistently — not skipping checks because they
+        feel slow on a small change — is the part I pay attention to.
       </p>
     </section>
 
@@ -133,9 +135,14 @@ const jsonLd = {
         them on a page.
       </p>
       <p>
-        Adding a twelfth block is a single PR — schema, renderer, sample, test. Whether to
-        add a twelfth is the harder question. The block library is a vocabulary, and
-        vocabularies are easier to grow than to prune.
+        The most recent of the eleven was <code>videoEmbed</code> (ADR-027), which renders
+        YouTube and Vimeo URLs in privacy mode. Adding it was a single PR — schema,
+        renderer, sample, test. Adding a twelfth would be the same shape of work.
+      </p>
+      <p>
+        Whether to add a twelfth is the harder question than how. Every block in the menu
+        increases the cognitive load on editors. Removing a block already in use means
+        rewriting the pages that use it.
       </p>
       <pre class="cs-code"><code>{schemaSnippet}</code></pre>
       <p>
@@ -161,11 +168,13 @@ const jsonLd = {
         folder, and writes the result back to Sanity.
       </p>
       <p>
-        Idempotency is the load-bearing property. The folder name embeds the Sanity document
-        <code>_id</code> as a key, and the watcher's first call to GAM looks up the folder by
-        that key before creating one. A crashed worker, a redeployed agent, or a
-        half-completed run cannot produce duplicate Drive folders. The state machine is
-        restart-safe and replay-safe.
+        Idempotency is what keeps a crashed worker from creating duplicate Drive folders.
+        The folder name embeds the Sanity document <code>_id</code> as a key.
+      </p>
+      <p>
+        The watcher's first call to GAM looks up the folder by that key before creating one.
+        A crashed worker, a redeployed agent, or a half-completed run finds the existing
+        folder and continues from there.
       </p>
       <p>
         Editor-owned and agent-owned fields share the document. Editor-facing fields (title,
@@ -175,13 +184,18 @@ const jsonLd = {
         break the state machine by editing it.
       </p>
       <p>
-        <strong>Polling, with webhooks on the deferred list.</strong> Sanity's webhook system
-        is first-class — a publish webhook would give sub-second provisioning latency
-        instead of the 0–10 second window the polling worker has. The migration plan is to
-        add the webhook as a fast path and keep the poller as crash recovery. Webhooks miss
-        occasionally (network blips, replay drops, queue eviction); the poller catches what
-        the webhook drops. Most of the webhook implementation is already in the poller —
-        claim, lock, run, write back. The trigger swaps in; the rest stays.
+        <strong>Polling, with webhooks on the deferred list.</strong> A Sanity publish webhook
+        would give sub-second provisioning latency instead of the 0–10 second window the
+        polling worker has.
+      </p>
+      <p>
+        The plan is to add the webhook as a fast path and keep the poller as crash recovery.
+        Webhooks miss occasionally — network blips, replay drops, queue eviction. The poller
+        catches what the webhook drops.
+      </p>
+      <p>
+        Most of the webhook code is already in the poller — claim, lock, run, write back.
+        The trigger swaps in; the rest stays.
       </p>
       <p>
         The public showcase route is currently dormant per ADR-019. Reactivation gates on
@@ -228,11 +242,17 @@ const jsonLd = {
       <p>
         Migration ran beyond editorial content. Basketball and soccer alumni rosters — names,
         class years, achievements — moved into Sanity as structured documents queryable by
-        athlete, year, and program. A school year of events from a spreadsheet column became
-        Sanity event documents queryable by date and category, imported by a script that ran
-        once and stayed in version control. The schemas are unglamorous; the test
-        is whether the data layer holds. Rows with consistent shape are materially different
-        from a static HTML page that happens to contain the same content.
+        athlete, year, and program.
+      </p>
+      <p>
+        A school year of events from a spreadsheet column became Sanity event documents
+        queryable by date and category, imported by a script that ran once and stayed in
+        version control.
+      </p>
+      <p>
+        The schemas are unglamorous. An events table I can sort, filter, and reuse for next
+        year's calendar is a different asset from an HTML page that happens to list the same
+        dates.
       </p>
     </section>
 

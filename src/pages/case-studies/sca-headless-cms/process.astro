@@ -79,8 +79,11 @@ const jsonLd = {
       <p class="cs-section__num">01<small>Verification</small></p>
       <h2 class="cs-section__title">The verification stack</h2>
       <p>
-        AI is good at generation. It is uneven at telling you when its output is wrong. The
-        verification stack exists because that asymmetry is real, not philosophical.
+        AI is good at generation. It is uneven at telling you when its output is wrong.
+      </p>
+      <p>
+        The verification stack exists because of that gap — to catch what the generator
+        cannot reliably catch about itself.
       </p>
       <p>What runs, in order of cost:</p>
       <ul>
@@ -127,18 +130,21 @@ const jsonLd = {
       <h2 class="cs-section__title">Provenance metadata</h2>
       <p>
         In this content model, Sanity-backed articles and demos can carry a
-        <code>provenance</code> object — author, generator, reviewer, context, date. The
-        object is visible in the Studio, queryable via GROQ, and visible in source maps when
-        stega encoding is on. The case for it is simple: the origin of the content is part
-        of the content.
+        <code>provenance</code> object — author, generator, reviewer, context, date.
       </p>
-      <p>A representative shape:</p>
+      <p>
+        The object is visible in the Studio, queryable via GROQ, and visible in source maps
+        when stega encoding is on. A representative shape:
+      </p>
       <pre class="cs-code"><code>{provenanceSnippet}</code></pre>
       <p>
-        This isn't a watermark. It's a queryable shape. A future filter — "show me every
+        It is a queryable shape, not a watermark. A future filter — "show me every
         Sanity-backed document that was AI-drafted but not yet human-reviewed" — is a one-line
-        GROQ change, not a project. The right time to commit to this kind of metadata is at
-        authoring, when the data is fresh; the wrong time is later, when you have to backfill.
+        GROQ change, not a project.
+      </p>
+      <p>
+        Committing to this metadata at authoring is cheap; backfilling it later is expensive
+        and approximate.
       </p>
     </section>
 
@@ -161,10 +167,12 @@ const jsonLd = {
         <p>"That would have taken me all day," the VP of marketing said when it finished.</p>
       </blockquote>
       <p>
-        The speed mattered. The bigger thing was that an editor — not the engineer who set
-        up the agent — watched it run, reviewed each generation against the school's brand,
-        and signed off. Agent-driven content that an editor can review in real time gets
-        used. Agent-driven content the editor can't review doesn't ship.
+        The speed mattered. The bigger thing was who watched it run.
+      </p>
+      <p>
+        The VP of marketing — not the engineer who set up the agent — reviewed each
+        generation against the school's brand and signed off before publish. If she had
+        needed to step away during the run, we would not have used the agent that way.
       </p>
     </section>
 
@@ -234,13 +242,25 @@ const jsonLd = {
         something else tomorrow without a rewrite of the source.
       </p>
       <p>
-        Why Sanity in particular: Portable Text. Sanity's structured-content philosophy
-        treats prose as a typed array of blocks rather than an opaque HTML blob. That means
-        AI agents can read and write it; that means the same content can render to a web
-        page, an OG card, a search index, a JSON-LD payload — without rewriting it. GROQ is
-        the second reason: SQL-shaped retrieval over typed documents. The third reason is
-        Visual Editing — click-to-edit overlays that work without a custom CMS UI. None of
-        these is unique to Sanity, but Sanity's combination is what felt right for a small
+        Why Sanity in particular: three reasons.
+      </p>
+      <p>
+        <strong>Portable Text.</strong> Sanity treats prose as a typed array of blocks rather
+        than an opaque HTML blob. That means AI agents can read and write it. It also means
+        the same content can render to a web page, an OG card, a search index, or a JSON-LD
+        payload without rewriting the source.
+      </p>
+      <p>
+        <strong>GROQ.</strong> SQL-shaped retrieval over typed documents. The state-machine
+        and projection examples on <a href="/case-studies/sca-headless-cms/build">the build page</a>
+        rely on it.
+      </p>
+      <p>
+        <strong>Visual Editing.</strong> Click-to-edit overlays that work without a custom
+        CMS UI, which is what lets non-engineer editors update content directly.
+      </p>
+      <p>
+        None of these is unique to Sanity. The combination is what felt right for a small
         team that needed both editor velocity and content-as-data.
       </p>
       <p>
@@ -262,12 +282,18 @@ const jsonLd = {
         and what the cost of the undo would be.
       </p>
       <p>
-        ADRs are usually presented as discipline. They're really insurance. The cost of
-        writing them is twenty minutes; the cost of not writing them is finding out, three
-        months later, why you can't change something obvious. Most of the deferred items on
-        this project are deferred precisely because their ADRs document why now isn't the
-        right moment, and the cost of revisiting later is small because the reasoning is
-        captured.
+        ADRs read like discipline. They function like insurance.
+      </p>
+      <p>
+        ADR-019 is the example I keep coming back to: it documents why the public
+        student-project showcase route is currently dormant — consent, content review, and
+        the curated dataset all need to land before reactivation. Without that record, the
+        next person to find the dormant route would reactivate it and only discover the
+        gates by tripping them.
+      </p>
+      <p>
+        The cost of writing the ADR was twenty minutes. The cost of not having it would be a
+        public mistake.
       </p>
     </section>
 
