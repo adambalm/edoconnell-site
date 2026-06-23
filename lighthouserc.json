@@ -2,7 +2,7 @@
   "ci": {
     "collect": {
       "staticDistDir": "./dist/client",
-      "url": ["/", "/articles/", "/demos/"],
+      "url": ["/", "/articles/"],
       "numberOfRuns": 1,
       "settings": {
         "chromeFlags": "--no-sandbox --headless"

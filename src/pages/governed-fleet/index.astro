@@ -1,0 +1,243 @@
+---
+/**
+ * /governed-fleet — "Institutional Cognition: A Governed AI Fleet"
+ *
+ * The honest replacement for the prior interactive demos (Context Sage,
+ * Skill Forge, Memento). Ported from a standalone artifact and integrated
+ * into the site's design tokens + chrome. Three dependency-free widgets:
+ * a fleet map, a decision-flow stepper with verification + human gates,
+ * and a claim-validity / staleness stepper.
+ *
+ * Machine identifiers are deliberately generic (role-based, not hostnames);
+ * hardware and OS details are kept. Content is claimed only as true as of
+ * its review date; the "honest status" section states what is not yet built.
+ */
+export const prerender = true
+
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { loadQuery } from '../../sanity/lib/load-query'
+
+const PAGE_TITLE = 'The Fleet'
+const FALLBACK_DESC =
+  'A governed fleet of AI agents collaborating over one shared, version-pinned memory, under a protocol that will not let an agent act on a claim it has not verified.'
+
+// SEO/meta is CMS-manageable through the existing `page` content type: this
+// page reads an optional `page-governed-fleet` document and falls back to the
+// hardcoded copy when that document is absent (e.g. before it is seeded).
+// The interactive widgets remain in code, like the case-study pages.
+let pageDesc = FALLBACK_DESC
+try {
+  const { data } = await loadQuery<{ title?: string; seo?: { metaDescription?: string } }>({
+    query: `*[_id == "page-governed-fleet"][0]{ title, seo { metaDescription } }`,
+  })
+  if (data?.seo?.metaDescription) pageDesc = data.seo.metaDescription
+} catch (e) {
+  console.warn('[governed-fleet] Sanity fetch failed — using fallback meta:', e instanceof Error ? e.message : e)
+}
+---
+
+<BaseLayout title={PAGE_TITLE} description={pageDesc}>
+  <div class="gf">
+    <section>
+      <div class="kicker">A governed AI fleet</div>
+      <h1>Thinking that lives in the structure, not in any single mind.</h1>
+      <p class="lede">Today you can hold a real conversation with a capable, general AI. Three things about that are easy to miss — and together they make a single model a poor foundation for serious work.</p>
+      <div class="grid3">
+        <div class="card"><p class="card-h">It forgets</p><p class="small">Close the chat and the context is gone. Every model session starts from nothing — no institutional memory.</p></div>
+        <div class="card"><p class="card-h">It can be confidently wrong</p><p class="small">A model states a falsehood as fluently as a fact. It hallucinates, and it will not flag the difference.</p></div>
+        <div class="card"><p class="card-h">There are several of them</p><p class="small">Claude, GPT, Gemini and others are rival general models. Used alone, each is a single opinion with no second reader.</p></div>
+      </div>
+      <p class="pull">So the project is not a smarter model. It is the governance that turns a team of forgetful, fallible, rival models into one accountable, cumulative institution.</p>
+      <p>Concretely: a small fleet of AI agents — Claude and Codex/GPT, across three machines — collaborating over one shared, version-pinned memory, under a protocol that assigns roles by capability and will not let an agent act on a claim it has not verified. A human stays at the helm at every decision that matters.</p>
+    </section>
+
+    <section>
+      <h2>What the governance buys</h2>
+      <p class="muted small">Each row is a real failure the structure prevents — not a feature.</p>
+      <div class="gf-scroll" tabindex="0" role="region" aria-label="Single AI versus governed fleet comparison">
+      <table>
+        <thead><tr><th>Aspect</th><th>A single AI</th><th>The governed fleet</th><th>What it prevents</th></tr></thead>
+        <tbody>
+          <tr><td>Memory</td><td>Vanishes when the chat ends</td><td>Persistent, git-versioned record</td><td>Re-explaining the project every session</td></tr>
+          <tr><td>Decisions</td><td>One model decides alone</td><td>One proposes, another challenges</td><td>A confident-but-wrong plan shipping unread</td></tr>
+          <tr><td>Acting on claims</td><td>Acts on its own say-so</td><td>Inert without a verified state-receipt</td><td>Acting on stale state (a replica read as current)</td></tr>
+          <tr><td>Knowledge</td><td>No sense of staleness</td><td>Status + supersession on every claim</td><td>Trusting a fact that is months out of date</td></tr>
+          <tr><td>Record</td><td>Gone when the chat ends</td><td>Timestamped, attributed, auditable</td><td>No trail when something goes wrong</td></tr>
+          <tr><td>Models</td><td>Vendor lock-in</td><td>Roles by capability, any vendor</td><td>Starting over when you switch models</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>The fleet</h2>
+      <p>Three machines, one shared memory. Roles are function, not seniority: the <span class="agent ag-claude">Claude</span> <span class="small muted">(Inspecting AI)</span> establishes facts by running tools on the live system; <span class="agent ag-gpt">Codex / GPT</span> <span class="small muted">(Generalizing AI)</span> architects proposals; <span class="agent ag-human">Ed</span> <span class="small muted">(Human Orchestrator)</span> approves. Whoever can inspect and mutate the system takes the inspecting seat — so roles can swap as capabilities change.</p>
+      <div id="fleet-root"></div>
+    </section>
+
+    <section>
+      <h2>How one decision actually flows</h2>
+      <p>The heart of it. A real, recent decision — whether to upgrade the memory engine — walked through the protocol step by step. Watch where it stops: a proposal cannot move until facts are attached, and nothing irreversible happens until the human clicks.</p>
+      <div id="step-root"></div>
+      <p class="small muted" style="margin-top:.7em">The point is not the version answer. It is that the model that proposed could not skip verification, and the human's judgment was injected at exactly one place — the fork — not everywhere.</p>
+    </section>
+
+    <section>
+      <h2>Knowledge that knows when it is stale</h2>
+      <p>Every claim carries machine-readable metadata: when it was last verified, whether it is current, and what replaced it. Old facts are not deleted — they are superseded, with a pointer forward, so the record stays honest over time. Advance the clock on a real claim:</p>
+      <div id="val-root"></div>
+    </section>
+
+    <section>
+      <h2>Why it matters</h2>
+      <p class="pull">"It steers me down learning paths. I steer it toward outcomes."</p>
+      <p>A single AI executes what you already know to ask. A governed fleet surfaces what you would not have asked — because a second model challenges the first, and you watch the disagreement before you decide. (Real instance: one model proposed a routine git sync; the other caught that its <span class="mono">--rebase</span> would silently auto-resolve conflicts — a data-loss trap the human then learned to avoid.)</p>
+      <p>The deeper claim is modest and specific: this is not faster or smarter than one clever model. <em>It is harder to lie to.</em> Most parts — multi-agent orchestration, local-first memory, embeddings — are the wider ecosystem's, used deliberately. The original part is narrow and real: governance moved from intention to <strong>mechanism</strong> (a proposal is inert without a verified receipt), plus a layer that tracks each claim's <strong>validity over time</strong>.</p>
+      <h3>Honest status — not yet built</h3>
+      <p class="small">In the spirit of the thing: the no-bare-uvx guard is proposed, not enforced; the Generalizing AI has no live memory access yet; mobile control is not working; the staleness-detection layer is the genuine frontier and is partly manual. Claimed only what was true as of the last review.</p>
+      <p class="lineage">This page was assembled from the same shared memory the fleet writes to. Lineage: <em>Context Sage</em> (persistent, governed context) → <em>Skill Forge</em> (models deliberating to forge skills) → this (both, operational across a real fleet).</p>
+    </section>
+  </div>
+
+  <script is:inline>
+  (function(){
+    var NODES=[
+      {id:"primary",name:"Primary workstation",os:"Windows 11",role:"Hosts the Inspecting AI + Human Orchestrator",detail:"The canonical brain. Runs Claude Code, Claude Desktop, and the source-of-truth memory (version-pinned). The only node today that can inspect and mutate every machine over SSH — which is why the Inspecting-AI seat lives here.",caps:["Canonical knowledge base","Fleet inspection (SSH every node)","Project repos"]},
+      {id:"compute",name:"Compute server",os:"Linux",role:"Replica + compute",detail:"A config-only replica: it carries a clone of the shared memory and the GPU muscle (fine-tunes, tests) but runs no memory server of its own. Once found two commits behind origin — a concrete reason the fleet now checks freshness before it reads.",caps:["GPU / training / tests","Vault clone (read path)","Version-pinned"]},
+      {id:"arch",name:"Architecture node",os:"macOS",role:"Hosts the Generalizing AI",detail:"Where the Generalizing AI runs (Codex Desktop). It has no local memory server or clone, so it reads the canonical record indirectly over SSH — a deliberately humble node whose job is to architect proposals, not hold ground truth.",caps:["Architecture / proposals","Reads canonical via SSH","Control / orchestration"]}
+    ];
+    var fleetSel="primary";
+    function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+    function renderFleet(){
+      var n=NODES.filter(function(x){return x.id===fleetSel;})[0];
+      var left=NODES.map(function(x){return '<button class="nodebtn '+(x.id===fleetSel?'active':'')+'" data-id="'+x.id+'"><span class="h">'+esc(x.name)+'</span> <span class="small muted">· '+esc(x.os)+'</span><div class="small" style="color:var(--color-text-muted)">'+esc(x.role)+'</div></button>';}).join('');
+      var caps=n.caps.map(function(c){return '<span class="chip" style="margin-right:.35em;margin-bottom:.35em">'+esc(c)+'</span>';}).join('');
+      var right='<div class="card"><div class="kicker">'+esc(n.name)+' · '+esc(n.os)+'</div><h3 style="margin-top:.2em">'+esc(n.role)+'</h3><p>'+esc(n.detail)+'</p><div>'+caps+'</div></div>';
+      document.getElementById('fleet-root').innerHTML='<div class="two"><div>'+left+'<p class="small muted" style="margin-top:.6em">The line between them is git: one version-pinned markdown memory, synced node-to-node. The repository is the bus the agents talk over.</p></div>'+right+'</div>';
+      var b=document.querySelectorAll('#fleet-root .nodebtn');
+      for(var i=0;i<b.length;i++){b[i].onclick=function(){fleetSel=this.getAttribute('data-id');renderFleet();};}
+    }
+
+    var AG={claude:'<span class="agent ag-claude">Claude</span>',gpt:'<span class="agent ag-gpt">Codex / GPT</span>',human:'<span class="agent ag-human">Ed</span>',sys:'<span class="agent muted">system</span>'};
+    var STEPS=[
+      {k:"Proposal",who:"gpt",t:"A proposal enters",b:"A bare uvx call quietly resolved the memory engine to a newer version. Codex raises the question: should the fleet cut over from the pinned version?"},
+      {k:"Verify",who:"gpt",t:"Facts before interpretation",gate:"receipt",b:"The Object Verification Gate: a proposal that wants to change something is inert until a fresh, machine-checked state-receipt is attached. No receipt, no motion.",receipt:"FRESHEN-OK before=f8b32cc after=f8b32cc origin=f8b32cc behind=0 ts=2026-06-21T00:00:41Z"},
+      {k:"Challenge",who:"claude",t:"The other model checks the claim",b:"Claude reviews primary sources: release dates, the changelog (the newer build only adds unused dependencies), and the database migration tree — byte-identical at both versions. No schema break, nothing the fleet needs."},
+      {k:"Refine",who:"claude",t:"Reframe the real question",b:"The version is downstream of a governance question. The risk is not the new release; it is ungoverned tool resolution — any unpinned call drifts. Fix the resolution, not the number."},
+      {k:"Handshake",who:"gpt",t:"Convergence, recorded",b:"Codex accepts the recommendation. Agreed / Agreed. The two models reconciled the facts without the human having to adjudicate them."},
+      {k:"Approval",who:"human",t:"The human decides at the fork",gate:"human",b:"Ed decides: stay pinned, defer the cutover, and make a no-bare-uvx guard the real near-term control. Fast when executing; slow and deliberate exactly here, where judgment is required."},
+      {k:"Record",who:"sys",t:"Rationale, not just outcome",b:"The decision is written to shared memory as timestamped, attributed notes — the argument is preserved, not only the answer."},
+      {k:"Retrieval",who:"sys",t:"It comes back",b:"Future sessions read it. This explainer pulled these very notes to build the panel you are reading."}
+    ];
+    var sI=0,sR=false,sA=false;
+    function renderStep(){
+      var s=STEPS[sI];
+      var bReceipt=(s.gate==="receipt"&&!sR), bHuman=(s.gate==="human"&&!sA), blocked=bReceipt||bHuman;
+      var rail=STEPS.map(function(x,n){return '<span class="dot '+(n===sI?'cur':(n<sI?'done':''))+'">'+(n+1)+'. '+x.k+'</span>';}).join('');
+      var html='<div class="card"><div class="rail">'+rail+'</div>';
+      html+='<h3 style="margin-bottom:.1em">'+(sI+1)+'. '+s.t+'</h3><div class="small" style="margin-bottom:.3em">'+AG[s.who]+'</div><p>'+s.b+'</p>';
+      if(s.gate==="receipt"){
+        html+='<div class="receipt">'+(sR?s.receipt:'— no state-receipt attached —')+'</div>';
+        html+=sR?'<span class="chip ok">✓ receipt verified · gate open</span>':'<button class="btn primary" id="attachR">Attach state-receipt</button>';
+        if(bReceipt) html+='<span class="small blocked" style="margin-left:.6em">Next is blocked until the gate opens.</span>';
+      }
+      if(s.gate==="human"){
+        html+=sA?'<span class="chip ok">✓ human approved</span>':'<button class="btn primary" id="approveH">Ed approves →</button>';
+        if(bHuman) html+='<span class="small blocked" style="margin-left:.6em">Nothing irreversible happens without this click.</span>';
+      }
+      html+='<div style="margin-top:.9em;display:flex;gap:.5em"><button class="btn" id="pv" '+(sI===0?'disabled':'')+'>← Back</button><button class="btn" id="nx" '+((sI===STEPS.length-1||blocked)?'disabled':'')+'>Next →</button></div>';
+      if(sI===STEPS.length-1){html+='<div class="banner warn" style="margin-top:.9em"><strong>Counterfactual.</strong> Without the verify-gate, an unpinned uvx silently pulls a newer build onto an older database — the exact version-mismatch class that can take a memory system down. The gate turns "we will remember to pin" into a precondition.</div>';}
+      html+='</div>';
+      document.getElementById('step-root').innerHTML=html;
+      var ar=document.getElementById('attachR'); if(ar)ar.onclick=function(){sR=true;renderStep();};
+      var ah=document.getElementById('approveH'); if(ah)ah.onclick=function(){sA=true;renderStep();};
+      var pv=document.getElementById('pv'); if(pv)pv.onclick=function(){if(sI>0){sI--;renderStep();}};
+      var nx=document.getElementById('nx'); if(nx)nx.onclick=function(){if(sI<STEPS.length-1&&!blocked){sI++;renderStep();}};
+    }
+
+    var CLAIMS={
+      camp:{field:"Camp name",stages:[
+        {label:"Trusted",status:"canonical",value:"AI Creator Lab",verified:"2026-03-18",note:"Stated, current, trusted.",live:true},
+        {label:"Aging",status:"stale?",value:"AI Creator Lab",verified:"2026-03-18",note:"Weeks pass with no re-verification. last_verified ages past the freshness window — the system flags it for review rather than trusting it silently.",warn:true},
+        {label:"Superseded",status:"superseded",value:"AI Creator Lab",verified:"2026-05-18",note:"A later decision rebrands the camp. The old claim is not deleted — it is marked superseded, with a pointer forward.",dead:true,to:"HAI Summer Camp 2026"}
+      ]},
+      cmd:{field:"Recovery command",stages:[
+        {label:"Trusted",status:"canonical",value:"run: basic-memory sync",verified:"2025-12-14",note:"Documented in the disaster-recovery recipe.",live:true},
+        {label:"Aging",status:"stale?",value:"run: basic-memory sync",verified:"2025-12-14",note:"The pinned version moved forward. The recipe has not been re-verified against it.",warn:true},
+        {label:"Superseded",status:"superseded",value:"run: basic-memory sync",verified:"2026-06",note:"That command no longer exists in the pinned version. The claim is retired before it can mislead a future recovery.",dead:true,to:"(command removed — recipe needs rewrite)"}
+      ]}
+    };
+    var vKey="camp",vSt=0;
+    function renderVal(){
+      var c=CLAIMS[vKey], s=c.stages[vSt];
+      var fm='<div class="fm"><div class="row"><span class="muted">field</span><span>'+c.field+'</span></div><div class="row"><span class="muted">value</span><span>'+s.value+'</span></div><div class="row"><span class="muted">status</span><span class="mono">'+s.status+'</span></div><div class="row"><span class="muted">last_verified</span><span class="mono">'+s.verified+'</span></div>'+(s.to?'<div class="row"><span class="muted">superseded_by</span><span>'+s.to+'</span></div>':'')+'</div>';
+      var left='<div><div style="margin-bottom:.5em"><button class="btn '+(vKey==="camp"?"primary":"")+'" id="kCamp" style="margin-right:.4em">Camp name</button><button class="btn '+(vKey==="cmd"?"primary":"")+'" id="kCmd">Recovery command</button></div>'+fm+'<div style="margin-top:.6em;display:flex;gap:.5em"><button class="btn" id="vb" '+(vSt===0?'disabled':'')+'>←</button><button class="btn primary" id="vf" '+(vSt===2?'disabled':'')+'>Advance time →</button></div></div>';
+      var panel='<div><h3 style="margin-top:0">'+s.label+'</h3><p>'+s.note+'</p>'+(s.warn?'<div class="banner warn">Flagged for re-verification — not silently trusted.</div>':'')+(s.dead?'<div class="banner dead"><strong>Superseded.</strong> Now: '+s.to+'</div>':'')+(s.live?'<div class="banner live">Within freshness window.</div>':'')+'</div>';
+      document.getElementById('val-root').innerHTML='<div class="two">'+left+panel+'</div>';
+      document.getElementById('kCamp').onclick=function(){vKey="camp";vSt=0;renderVal();};
+      document.getElementById('kCmd').onclick=function(){vKey="cmd";vSt=0;renderVal();};
+      var vb=document.getElementById('vb'); if(vb)vb.onclick=function(){if(vSt>0){vSt--;renderVal();}};
+      var vf=document.getElementById('vf'); if(vf)vf.onclick=function(){if(vSt<2){vSt++;renderVal();}};
+    }
+
+    renderFleet(); renderStep(); renderVal();
+  })();
+  </script>
+</BaseLayout>
+
+<style>
+  .gf { font-family: var(--font-prose); color: var(--color-text); line-height: var(--leading-normal); }
+  .gf .kicker { font-family: var(--font-ui); font-size: var(--font-size-xs); letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-muted); }
+  .gf h1 { font-family: var(--font-ui); font-size: var(--font-size-3xl); line-height: var(--leading-tight); margin: .2em 0 .15em; }
+  .gf h2 { font-family: var(--font-ui); font-size: var(--font-size-2xl); margin: 1.4em 0 .2em; }
+  .gf h3 { font-family: var(--font-ui); font-size: var(--font-size-lg); margin: 1.1em 0 .3em; }
+  .gf .lede { font-size: var(--font-size-md); line-height: var(--leading-normal); max-width: var(--measure); }
+  .gf p { margin: .7em 0; }
+  .gf section { padding: var(--space-8) 0; border-top: 1px solid var(--color-border); }
+  .gf section:first-of-type { border-top: none; padding-top: var(--space-4); }
+  .gf .pull { font-family: var(--font-prose); font-style: italic; font-size: var(--font-size-lg); line-height: 1.4; margin: 1em 0; padding-left: .8em; border-left: 3px solid var(--color-accent); max-width: var(--measure); }
+  .gf .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-top: var(--space-4); }
+  .gf .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px; padding: var(--space-4) var(--space-6); }
+  .gf .card-h { font-family: var(--font-ui); font-weight: 600; font-size: var(--font-size-lg); line-height: var(--leading-tight); margin: 0 0 .3em; }
+  .gf .gf-scroll { overflow-x: auto; }
+  .gf .gf-scroll:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+  .gf table { border-collapse: collapse; width: 100%; font-size: var(--font-size-sm); margin: var(--space-3) 0; }
+  .gf th, .gf td { text-align: left; vertical-align: top; padding: .5em .6em; border-bottom: 1px solid var(--color-border); }
+  .gf th { font-family: var(--font-ui); font-weight: 600; color: var(--color-text-muted); }
+  .gf .agent { font-family: var(--font-ui); font-weight: 700; font-size: .82rem; }
+  .gf .ag-claude { color: var(--color-kind-essay); }
+  .gf .ag-gpt { color: var(--color-kind-case-study); }
+  .gf .ag-human { color: var(--color-kind-brief); }
+  .gf .btn { font-family: var(--font-ui); background: var(--color-bg); border: 1px solid var(--color-text-muted); color: var(--color-text); border-radius: 3px; padding: .35em .8em; font-size: .85rem; cursor: pointer; }
+  .gf .btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+  .gf .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .gf .btn.primary { background: var(--color-accent); color: #fff; border-color: var(--color-accent); }
+  .gf .btn.primary:hover { color: #fff; }
+  .gf .chip { font-family: var(--font-ui); display: inline-block; font-size: .72rem; border-radius: 999px; padding: .12em .7em; border: 1px solid var(--color-border); background: var(--color-surface); }
+  .gf .mono { font-family: var(--font-mono); font-size: .82rem; background: var(--color-bg-subtle); padding: .05em .35em; border-radius: 3px; }
+  .gf .blocked { color: var(--color-accent); }
+  .gf .ok { color: var(--color-kind-case-study); }
+  .gf .nodebtn { font-family: var(--font-ui); display: block; width: 100%; text-align: left; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px; padding: .7em .9em; margin: .45em 0; cursor: pointer; color: var(--color-text); }
+  .gf .nodebtn.active { border-color: var(--color-accent); }
+  .gf .nodebtn .h { font-family: var(--font-prose); font-style: italic; font-size: 1.05rem; }
+  .gf .two { display: grid; grid-template-columns: .85fr 1.15fr; gap: var(--space-6); align-items: start; }
+  .gf .banner { border-radius: 4px; padding: .55em .8em; font-size: var(--font-size-sm); margin: .5em 0; border: 1px solid var(--color-border); }
+  .gf .receipt { background: var(--color-bg-subtle); border: 1px dashed var(--color-border); border-radius: 4px; padding: .6em .8em; margin: .5em 0; font-family: var(--font-mono); font-size: .78rem; color: var(--color-text-muted); word-break: break-all; }
+  .gf .warn { background: var(--color-kind-essay-subtle); border-color: var(--color-kind-essay); }
+  .gf .dead { background: var(--color-accent-subtle); border-color: var(--color-accent); }
+  .gf .live { background: var(--color-kind-case-study-subtle); border-color: var(--color-kind-case-study); }
+  .gf .fm { background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: 4px; padding: .6em .9em; }
+  .gf .fm .row { display: flex; justify-content: space-between; gap: 1em; border-bottom: 1px dotted var(--color-border); padding: .2em 0; }
+  .gf .fm .row:last-child { border-bottom: none; }
+  .gf .rail { display: flex; flex-wrap: wrap; gap: .3em; margin: .2em 0 .6em; }
+  .gf .dot { font-family: var(--font-ui); font-size: .7rem; border: 1px solid var(--color-border); border-radius: 999px; padding: .1em .6em; color: var(--color-text-muted); }
+  .gf .dot.cur { border-color: var(--color-text); color: var(--color-text); }
+  .gf .dot.done { color: var(--color-kind-case-study); }
+  .gf .muted { color: var(--color-text-muted); }
+  .gf .small { font-size: var(--font-size-sm); }
+  .gf .lineage { font-size: var(--font-size-sm); color: var(--color-text-muted); margin-top: var(--space-8); max-width: var(--measure); }
+  @media (max-width: 720px) {
+    .gf .grid3 { grid-template-columns: 1fr; }
+    .gf .two { grid-template-columns: 1fr; }
+  }
+</style>

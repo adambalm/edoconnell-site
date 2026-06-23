@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 > **Last verified:** 2026-05-06 (load-bearing claims re-tested: build, deploy, schemas, routes, Sanity config; pre-existing claims dated 2026-02-23 below not all re-verified individually)
-> **Phase:** Executing (AG closed, foundation built; handwriting/experiments work in progress)
+> **Phase:** Executing (AG closed, foundation built)
 
 ## Project Overview
 
@@ -16,10 +16,8 @@ The project is **executing**. All deliberation gates (OVG, UG, AG) are closed. F
 - **Sanity project:** `zu6l9t4j` on personal account (see `.env.local`). CORS configured. Dataset seeded (`node scripts/seed.mjs`). All templates wired to CMS via `loadQuery`.
 - **Visual editing:** Stega encoding and VisualEditing component working. Presentation tool configured and verified.
 - **Articles:** SSR route at `/articles/[slug]`. SA Brief and The Bike Shop (essay) published. Shiki highlighting via `@sanity/code-input`.
-- **Demos:** SSR route at `/demos/[slug]`. Three React islands (Memento, Context Sage, Skill Forge) with noscript fallbacks.
-- **SEO infrastructure:** JSON-LD structured data on all content pages (Article for articles, SoftwareApplication for demos). OG images generated via Satori + resvg at 2x retina (2400x1260). Full social meta tags.
-- **Content Collections (added 2026-05):** `src/content/handwritten/` — Astro Content Collection backing `/experiments/handwritten/[slug]/[page]` (prerendered). Schema in `src/content/config.ts` with `.passthrough()` so pipeline-emitted frontmatter additions don't break builds. Source pipeline: ghost-writer-v3 (handwritten transcription, currently hand-carried into the collection).
-- **Experiments gate (working tree, not yet deployed):** `src/middleware.ts` provides Basic-Auth on `/experiments/*` via `EXPERIMENTS_PASSWORD`; `public/robots.txt` adds `Disallow: /experiments/`. Both untracked at time of writing — privacy posture for `/experiments/*` is currently *not* enforced in production.
+- **Governed fleet:** dependency-free interactive explainer at `/governed-fleet/` (prerendered) — three vanilla-JS widgets (fleet map, decision-flow stepper with verification + human gates, claim-validity stepper), themed via design tokens, machine identifiers redacted. Supersedes the earlier React demos (Context Sage, Skill Forge, Memento).
+- **SEO infrastructure:** JSON-LD structured data on content pages (Article for articles). OG images generated via Satori + resvg at 2x retina (2400x1260). Full social meta tags.
 - Dialogue log: `dialogues/001-site-rebuild.md` (gitignored — local context only)
 - Prior site: `github.com/adambalm/portfolio` (React 19 + Vite, deployed to Vercel)
 
@@ -44,7 +42,7 @@ Single Astro 5 project with embedded Sanity Studio. Not a monorepo — simpler t
 - **CMS:** Sanity v3, embedded Studio at `/admin`, schemas in `src/sanity/schemas/`
 - **Interactive:** React 19 islands via `@astrojs/react` — used only for stateful demos
 - **Content flow:** Sanity → `loadQuery` (GROQ + stega options) → Astro component → HTML
-- **Rendering strategy:** Content detail pages (`/articles/[slug]`, `/demos/[slug]`) are SSR — they fetch from Sanity on each request so content changes appear immediately after publish. Index pages and homepage use `export const prerender = true` to remain static at build time.
+- **Rendering strategy:** Content detail pages (`/articles/[slug]`) are SSR — they fetch from Sanity on each request so content changes appear immediately after publish. Index pages, the homepage, and `/governed-fleet/` use `export const prerender = true` to remain static at build time.
 - **Query layer:** `src/sanity/lib/load-query.ts` — wraps `sanityClient.fetch()` with per-fetch stega, perspective, and token options. All page templates use this instead of `sanityClient` directly.
 - **Visual editing:** `VisualEditing` component in BaseLayout (gated by `PUBLIC_SANITY_VISUAL_EDITING_ENABLED`), `presentationTool` in `sanity.config.ts` with document-to-URL mapping, `stega.studioUrl` in `astro.config.mjs`.
 - **Design system:** New design, borrows discipline (typographic scale, spacing, semantic structure) from sca-explainers. Custom properties cascade from `src/styles/global.css`.
@@ -98,7 +96,7 @@ Visual editing uses the canonical `@sanity/astro` pattern:
 
 1. **`src/sanity/lib/load-query.ts`** — wraps `sanityClient.fetch()` with per-fetch options: `stega: true`, `resultSourceMap: 'withKeyArraySelector'`, `perspective: 'previewDrafts'`, and a read token. All page templates use this instead of `sanityClient.fetch()` directly.
 2. **`VisualEditing` component** in `BaseLayout.astro` — renders the overlay UI for click-to-edit. Gated by `PUBLIC_SANITY_VISUAL_EDITING_ENABLED` env var.
-3. **`presentationTool`** in `sanity.config.ts` — document-to-URL mapping for `siteSettings`, `page`, and `demoItem` types.
+3. **`presentationTool`** in `sanity.config.ts` — document-to-URL mapping for `siteSettings` and `page` types.
 4. **`stega.studioUrl`** in `astro.config.mjs` — tells stega-encoded strings where to link edits.
 
 **Env vars for visual editing (`.env.local`):**
@@ -196,15 +194,13 @@ Before any deployment or PR, the implementing agent runs this checklist. This is
 - **Fractal quality:** Deep inspection should reveal deeper levels of quality. Semantic HTML, proper CSS inheritance (custom properties, cascade, logical nesting), AI-readable structure.
 - **Voice:** All prose reviewed against `docs/voice-profile.md`. No passion declarations, no consultant-speak, no LinkedIn bio energy.
 - **Analytics hygiene:** Vercel Web Analytics is active. All Playwright scripts — whether run via `npx playwright test` or ad-hoc — MUST suppress analytics. The formal test suite handles this via `storageState` in `playwright.config.ts`. Ad-hoc scripts targeting any URL (localhost or production) must either navigate to `?notrack` first or set `localStorage.setItem('notrack', '1')` via `page.addInitScript()` before the first `page.goto()`. Do not pollute production analytics with test traffic.
-- **JSON-LD structured data:** All content pages emit `<script type="application/ld+json">` in the body. Articles use `schema.org/Article`; demos use `schema.org/SoftwareApplication`. All field values pass through `stegaClean()`. Rendered via `set:html={JSON.stringify(jsonLd)}` in Astro.
+- **JSON-LD structured data:** Content pages emit `<script type="application/ld+json">` in the body. Articles use `schema.org/Article`. All field values pass through `stegaClean()`. Rendered via `set:html={JSON.stringify(jsonLd)}` in Astro.
 - **OG image pipeline:** `scripts/generate-og-images.mjs` uses Satori (HTML/CSS → SVG) + @resvg/resvg-js (SVG → PNG) for vector-quality OG images. Renders at 2x (2400x1260) for retina clarity. Uploads to Sanity and patches `seo.ogImage` on each document.
 
 ### Lessons Learned
 
-- **React island heading hierarchy:** Demo React components must use `<h2>`, never `<h1>`. The page template (`[slug].astro`) provides the single `<h1>`. Duplicate H1s break accessibility and confuse AI parsers. Fixed in commit `a633f43`.
 - **Portable Text em marks via MCP:** To add italic emphasis to existing PT blocks, use `patch_document_from_json` with a `set` operation on `body[_key=="..."].children`, splitting the single span into multiple spans with `marks: ["em"]` on the emphasized words. The `markDefs: []` array is preserved automatically.
 - **Sanity `seo.metaTitle` vs BaseLayout suffix:** `BaseLayout.astro` appends `— {siteTitle}` to the page title. If `seo.metaTitle` in Sanity also includes the suffix, titles double ("Title — Ed O'Connell — Ed O'Connell"). Store only the bare title in `seo.metaTitle`.
-- **noscript fallback for demos:** React island demos are invisible to JS-disabled crawlers. Each demo has a `<noscript>` block with the demo summary so AI agents and basic scrapers get the substance.
 
 <!-- verified: 2026-02-23 -->
 

@@ -46,9 +46,9 @@ function discoverPrerenderedPages(dir: string, base = ''): string[] {
  * Runs before tests via a global setup fetch.
  */
 async function discoverSSRPages(): Promise<string[]> {
-  // Contact page is SSR but not linked from /articles/ or /demos/ index pages
+  // Contact page is SSR but not linked from the /articles/ index page
   const ssrPages: string[] = ['/contact/']
-  const indexPaths = ['/articles/', '/demos/']
+  const indexPaths = ['/articles/']
 
   for (const indexPath of indexPaths) {
     try {

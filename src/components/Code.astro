@@ -37,7 +37,9 @@ const displayLabel = filename || (language !== 'text' ? language : '')
       </button>
     </div>
   )}
-  <ShikiCode code={code} lang={language} theme="github-dark" />
+  <div class="code-scroll" tabindex="0">
+    <ShikiCode code={code} lang={language} theme="github-dark" />
+  </div>
 </figure>
 
 <script>
@@ -106,10 +108,18 @@ const displayLabel = filename || (language !== 'text' ? language : '')
     border-radius: 0 0 4px 4px;
   }
 
+  .code-scroll {
+    overflow-x: auto;
+  }
+
+  .code-scroll:focus-visible {
+    outline: var(--focus-ring, 2px solid currentColor);
+    outline-offset: 2px;
+  }
+
   .code-block :global(pre) {
     border-radius: 4px;
     padding: var(--space-4, 1rem);
-    overflow-x: auto;
     font-size: var(--font-size-sm, 0.875rem);
     line-height: var(--leading-normal, 1.5);
     margin: 0;

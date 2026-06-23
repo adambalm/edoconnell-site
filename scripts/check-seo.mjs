@@ -11,7 +11,6 @@
  *   - siteSettings (global default)
  *   - page (index pages)
  *   - article (content pages)
- *   - demoItem (demo pages)
  */
 
 const PROJECT_ID = 'zu6l9t4j';
@@ -19,7 +18,7 @@ const DATASET = 'production';
 const API_VERSION = '2025-01-01';
 
 const query = `*[
-  _type in ["siteSettings", "page", "article", "demoItem"]
+  _type in ["siteSettings", "page", "article"]
   && !(_id in path("drafts.**"))
 ]{
   _id,

@@ -1,5 +1,5 @@
 /**
- * seed.mjs — Create siteSettings, page, and demoItem documents in Sanity.
+ * seed.mjs — Create siteSettings and page documents in Sanity.
  *
  * Usage:
  *   node scripts/seed.mjs --dry-run    # Preview what would be created
@@ -66,100 +66,15 @@ const pages = [
     slug: { _type: 'slug', current: 'home' },
   },
   {
-    _id: 'page-demos',
+    _id: 'page-governed-fleet',
     _type: 'page',
-    title: "Demos",
-    subtitle: "Working systems, not slide decks.",
-    slug: { _type: 'slug', current: 'demos' },
+    title: 'The Fleet',
+    subtitle: 'Institutional cognition — a governed AI fleet.',
+    slug: { _type: 'slug', current: 'governed-fleet' },
     seo: {
       _type: 'seo',
-      metaDescription: "Interactive demonstrations of structured content, AI systems, and working software.",
-    },
-  },
-];
-
-/* ========== DEMO DOCUMENTS ========== */
-
-const demos = [
-  {
-    _id: 'demo-memento',
-    _type: 'demoItem',
-    title: 'Memento Demo',
-    slug: { _type: 'slug', current: 'memento' },
-    summary: 'Browser session capture and classification demo with real session data from December 31, 2025.',
-    renderMode: 'ISLAND',
-    componentName: 'Memento',
-    tags: ['browser-session', 'classification', 'ai-pipeline', 'real-data', 'interactive'],
-    displayOrder: 3,
-    epistemicStatus: 'working',
-    audienceContext: 'Technical professionals interested in browser session intelligence and AI classification pipelines. No prerequisites beyond general software literacy.',
-    publicationReadiness: 'preview',
-    provenance: {
-      _type: 'provenance',
-      author: 'Ed O\'Connell',
-      generatedBy: 'Claude (Opus 4.5)',
-      reviewedBy: 'Ed O\'Connell',
-      context: 'Memento MVP browser session capture and classification demonstration',
-      date: '2026-01-05',
-    },
-    seo: {
-      _type: 'seo',
-      metaTitle: 'Memento Demo — Ed O\'Connell',
-      metaDescription: 'Browser session capture and classification demo showing real session data with two-pass AI classification, schema documentation, and product roadmap.',
-    },
-  },
-  {
-    _id: 'demo-context-sage',
-    _type: 'demoItem',
-    title: 'Context Sage Demo',
-    slug: { _type: 'slug', current: 'context-sage' },
-    summary: 'Tufte-inspired content site explaining the Knowledge System architecture and governance protocols.',
-    renderMode: 'ISLAND',
-    componentName: 'ContextSage',
-    tags: ['knowledge-system', 'governance', 'institutional-memory', 'tufte', 'interactive'],
-    displayOrder: 2,
-    epistemicStatus: 'working',
-    audienceContext: 'Technical professionals and knowledge workers interested in multi-agent knowledge systems. Assumes familiarity with AI tools but not with institutional knowledge problems.',
-    publicationReadiness: 'preview',
-    provenance: {
-      _type: 'provenance',
-      author: 'Ed O\'Connell',
-      generatedBy: 'Claude (Opus 4.5)',
-      reviewedBy: 'Ed O\'Connell',
-      context: 'Context Sage architecture documentation — governed multi-agent knowledge system',
-      date: '2026-01-05',
-    },
-    seo: {
-      _type: 'seo',
-      metaTitle: 'Context Sage Demo — Ed O\'Connell',
-      metaDescription: 'Tufte-inspired documentation of Context Sage, a governed multi-agent knowledge system with institutional memory, evidence cases, and provenance tracking.',
-    },
-  },
-  {
-    _id: 'demo-skill-forge',
-    _type: 'demoItem',
-    title: 'Skill Forge Visualizer',
-    slug: { _type: 'slug', current: 'skill-forge' },
-    summary: 'Interactive educational component explaining the Skill Forge pattern for heterogeneous AI deliberation.',
-    renderMode: 'ISLAND',
-    componentName: 'SkillForge',
-    tags: ['deliberation', 'multi-agent', 'governance', 'interactive', 'react'],
-    displayOrder: 1,
-    epistemicStatus: 'working',
-    audienceContext: 'Technical professionals interested in AI governance patterns. Assumes familiarity with LLM capabilities but not with deliberative architectures.',
-    publicationReadiness: 'preview',
-    provenance: {
-      _type: 'provenance',
-      author: 'Ed O\'Connell',
-      generatedBy: 'Claude (Opus 4.5)',
-      reviewedBy: 'Ed O\'Connell',
-      context: 'Skill Forge pattern educational visualization — Lanesborough Protocol deliberation',
-      date: '2026-01-05',
-    },
-    seo: {
-      _type: 'seo',
-      metaTitle: 'Skill Forge Visualizer — Ed O\'Connell',
-      metaDescription: 'Interactive visualization of the Skill Forge pattern for heterogeneous AI deliberation, featuring process flow, verification model, economics, and real case studies.',
+      metaDescription:
+        'A governed fleet of AI agents collaborating over one shared, version-pinned memory, under a protocol that will not let an agent act on a claim it has not verified.',
     },
   },
 ];
@@ -169,7 +84,6 @@ const demos = [
 const allDocuments = [
   { label: 'Site Settings', doc: siteSettings },
   ...pages.map(doc => ({ label: `Page: ${doc.title}`, doc })),
-  ...demos.map(doc => ({ label: `Demo: ${doc.title}`, doc })),
 ];
 
 async function seed() {

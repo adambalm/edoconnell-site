@@ -81,24 +81,6 @@ const pages = [
     subtitle: 'On wheel truing, Frankenstein, and the poetics of AI',
     accent: '#B45309',
   },
-  {
-    id: 'demo-memento',
-    title: 'Memento',
-    subtitle: 'Attention pattern analysis from self-collected browsing data',
-    accent: '#8B2635',
-  },
-  {
-    id: 'demo-context-sage',
-    title: 'Context Sage',
-    subtitle: 'How AI agents maintain knowledge across ephemeral sessions',
-    accent: '#8B2635',
-  },
-  {
-    id: 'demo-skill-forge',
-    title: 'Skill Forge',
-    subtitle: 'Multi-agent deliberation under human authority',
-    accent: '#8B2635',
-  },
 ]
 
 /**

@@ -36,7 +36,6 @@ export default defineConfig({
               ),
             S.divider(),
             S.documentTypeListItem('article').title('Articles'),
-            S.documentTypeListItem('demoItem').title('Demos'),
             S.documentTypeListItem('page').title('Pages'),
           ]),
     }),
@@ -56,22 +55,10 @@ export default defineConfig({
               if (id === 'page-home') {
                 return { locations: [{ title: doc?.title ?? 'Home', href: '/' }] }
               }
-              if (id === 'page-demos') {
-                return { locations: [{ title: doc?.title ?? 'Demos', href: '/demos/' }] }
-              }
               return doc?.slug
                 ? { locations: [{ title: doc?.title ?? 'Page', href: `/${doc.slug}` }] }
                 : { locations: [] }
             },
-          },
-          demoItem: {
-            select: { title: 'title', slug: 'slug.current' },
-            resolve: (doc) => ({
-              locations: [
-                ...(doc?.slug ? [{ title: doc?.title ?? 'Demo', href: `/demos/${doc.slug}` }] : []),
-                { title: 'All Demos', href: '/demos/' },
-              ],
-            }),
           },
         },
       },
