@@ -1,35 +1,41 @@
 /*
  * Design Token Foundation — edoconnell.org
  *
- * New design system. Borrows discipline (typographic scale, spacing rhythm,
- * semantic structure) from the sca-explainers project, not its visual identity.
+ * Tufte-grounded editorial system (populated 2026-06-24). Warm paper, warmed
+ * near-black ink (never pure black), italic-serif display headings, hairline
+ * rules used as separators not boxes, and a single restrained burgundy accent
+ * reserved for links and decisions. Typographic/spacing discipline borrowed
+ * from the sca-explainers project; hues reskinned to Tufte restraint.
  *
- * Palette and aesthetic deferred to design phase. These tokens establish
- * the system that a designer (human or agent) will populate.
+ * Every text/accent pair is WCAG 2.x AA-verified on BOTH themes with a >=0.3
+ * margin — see scripts/contrast-check.mjs (re-runnable; gates on failure).
+ * Refine values, never rename tokens: every name here is consumed by the
+ * chrome, cards, case-study sheet, and the governed-fleet page.
  */
 
 :root {
-  /* Typography scale — body sized for sustained reading (Atlantic register) */
+  /* Typography scale — major third (1.25) [unchanged: pinned by sizing tests] */
   --font-size-xs: 0.8125rem;
   --font-size-sm: 0.9375rem;
-  --font-size-base: 1.1875rem;  /* 19px body */
-  --font-size-md: 1.3125rem;    /* 21px */
-  --font-size-lg: 1.5rem;       /* 24px */
-  --font-size-xl: 1.875rem;     /* 30px */
-  --font-size-2xl: 2.25rem;     /* 36px h2 */
-  --font-size-3xl: 3rem;        /* 48px h1 */
+  --font-size-base: 1.1875rem;
+  --font-size-md: 1.3125rem;
+  --font-size-lg: 1.5rem;
+  --font-size-xl: 1.875rem;
+  --font-size-2xl: 2.25rem;
+  --font-size-3xl: 3rem;
 
-  /* Font stacks — serif for prose, system sans for UI */
+  /* Font stacks — serif for prose + display, Inter for UI, mono for code */
   --font-prose: 'Source Serif 4', Georgia, 'Times New Roman', serif;
   --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+  --font-display: var(--font-prose);
 
   /* Line heights */
-  --leading-tight: 1.25;
-  --leading-normal: 1.6;
+  --leading-tight: 1.2;
+  --leading-normal: 1.65;
   --leading-loose: 1.8;
 
-  /* Spacing scale — based on 0.5rem increments */
+  /* Spacing scale — 0.5rem increments [unchanged: layout + spacing tests] */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -45,77 +51,81 @@
   --page-max: 72rem;
   --page-gutter: var(--space-6);
 
-  /* Colors — neutral foundation, refined at design phase */
-  --color-text: #1a1a1a;
-  --color-text-muted: #555;
-  --color-bg: #fafaf8;
-  --color-bg-subtle: #f0efe9;
-  --color-border: #d4d0c8;
+  /* Colors — Tufte warm paper + warmed ink (light) */
+  --color-text: #1A1A17;
+  --color-text-muted: #595650;
+  --color-text-tertiary: #5F5B51;
+  --color-bg: #FFFFF8;
+  --color-bg-subtle: #F0EDE4;
+  --color-bg-secondary: #FFFFFF;
+  --color-border: #DAD5C8;
+  --color-surface: #FFFFFF;
   --color-accent: #8B2635;
-  --color-accent-hover: #6b1d29;
-  --color-text-tertiary: #71717a;
-  --color-bg-secondary: #ffffff;
+  --color-accent-hover: #6E1D27;
   --color-accent-subtle: rgba(139, 38, 53, 0.06);
-  --color-surface: #ffffff;
+  --color-on-accent: #FFFFFF;
 
-  /* Category colors — kind-specific accents for article cards */
-  --color-kind-brief: #2563EB;
-  --color-kind-brief-subtle: rgba(37, 99, 235, 0.08);
-  --color-kind-essay: #92400E;
-  --color-kind-essay-subtle: rgba(146, 64, 14, 0.08);
-  --color-kind-case-study: #0f766e;
-  --color-kind-case-study-subtle: rgba(15, 118, 110, 0.08);
+  /* Category colors — kind-specific accents (muted editorial hues) */
+  --color-kind-brief: #1D4E89;
+  --color-kind-brief-subtle: rgba(29, 78, 137, 0.08);
+  --color-kind-essay: #8A5212;
+  --color-kind-essay-subtle: rgba(138, 82, 18, 0.10);
+  --color-kind-case-study: #0F6E66;
+  --color-kind-case-study-subtle: rgba(15, 110, 102, 0.10);
 
-  /* Focus */
+  /* Focus + rules */
   --focus-ring: 2px solid var(--color-accent);
   --focus-offset: 2px;
+  --rule-hairline: 1px solid var(--color-border);
 }
 
 [data-theme="dark"] {
-  --color-text: #e4e4e7;
-  --color-text-muted: #a1a1aa;
-  --color-text-tertiary: #71717a;
-  --color-bg: #18181b;
-  --color-bg-subtle: #27272a;
-  --color-bg-secondary: #111111;
-  --color-border: #3f3f46;
-  --color-accent: #c26a75;
-  --color-accent-hover: #d4838d;
-  --color-accent-subtle: rgba(194, 106, 117, 0.12);
-  --color-surface: #1f1f23;
-  --color-kind-brief: #60A5FA;
-  --color-kind-brief-subtle: rgba(96, 165, 250, 0.12);
-  --color-kind-essay: #FBBF24;
-  --color-kind-essay-subtle: rgba(251, 191, 36, 0.12);
-  --color-kind-case-study: #5eead4;
-  --color-kind-case-study-subtle: rgba(94, 234, 212, 0.12);
+  --color-text: #E6E3DC;
+  --color-text-muted: #A8A49B;
+  --color-text-tertiary: #9A968C;
+  --color-bg: #17171A;
+  --color-bg-subtle: #27272B;
+  --color-bg-secondary: #101012;
+  --color-border: #3A3A40;
+  --color-surface: #1F1F23;
+  --color-accent: #D98A95;
+  --color-accent-hover: #E8A4AD;
+  --color-accent-subtle: rgba(217, 138, 149, 0.14);
+  --color-on-accent: #17171A;
+  --color-kind-brief: #7FB0EC;
+  --color-kind-brief-subtle: rgba(127, 176, 236, 0.14);
+  --color-kind-essay: #E8B23C;
+  --color-kind-essay-subtle: rgba(232, 178, 60, 0.16);
+  --color-kind-case-study: #5BD6C4;
+  --color-kind-case-study-subtle: rgba(91, 214, 196, 0.14);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-text: #e4e4e7;
-    --color-text-muted: #a1a1aa;
-    --color-text-tertiary: #71717a;
-    --color-bg: #18181b;
-    --color-bg-subtle: #27272a;
-    --color-bg-secondary: #111111;
-    --color-border: #3f3f46;
-    --color-accent: #c26a75;
-    --color-accent-hover: #d4838d;
-    --color-accent-subtle: rgba(194, 106, 117, 0.12);
-    --color-surface: #1f1f23;
-    --color-kind-brief: #60A5FA;
-    --color-kind-brief-subtle: rgba(96, 165, 250, 0.12);
-    --color-kind-essay: #FBBF24;
-    --color-kind-essay-subtle: rgba(251, 191, 36, 0.12);
-    --color-kind-case-study: #5eead4;
-    --color-kind-case-study-subtle: rgba(94, 234, 212, 0.12);
+    --color-text: #E6E3DC;
+    --color-text-muted: #A8A49B;
+    --color-text-tertiary: #9A968C;
+    --color-bg: #17171A;
+    --color-bg-subtle: #27272B;
+    --color-bg-secondary: #101012;
+    --color-border: #3A3A40;
+    --color-surface: #1F1F23;
+    --color-accent: #D98A95;
+    --color-accent-hover: #E8A4AD;
+    --color-accent-subtle: rgba(217, 138, 149, 0.14);
+    --color-on-accent: #17171A;
+    --color-kind-brief: #7FB0EC;
+    --color-kind-brief-subtle: rgba(127, 176, 236, 0.14);
+    --color-kind-essay: #E8B23C;
+    --color-kind-essay-subtle: rgba(232, 178, 60, 0.16);
+    --color-kind-case-study: #5BD6C4;
+    --color-kind-case-study-subtle: rgba(91, 214, 196, 0.14);
   }
 }
 
 ::selection {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
 }
 
 /* Reduced motion */
@@ -167,19 +177,28 @@ h3 { font-size: var(--font-size-xl); line-height: var(--leading-tight); }
 h4 { font-size: var(--font-size-lg); line-height: var(--leading-tight); }
 
 h1, h2, h3, h4 {
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   font-weight: 600;
 }
 
-/* Links */
+/* Links — quiet Tufte underline that darkens on hover (falls back to solid) */
 a {
   color: var(--color-accent);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.15em;
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
 }
 
 a:hover {
   color: var(--color-accent-hover);
+  text-decoration-color: currentColor;
+}
+
+/* Horizontal rule as a Tufte hairline separator */
+hr {
+  border: 0;
+  border-top: var(--rule-hairline);
+  margin: var(--space-8) 0;
 }
 
 /* Focus visible */

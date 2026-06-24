@@ -142,6 +142,21 @@ const twitterCard = resolvedOgImage ? 'summary_large_image' : 'summary'
     outline: none;
   }
 
+  /* global.css is @imported into this scoped block, so its bare `a` rule is
+     scoped to BaseLayout's template and never reaches slotted page content
+     (PortableText body links rendered default-blue). Apply the design-system
+     link treatment to content links explicitly. Page-scoped link styles
+     (.cs-section a, .gf, header nav) have higher specificity and still win. */
+  :global(main a) {
+    color: var(--color-accent);
+    text-decoration-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+
+  :global(main a:hover) {
+    color: var(--color-accent-hover);
+    text-decoration-color: currentColor;
+  }
+
   footer {
     padding: var(--space-8) var(--page-gutter);
     border-top: 1px solid var(--color-border);

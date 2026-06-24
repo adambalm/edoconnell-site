@@ -332,14 +332,16 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   line-height: 1.6;
-  background: #18181b;
-  color: #e4e4e7;
+  /* Deliberately dark in both themes (sizing test requires rgb-sum < 120;
+     #1F1F23 = 97). Aligned to the dark-theme surface for palette coherence. */
+  background: #1F1F23;
+  color: #E6E3DC;
   padding: var(--space-6);
   border-radius: 8px;
   overflow-x: auto;
   margin: var(--space-6) 0;
   max-width: 100%;
-  border: 1px solid #27272a;
+  border: 1px solid #3A3A40;
 }
 
 .cs-code code {

@@ -185,20 +185,26 @@ try {
   </script>
 </BaseLayout>
 
-<style>
+<style is:global>
+  /* is:global is REQUIRED: the three widgets (#fleet-root/#step-root/#val-root)
+     are injected at runtime via innerHTML, so their .nodebtn/.chip/.card/.two/
+     .rail/.dot/.fm/.banner/.receipt nodes never receive Astro's data-astro-cid
+     attribute. A scoped block compiles to `.gf[cid] .nodebtn[cid]` and silently
+     fails to match injected DOM, leaving every interactive widget unstyled.
+     Every selector below is .gf-prefixed, so going global does not leak. */
   .gf { font-family: var(--font-prose); color: var(--color-text); line-height: var(--leading-normal); }
   .gf .kicker { font-family: var(--font-ui); font-size: var(--font-size-xs); letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-muted); }
-  .gf h1 { font-family: var(--font-ui); font-size: var(--font-size-3xl); line-height: var(--leading-tight); margin: .2em 0 .15em; }
-  .gf h2 { font-family: var(--font-ui); font-size: var(--font-size-2xl); margin: 1.4em 0 .2em; }
-  .gf h3 { font-family: var(--font-ui); font-size: var(--font-size-lg); margin: 1.1em 0 .3em; }
+  .gf h1 { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: var(--font-size-3xl); line-height: var(--leading-tight); margin: .2em 0 .15em; }
+  .gf h2 { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: var(--font-size-2xl); margin: 1.4em 0 .2em; }
+  .gf h3 { font-family: var(--font-display); font-size: var(--font-size-lg); margin: 1.1em 0 .3em; }
   .gf .lede { font-size: var(--font-size-md); line-height: var(--leading-normal); max-width: var(--measure); }
   .gf p { margin: .7em 0; }
-  .gf section { padding: var(--space-8) 0; border-top: 1px solid var(--color-border); }
+  .gf section { padding: var(--space-8) 0; border-top: var(--rule-hairline); }
   .gf section:first-of-type { border-top: none; padding-top: var(--space-4); }
   .gf .pull { font-family: var(--font-prose); font-style: italic; font-size: var(--font-size-lg); line-height: 1.4; margin: 1em 0; padding-left: .8em; border-left: 3px solid var(--color-accent); max-width: var(--measure); }
   .gf .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-top: var(--space-4); }
   .gf .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 4px; padding: var(--space-4) var(--space-6); }
-  .gf .card-h { font-family: var(--font-ui); font-weight: 600; font-size: var(--font-size-lg); line-height: var(--leading-tight); margin: 0 0 .3em; }
+  .gf .card-h { font-family: var(--font-display); font-weight: 600; font-size: var(--font-size-lg); line-height: var(--leading-tight); margin: 0 0 .3em; }
   .gf .gf-scroll { overflow-x: auto; }
   .gf .gf-scroll:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
   .gf table { border-collapse: collapse; width: 100%; font-size: var(--font-size-sm); margin: var(--space-3) 0; }
@@ -211,8 +217,8 @@ try {
   .gf .btn { font-family: var(--font-ui); background: var(--color-bg); border: 1px solid var(--color-text-muted); color: var(--color-text); border-radius: 3px; padding: .35em .8em; font-size: .85rem; cursor: pointer; }
   .gf .btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
   .gf .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .gf .btn.primary { background: var(--color-accent); color: #fff; border-color: var(--color-accent); }
-  .gf .btn.primary:hover { color: #fff; }
+  .gf .btn.primary { background: var(--color-accent); color: var(--color-on-accent); border-color: var(--color-accent); }
+  .gf .btn.primary:hover { color: var(--color-on-accent); }
   .gf .chip { font-family: var(--font-ui); display: inline-block; font-size: .72rem; border-radius: 999px; padding: .12em .7em; border: 1px solid var(--color-border); background: var(--color-surface); }
   .gf .mono { font-family: var(--font-mono); font-size: .82rem; background: var(--color-bg-subtle); padding: .05em .35em; border-radius: 3px; }
   .gf .blocked { color: var(--color-accent); }

@@ -51,6 +51,12 @@ const ogImage = page.seo?.ogImage?.asset?.url
 </BaseLayout>
 
 <style>
+  /* Editorial hero treatment — light italic serif, the Tufte heading register */
+  #intro-heading {
+    font-style: italic;
+    font-weight: 400;
+  }
+
   .subtitle {
     color: var(--color-text-muted);
     font-family: var(--font-ui);
@@ -130,7 +136,10 @@ const ogImage = page.seo?.ogImage?.asset?.url
   }
 
   function textScrambleDissolve(href: string) {
-    document.documentElement.style.backgroundColor = '#000'
+    // Dissolve into the current theme's background (warm paper / near-black),
+    // never a hardcoded pure black that would flash on the light Tufte paper.
+    const themeBg = getComputedStyle(document.documentElement).getPropertyValue('--color-bg').trim()
+    document.documentElement.style.backgroundColor = themeBg || '#17171A'
     const glyphs = '!<>-_\\/[]{}—=+*^?#\u00b7\u2022\u00d7\u00f7'
 
     // Collect visible text nodes
