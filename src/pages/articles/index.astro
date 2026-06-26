@@ -3,6 +3,7 @@ export const prerender = true
 
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import ArticleCard from '../../components/ArticleCard.astro'
+import SeoJsonLd from '../../components/SeoJsonLd.astro'
 import { loadQuery } from '../../sanity/lib/load-query'
 
 interface ArticleListing {
@@ -37,6 +38,7 @@ try {
 ---
 
 <BaseLayout title="Articles">
+  <SeoJsonLd />
   <section aria-labelledby="articles-heading">
     <h1 id="articles-heading">Articles</h1>
 

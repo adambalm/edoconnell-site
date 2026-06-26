@@ -1,0 +1,47 @@
+---
+/**
+ * SeoJsonLd — emits a schema.org @graph with the canonical Person + WebSite
+ * (from src/config/identity.ts) plus any page-specific nodes passed via `extra`.
+ *
+ * Use on pages that DON'T already emit their own JSON-LD (home, contact,
+ * listings). Do NOT add it to BaseLayout or ahead of the case-study/article
+ * pages' existing single-object Article JSON-LD: those pages' tests read
+ * `script[type="application/ld+json"]`.first() and assert a top-level
+ * `@type` of Article/TechArticle, which a @graph wrapper does not have.
+ */
+import { IDENTITY } from '../config/identity'
+
+interface Props {
+  /** Extra schema.org node(s) (e.g. an Article) merged into the @graph. */
+  extra?: Record<string, unknown> | Record<string, unknown>[]
+}
+const { extra } = Astro.props
+
+const person = {
+  '@type': 'Person',
+  '@id': IDENTITY.id,
+  name: IDENTITY.name,
+  url: IDENTITY.url,
+  ...(IDENTITY.jobTitle ? { jobTitle: IDENTITY.jobTitle } : {}),
+  description: IDENTITY.description,
+  knowsAbout: IDENTITY.knowsAbout,
+  ...(IDENTITY.sameAs.length ? { sameAs: IDENTITY.sameAs } : {}),
+}
+
+const website = {
+  '@type': 'WebSite',
+  '@id': `${IDENTITY.url}/#website`,
+  url: IDENTITY.url,
+  name: IDENTITY.name,
+  description: IDENTITY.description,
+  publisher: { '@id': IDENTITY.id },
+}
+
+const extras = extra ? (Array.isArray(extra) ? extra : [extra]) : []
+const graph = {
+  '@context': 'https://schema.org',
+  '@graph': [person, website, ...extras],
+}
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(graph)} />

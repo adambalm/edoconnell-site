@@ -8,6 +8,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro'
 import ContactForm from '../components/ContactForm.astro'
+import SeoJsonLd from '../components/SeoJsonLd.astro'
 import { loadQuery } from '../sanity/lib/load-query'
 import { PortableText } from 'astro-portabletext'
 
@@ -50,6 +51,7 @@ const error = url.searchParams.get('error') ?? undefined
 ---
 
 <BaseLayout title={pageTitle} description={metaDescription} ogImage={ogImage}>
+  <SeoJsonLd />
   <article class="contact-page">
     <h1>{page.title}</h1>
 

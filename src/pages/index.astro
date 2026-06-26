@@ -4,6 +4,7 @@ export const prerender = true
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { loadQuery } from '../sanity/lib/load-query'
 import { PortableText } from 'astro-portabletext'
+import SeoJsonLd from '../components/SeoJsonLd.astro'
 
 let page = { title: "Ed O'Connell", subtitle: "Cognition in context.", body: null as any[] | null, seo: null as any }
 try {
@@ -20,6 +21,7 @@ const ogImage = page.seo?.ogImage?.asset?.url
 ---
 
 <BaseLayout title="Home" description={metaDescription} ogImage={ogImage}>
+  <SeoJsonLd />
   <section id="home-content" aria-labelledby="intro-heading">
     <h1 id="intro-heading">{page.title}</h1>
     {page.subtitle && <p class="subtitle">{page.subtitle}</p>}
