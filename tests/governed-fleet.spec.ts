@@ -14,7 +14,7 @@ const ROUTE = '/governed-fleet/'
 test.describe('Governed fleet explainer', () => {
   test('loads with a single h1 and all three widgets', async ({ page }) => {
     await page.goto(ROUTE)
-    await expect(page.locator('h1')).toHaveCount(1)
+    await expect(page.locator('main h1')).toHaveCount(1)
     await expect(page.locator('#fleet-root')).toBeVisible()
     await expect(page.locator('#step-root')).toBeVisible()
     await expect(page.locator('#val-root')).toBeVisible()

@@ -62,8 +62,10 @@ async function assertCommonContract(page: import('@playwright/test').Page, route
   const response = await page.goto(route)
   expect(response?.status(), `${route} status`).toBe(200)
 
-  // Single h1
-  expect(await page.locator('h1').count(), `${route} h1 count`).toBe(1)
+  // Single h1 in the main content. Scope to `main` so we don't count h1s the
+  // Astro dev toolbar injects into shadow DOM (Playwright's locator pierces it) —
+  // that made this flaky on the content-heavy build/process pages.
+  expect(await page.locator('main h1').count(), `${route} h1 count`).toBe(1)
 
   // noindex
   const robots = await page.locator('meta[name="robots"]').getAttribute('content')

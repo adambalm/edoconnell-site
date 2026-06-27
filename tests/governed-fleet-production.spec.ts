@@ -25,7 +25,7 @@ test.describe('production: governed-fleet explainer', () => {
 
   test('has exactly one h1 and the three widget roots', async ({ page }) => {
     await page.goto(URL)
-    expect(await page.locator('h1').count()).toBe(1)
+    expect(await page.locator('main h1').count()).toBe(1)
     for (const id of ['#fleet-root', '#step-root', '#val-root']) {
       await expect(page.locator(id)).toBeVisible()
     }
