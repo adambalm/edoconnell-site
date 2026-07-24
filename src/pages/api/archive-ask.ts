@@ -20,6 +20,7 @@ import {
   MAX_ANSWER_TOKENS,
   CORPUS,
   REFUSALS,
+  FAQ,
   type ArchiveModelDef,
 } from '../../config/archive-bot'
 
@@ -188,6 +189,40 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   }
   if (!question) {
     return new Response(JSON.stringify({ ok: false, error: 'question required' }), { status: 400 })
+  }
+
+  // FAQ fast path: obvious interviewer/client questions get the pre-approved
+  // answer instantly — no model call, no cost, word-for-word consistent.
+  // Only on a fresh thread (no history), so follow-ups still reach the model.
+  if (history.length === 0) {
+    const hit = FAQ.find((f) => f.match.test(question))
+    if (hit) {
+      logExchange(question, 'question-faq', hit.answer, {
+        model: 'faq',
+        in: 0,
+        out: 0,
+        cost: 0,
+        ms: 0,
+        truncated: false,
+      })
+      const enc = new TextEncoder()
+      const body = new ReadableStream<Uint8Array>({
+        start(c) {
+          c.enqueue(enc.encode(hit.answer))
+          c.enqueue(
+            enc.encode(
+              USAGE_SEP +
+                JSON.stringify({ model: 'faq', in: 0, out: 0, cost: 0, ms: 0, truncated: false }),
+            ),
+          )
+          c.close()
+        },
+      })
+      return new Response(body, {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+      })
+    }
   }
 
   const ollamaBase = process.env.OLLAMA_BASE_URL ?? import.meta.env.OLLAMA_BASE_URL

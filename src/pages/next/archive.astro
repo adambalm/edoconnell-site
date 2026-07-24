@@ -89,6 +89,29 @@ const starters = [
     if (force || nearBottom()) thread.scrollTop = thread.scrollHeight
   }
 
+  // After streaming completes, upgrade known-safe site paths and the contact
+  // email to real links. Only exact allowlisted patterns — never arbitrary URLs.
+  function renderLinks(el: HTMLElement, text: string) {
+    const safe = /(\/(?:contact|next\/[a-z-]+|articles\/[a-z-]+|case-studies\/[a-z-]+|governed-fleet)\/?)|((?:https:\/\/)?magazine\.wne\.edu)|(espoconnell@gmail\.com)|((?:https:\/\/)?linkedin\.com\/in\/espoconnell)/g
+    if (!safe.test(text)) return
+    el.textContent = ''
+    let last = 0
+    safe.lastIndex = 0
+    for (let m; (m = safe.exec(text)); ) {
+      el.appendChild(document.createTextNode(text.slice(last, m.index)))
+      const a = document.createElement('a')
+      const hit = m[0]
+      a.textContent = hit
+      if (hit.includes('@')) a.href = `mailto:${hit}`
+      else if (hit.startsWith('/')) a.href = hit
+      else a.href = hit.startsWith('https://') ? hit : `https://${hit}`
+      if (!hit.startsWith('/')) a.rel = 'noopener'
+      el.appendChild(a)
+      last = m.index + hit.length
+    }
+    el.appendChild(document.createTextNode(text.slice(last)))
+  }
+
   function turn(cls: string): HTMLElement {
     const wrap = document.createElement('div')
     wrap.className = `turn ${cls}`
@@ -170,6 +193,7 @@ const starters = [
         aBody.textContent = answer
         follow()
       }
+      renderLinks(aBody, answer)
       const tail = raw.split(RS)[1]
       if (tail) {
         try {

@@ -14,6 +14,11 @@ export default defineConfig({
     optimizeDeps: {
       include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
     },
+    // Dev-only: allow tailnet hostnames so `tailscale serve` can proxy the dev
+    // server for on-device review. No effect on production builds.
+    server: {
+      allowedHosts: ['.ts.net'],
+    },
   },
   integrations: [
     react(),
