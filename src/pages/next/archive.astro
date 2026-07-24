@@ -1,120 +1,293 @@
 ---
 /*
- * DRAFT-FOR-ED — the "ask the archive" testbed, /next preview namespace.
- * This is the interview-proxy's intake half, working today: questions are
- * captured to the feedback log (the deferral loop's first stage). The
- * answering half arrives later, scoped per resume-factory/DESIGN.md.
+ * DRAFT-FOR-ED — the "ask the archive" conversation surface, /next namespace.
+ * Streaming answers (first words in seconds), visible thinking state,
+ * disabled-while-pending controls, Enter-to-send, starter questions for the
+ * cold visitor, paragraphs preserved. The answering route and its limits:
+ * src/pages/api/archive-ask.ts; the corpus: src/config/archive-bot.ts.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
 
 export const prerender = false
+
+const starters = [
+  'What has Ed actually built?',
+  'How does the handwriting pipeline work?',
+  'What was the AI summer camp about?',
+  'Where did Ed work before 2015?',
+]
 ---
 
 <BaseLayout
   title="Ask the archive"
-  description="Ask a question about the work on this site."
+  description="A conversation about Ed O'Connell's work — grounded in the record."
 >
   <article class="ask">
-    <p class="draft-stamp">draft · being built</p>
+    <p class="draft-stamp">draft · under review</p>
     <header data-mark="archive:masthead">
       <h1>Ask the archive</h1>
-      <p class="dek">Ask about the work on this site.</p>
+      <p class="dek">Questions about Ed's work, answered from the record.</p>
     </header>
+
+    <div id="ask-thread" class="thread" aria-live="polite"></div>
+
+    <div id="ask-starters" class="starters" data-mark="archive:starters">
+      {starters.map((s) => (
+        <button type="button" class="starter" data-q={s}>{s}</button>
+      ))}
+    </div>
 
     <form id="ask-form" data-mark="archive:form">
       <label for="ask-q" class="sr-only">Your question</label>
-      <textarea id="ask-q" required maxlength="1000" placeholder="What would you like to know?"></textarea>
-      <button type="submit">Ask</button>
+      <textarea
+        id="ask-q"
+        required
+        maxlength="1000"
+        rows="2"
+        placeholder="Ask about the work…"
+      ></textarea>
+      <div class="form-row">
+        <button type="submit" id="ask-send">Ask</button>
+        <span class="hint" id="ask-hint">Enter to send · Shift+Enter for a new line</span>
+      </div>
     </form>
-
-    <div id="ask-thread" class="thread"></div>
   </article>
 </BaseLayout>
 
 <script>
   const form = document.getElementById('ask-form') as HTMLFormElement
   const q = document.getElementById('ask-q') as HTMLTextAreaElement
+  const sendBtn = document.getElementById('ask-send') as HTMLButtonElement
   const thread = document.getElementById('ask-thread')!
+  const startersBox = document.getElementById('ask-starters')!
   const history: { role: 'user' | 'assistant'; content: string }[] = []
+  let busy = false
 
-  function add(cls: string, text: string) {
-    const div = document.createElement('div')
-    div.className = `turn ${cls}`
-    div.textContent = text
-    thread.appendChild(div)
-    div.scrollIntoView({ block: 'nearest' })
+  function turn(cls: string): HTMLElement {
+    const wrap = document.createElement('div')
+    wrap.className = `turn ${cls}`
+    const label = document.createElement('span')
+    label.className = 'who'
+    label.textContent = cls === 'q' ? 'You' : 'Archive'
+    const body = document.createElement('div')
+    body.className = 'body'
+    wrap.append(label, body)
+    thread.appendChild(wrap)
+    return body
   }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault()
-    const text = q.value.trim()
-    if (!text) return
-    add('q', text)
+  function setBusy(b: boolean) {
+    busy = b
+    sendBtn.disabled = b
+    sendBtn.textContent = b ? 'Answering…' : 'Ask'
+    q.disabled = b
+  }
+
+  async function ask(text: string) {
+    if (busy || !text) return
+    startersBox.remove()
+    setBusy(true)
+    turn('q').textContent = text
     q.value = ''
-    add('pending', '\u2026')
-    const pending = thread.lastElementChild!
+
+    const aBody = turn('a')
+    aBody.classList.add('thinking')
+    aBody.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>'
+    thread.scrollTop = thread.scrollHeight
+    const slowNote = setTimeout(() => {
+      if (aBody.classList.contains('thinking')) {
+        aBody.parentElement!.querySelector('.who')!.textContent = 'Archive · still thinking'
+      }
+    }, 4000)
+
+    let answer = ''
     try {
       const res = await fetch('/api/archive-ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: text, history }),
       })
+
       if (res.status === 429) {
-        pending.remove()
-        add('defer', 'The archive is getting a lot of questions right now — try again in a minute.')
-        q.focus()
+        aBody.classList.remove('thinking')
+        aBody.textContent = 'The archive is getting a lot of questions right now — try again in a minute.'
         return
       }
-      const data = await res.json()
-      pending.remove()
-      if (data.answer) {
-        add('a', data.answer)
+
+      const type = res.headers.get('content-type') ?? ''
+      if (type.includes('application/json')) {
+        const data = await res.json()
+        aBody.classList.remove('thinking')
+        aBody.textContent = data.unavailable
+          ? 'The answering model is offline right now. The question was saved for Ed.'
+          : 'Something went wrong — try again.'
+        return
+      }
+
+      const reader = res.body!.getReader()
+      const dec = new TextDecoder()
+      for (;;) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (aBody.classList.contains('thinking')) {
+          aBody.classList.remove('thinking')
+          aBody.textContent = ''
+          aBody.parentElement!.querySelector('.who')!.textContent = 'Archive'
+        }
+        answer += dec.decode(value, { stream: true })
+        aBody.textContent = answer
+        thread.scrollTop = thread.scrollHeight
+      }
+      if (answer) {
         history.push({ role: 'user', content: text })
-        history.push({ role: 'assistant', content: data.answer })
+        history.push({ role: 'assistant', content: answer })
         if (history.length > 12) history.splice(0, history.length - 12)
       } else {
-        add('defer', 'The answering model is offline right now. Your question is saved for Ed.')
+        aBody.classList.remove('thinking')
+        aBody.textContent = 'No answer came back — try again.'
       }
     } catch {
-      pending.remove()
-      add('defer', 'Send failed \u2014 your question was not saved. Try again.')
+      aBody.classList.remove('thinking')
+      aBody.textContent = 'Send failed — check the connection and try again.'
+    } finally {
+      clearTimeout(slowNote)
+      setBusy(false)
+      q.focus()
     }
-    q.focus()
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault()
+    ask(q.value.trim())
   })
+
+  q.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      ask(q.value.trim())
+    }
+  })
+
+  startersBox.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest('.starter') as HTMLElement | null
+    if (b) ask(b.dataset.q ?? '')
+  })
+
+  q.focus()
 </script>
 
-<style>
+<style is:global>
   .ask {
     max-width: var(--measure);
     margin: 0 auto;
-    padding: var(--space-12) var(--page-gutter) var(--space-24);
+    padding: var(--space-6) var(--page-gutter) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 7.5rem);
+    min-height: 22rem;
   }
-  .draft-stamp {
+  .ask .draft-stamp {
     font-family: var(--font-mono);
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
-    margin: 0 0 var(--space-8);
+    margin: 0 0 var(--space-3);
   }
-  h1 {
+  .ask h1 {
     font-family: var(--font-display);
     font-size: var(--font-size-2xl);
     line-height: var(--leading-tight);
     margin: 0 0 var(--space-3);
   }
-  .dek {
+  .ask .dek {
     font-size: var(--font-size-md);
     font-style: italic;
     color: var(--color-text-muted);
-    margin: 0 0 var(--space-8);
+    margin: 0 0 var(--space-4);
   }
+
+  .ask .thread {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    margin-bottom: var(--space-4);
+    padding-right: var(--space-2);
+    scroll-behavior: smooth;
+  }
+  .ask .turn .who {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-1);
+  }
+  .ask .turn .body {
+    line-height: var(--leading-normal);
+    white-space: pre-line;
+  }
+  .ask .turn.q .body {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    border-left: 1px solid var(--color-text-muted);
+    padding-left: var(--space-4);
+    white-space: pre-wrap;
+  }
+  .ask .turn.a .body {
+    font-family: var(--font-prose);
+    font-size: var(--font-size-base);
+  }
+
+  .ask .thinking .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+    margin-right: 5px;
+    animation: ask-pulse 1.2s ease-in-out infinite;
+  }
+  .thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+  .thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes ask-pulse {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .thinking .dot { animation: none; opacity: 0.6; }
+  }
+
+  .ask .starters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+  }
+  .ask .starter {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-text-muted);
+    border-radius: 999px;
+    padding: 0.4em 1em;
+    cursor: pointer;
+  }
+  .ask .starter:hover {
+    border-color: var(--color-accent, #8b2635);
+    color: var(--color-accent, #8b2635);
+  }
+
   form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
-    max-width: 34rem;
+    gap: var(--space-2);
   }
   textarea {
-    min-height: 5em;
     font-family: var(--font-ui);
     font-size: var(--font-size-sm);
     color: var(--color-text);
@@ -122,9 +295,17 @@ export const prerender = false
     border: 1px solid var(--color-text-muted);
     border-radius: 2px;
     padding: 0.7em;
+    resize: vertical;
   }
-  button {
-    align-self: flex-start;
+  textarea:disabled {
+    opacity: 0.6;
+  }
+  .ask .form-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .ask #ask-send {
     font-family: var(--font-ui);
     font-size: var(--font-size-sm);
     padding: 0.45em 1.4em;
@@ -134,34 +315,16 @@ export const prerender = false
     background: var(--color-accent, #8b2635);
     color: var(--color-bg);
   }
-  .thread {
-    margin-top: var(--space-8);
-    max-width: 34rem;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
+  .ask #ask-send:disabled {
+    opacity: 0.6;
+    cursor: wait;
   }
-  .turn {
-    line-height: var(--leading-normal);
-    font-size: var(--font-size-sm);
-  }
-  .turn.q {
+  .ask .hint {
     font-family: var(--font-ui);
-    color: var(--color-text-muted);
-    border-left: 1px solid var(--color-text-muted);
-    padding-left: var(--space-4);
-  }
-  .turn.a {
-    font-family: var(--font-prose);
-    font-size: var(--font-size-base);
-  }
-  .turn.defer,
-  .turn.pending {
-    font-family: var(--font-mono);
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
   }
-  .sr-only {
+  .ask .sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
