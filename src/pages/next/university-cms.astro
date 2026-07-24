@@ -1,0 +1,99 @@
+---
+/* DRAFT-FOR-ED — candidate node page, /next preview namespace. */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MarkNote from '../../components/MarkNote.astro'
+
+export const prerender = true
+---
+
+<BaseLayout
+  title="Two university CMS platforms"
+  description="Two content platforms co-built from scratch at a university, carried through two migrations."
+>
+  <article class="node">
+    <p class="draft-stamp">draft · under review</p>
+    <header data-mark="cms:masthead">
+      <h1>Two university CMS platforms</h1>
+      <p class="dek">Built from scratch, run for years, replaced deliberately — twice.</p>
+      <p class="meta">work · retired after long service · ColdFusion, SharePoint, Drupal</p>
+    </header>
+
+    <section data-mark="cms:what">
+      <h2>The platforms</h2>
+      <p>
+        Before off-the-shelf content management was good enough for a university, the
+        university built its own. I co-built two of those platforms from scratch at UMass
+        Amherst — and then did the harder thing: led the migration from the first onto
+        the second, and later from the second onto Drupal, carrying thirteen years of
+        institutional content across three generations of systems without losing it.
+        Building a platform is one skill. Retiring one you built, on purpose, without
+        breaking the institution that depends on it, is another.
+      </p>
+    </section>
+
+    <section data-mark="cms:cybersource">
+      <h2>The payment integration</h2>
+      <p>
+        The university needed to take credit-card payments online before that was
+        routine. I wrote the first working round-trip to the payment processor —
+        request, response, and the error handling for everything between — as an
+        individual contributor. The integration became a program; I became its lead,
+        with two developers. When I moved on, the program kept running without me,
+        on onboarding manuals I wrote so that it could.
+      </p>
+    </section>
+
+    <section data-mark="cms:concurrency">
+      <h2>All at once</h2>
+      <p>
+        Through those years the platform work, SharePoint administration for
+        departmental sites, and a Liferay portal ran concurrently — three systems, three
+        user communities, one calendar. Weekly SharePoint labs taught departments to
+        match tools to their actual needs, including one metadata redesign that ended
+        Finance's standing quarterly-audit document problem.
+      </p>
+    </section>
+  </article>
+  <MarkNote />
+</BaseLayout>
+
+<style>
+  .node {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .draft-stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    line-height: var(--leading-tight);
+    margin: 0 0 var(--space-3);
+  }
+  .dek {
+    font-size: var(--font-size-md);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-2);
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    margin: var(--space-8) 0 var(--space-4);
+  }
+  p {
+    line-height: var(--leading-normal);
+    margin: 0 0 var(--space-4);
+  }
+</style>
