@@ -1,0 +1,88 @@
+---
+/* DRAFT-FOR-ED — candidate node page, /next preview namespace. */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MarkNote from '../../components/MarkNote.astro'
+
+export const prerender = true
+---
+
+<BaseLayout
+  title="Enrollment automations"
+  description="School enrollment paperwork cut from a week to a day."
+>
+  <article class="node">
+    <p class="draft-stamp">draft · under review</p>
+    <header data-mark="enroll:masthead">
+      <h1>Enrollment automations</h1>
+      <p class="dek">A week of school paperwork, cut to a day.</p>
+      <p class="meta">work · in daily use · Google Workspace</p>
+    </header>
+
+    <section data-mark="enroll:what">
+      <h2>What changed</h2>
+      <p>
+        A small school runs on documents: enrollment forms, grade notifications, letters
+        that must go out on time to real families. Each of those used to be assembled by
+        hand, one at a time, from information that already existed somewhere else. The
+        automations connect the pieces inside the school's own Google Workspace — the
+        data the office already keeps flows into the documents the office already sends.
+      </p>
+      <p>
+        The measurable result: grade notifications that took a week of back-and-forth now
+        go out in a day. The less measurable one: the office stopped retyping things it
+        had already typed.
+      </p>
+    </section>
+
+    <section data-mark="enroll:discipline">
+      <h2>The rule underneath</h2>
+      <p>
+        Every generated document is reviewed by a person before it reaches a family.
+        Automation here fills in and assembles; people decide and send. That boundary is
+        deliberate and it has never moved.
+      </p>
+    </section>
+  </article>
+  <MarkNote />
+</BaseLayout>
+
+<style>
+  .node {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .draft-stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    line-height: var(--leading-tight);
+    margin: 0 0 var(--space-3);
+  }
+  .dek {
+    font-size: var(--font-size-md);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-2);
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    margin: var(--space-8) 0 var(--space-4);
+  }
+  p {
+    line-height: var(--leading-normal);
+    margin: 0 0 var(--space-4);
+  }
+</style>

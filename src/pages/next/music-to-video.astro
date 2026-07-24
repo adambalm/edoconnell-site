@@ -1,0 +1,87 @@
+---
+/* DRAFT-FOR-ED — candidate node page, /next preview namespace. */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MarkNote from '../../components/MarkNote.astro'
+
+export const prerender = true
+---
+
+<BaseLayout
+  title="Music-to-video pipeline"
+  description="From a song file to a finished lyric video, one pipeline."
+>
+  <article class="node">
+    <p class="draft-stamp">draft · under review</p>
+    <header data-mark="mtv:masthead">
+      <h1>Music-to-video pipeline</h1>
+      <p class="dek">A song goes in. A finished lyric video comes out.</p>
+      <p class="meta">craft · working · HyperFrames</p>
+    </header>
+
+    <section data-mark="mtv:what">
+      <h2>What it does</h2>
+      <p>
+        Give it a song and it produces a lyric video: the audio is transcribed with word
+        timings, the words become a storyboard, the storyboard becomes scenes, and the
+        scenes render into a single synchronized film. The first full production was a
+        three-minute video for an original song, delivered as a finished file — scene
+        renders, storyboard, and final cut.
+      </p>
+      <p>
+        The pipeline is a set of small tools built for keyframe-driven animation —
+        planning shots, timing them to audio, and rendering them repeatably, so the
+        second video costs far less attention than the first.
+      </p>
+    </section>
+
+    <section data-mark="mtv:status">
+      <h2>Where it stands</h2>
+      <p>
+        Working. The finished video will be embedded here once cleared for the public
+        page.
+      </p>
+    </section>
+  </article>
+  <MarkNote />
+</BaseLayout>
+
+<style>
+  .node {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .draft-stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    line-height: var(--leading-tight);
+    margin: 0 0 var(--space-3);
+  }
+  .dek {
+    font-size: var(--font-size-md);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-2);
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    margin: var(--space-8) 0 var(--space-4);
+  }
+  p {
+    line-height: var(--leading-normal);
+    margin: 0 0 var(--space-4);
+  }
+</style>

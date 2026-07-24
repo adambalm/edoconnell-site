@@ -1,0 +1,89 @@
+---
+/* DRAFT-FOR-ED — candidate node page, /next preview namespace. */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MarkNote from '../../components/MarkNote.astro'
+
+export const prerender = true
+---
+
+<BaseLayout
+  title="Hand-drawn layouts"
+  description="Web pages drawn by hand in a notebook first, then built responsive."
+>
+  <article class="node">
+    <p class="draft-stamp">draft · under review</p>
+    <header data-mark="hdl:masthead">
+      <h1>Hand-drawn layouts</h1>
+      <p class="dek">Draw the page in a notebook. Then make the browser honor the drawing.</p>
+      <p class="meta">craft · experiment · hand drawing, HTML, Remotion</p>
+    </header>
+
+    <section data-mark="hdl:what">
+      <h2>The experiment</h2>
+      <p>
+        A page layout gets drawn by hand first — boxes, arrows, a walking figure, the
+        handwriting slanting where it wants to. Then the drawing is rebuilt as a
+        responsive web page: same composition, same proportions, honest to the original
+        down to its irregularities, but reflowing properly on a phone. A comparison view
+        pairs each drawn source with its built result.
+      </p>
+      <p>
+        One drawing kept going: a hand-drawn walk cycle became a rendered animation, the
+        notebook figure moving in a programmatic video. The through-line is the same as
+        the handwriting pipeline's — the hand decides first, and the machine's job is
+        fidelity to that decision, not improvement of it.
+      </p>
+    </section>
+
+    <section data-mark="hdl:status">
+      <h2>Where it stands</h2>
+      <p>
+        An experiment with finished pieces: drawn sources, built pages, one animation.
+        The comparison gallery will appear here once its images are prepared for the
+        public page.
+      </p>
+    </section>
+  </article>
+  <MarkNote />
+</BaseLayout>
+
+<style>
+  .node {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .draft-stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    line-height: var(--leading-tight);
+    margin: 0 0 var(--space-3);
+  }
+  .dek {
+    font-size: var(--font-size-md);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-2);
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    margin: var(--space-8) 0 var(--space-4);
+  }
+  p {
+    line-height: var(--leading-normal);
+    margin: 0 0 var(--space-4);
+  }
+</style>
