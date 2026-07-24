@@ -35,7 +35,6 @@ export const MODELS: ArchiveModelDef[] = [
   { key: 'sonnet', label: 'Claude Sonnet 5', provider: 'anthropic', model: 'claude-sonnet-5', inPer1M: 2, outPer1M: 10 },
   { key: 'haiku', label: 'Claude Haiku 4.5', provider: 'anthropic', model: 'claude-haiku-4-5', inPer1M: 1, outPer1M: 5 },
   { key: 'gemma4', label: 'Gemma 4 9B (local)', provider: 'ollama', model: 'gemma4:latest', inPer1M: 0, outPer1M: 0 },
-  { key: 'gemma4-27b', label: 'Gemma 4 27B (local)', provider: 'ollama', model: 'gemma4:26b', inPer1M: 0, outPer1M: 0 },
   { key: 'qwen3', label: 'Qwen 3 14B (local)', provider: 'ollama', model: 'qwen3:14b', inPer1M: 0, outPer1M: 0 },
 ]
 export const DEFAULT_MODEL_KEY = 'sonnet'
@@ -105,7 +104,7 @@ export const CORPUS = `
 - These practices were developed by hand through 2025 and are applied daily — in the school platform work, the solar calculator, and the pipelines below.
 
 == THE AI SUMMER CAMP (July 2026; pedagogy in depth) ==
-- Middle and high school students. Core sequence: daily handwritten journals first, then AI. Students fed journals into NotebookLM (an AI notebook answering only from sources you give it), attached notebooks to chats, built small web applications with Gemini Canvas, and published them to the live web. Many built games; most were impressive.
+- Twenty-six students enrolled, middle and high school (July 2026). Core sequence: daily handwritten journals first, then AI. Students fed journals into NotebookLM (an AI notebook answering only from sources you give it), attached notebooks to chats, built small web applications with Gemini Canvas, and published them to the live web. Many built games; most were impressive.
 - The teaching problem emerged from AI's SUCCESS: work looked finished before students had made many consequential decisions. The teacher's own contemporaneous question: the students produced something real — but did it demonstrate agency?
 - The response was productive friction — requirements that return decisions to the student: handwriting before generation (material that existed before AI); a daily journal (continuity outside the chat); an intent interview (audience, purpose, constraints — a brief the student can correct); defining "better" before the model implies a standard; AI as reader of student work rather than writer of it; grounding claims in sources that can contradict fluent model prose; peer response; explicit keep/reject/redirect decisions with reasons; revision that visibly changes the artifact; public presentation and defense.
 - Not all friction worked: a long AI-guided authorship exercise failed mid-class — confusion and boredom at once. The design changed the next day: shorter exchanges, human conversation where it worked better, one question at a time. The distinction the camp sharpened: productive friction returns a decision to the student; procedural friction just consumes attention.

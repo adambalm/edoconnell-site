@@ -152,6 +152,14 @@ const starters = [
         aBody.parentElement!.querySelector('.who')!.textContent = 'Archive · still thinking'
       }
     }, 4000)
+    const watchdog = setTimeout(() => {
+      if (aBody.classList.contains('thinking')) {
+        aBody.classList.remove('thinking')
+        aBody.textContent =
+          'No response after two minutes — that model may be overloaded. Try a Claude model from the picker; your question is saved either way.'
+        aBody.parentElement!.querySelector('.who')!.textContent = 'Archive'
+      }
+    }, 125000)
 
     let answer = ''
     try {
@@ -225,6 +233,7 @@ const starters = [
       aBody.textContent = 'Send failed — check the connection and try again.'
     } finally {
       clearTimeout(slowNote)
+      clearTimeout(watchdog)
       setBusy(false)
       q.focus()
     }

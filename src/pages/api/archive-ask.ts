@@ -248,10 +248,19 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       const enc = new TextEncoder()
       const strip = new HeadStripper()
       let answer = ''
+      let closed = false
+      const safeEnqueue = (data: Uint8Array) => {
+        if (closed) return
+        try {
+          controller.enqueue(data)
+        } catch {
+          closed = true // client or proxy went away; keep consuming silently
+        }
+      }
       const send = (text: string) => {
         if (!text) return
         answer += text
-        controller.enqueue(enc.encode(text))
+        safeEnqueue(enc.encode(text))
       }
       let usage: Usage = { model: def.key, in: 0, out: 0, cost: 0, ms: 0, truncated: false }
 
@@ -282,6 +291,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         } else {
           const res = await fetch(`${ollamaBase}/api/chat`, {
             method: 'POST',
+            signal: AbortSignal.timeout(150_000),
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               model: def.model,
@@ -330,18 +340,26 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           answer,
           usage,
         )
-        controller.enqueue(enc.encode(USAGE_SEP + JSON.stringify(usage)))
+        safeEnqueue(enc.encode(USAGE_SEP + JSON.stringify(usage)))
       } catch (e) {
         console.error('[archive-ask] stream failed:', e instanceof Error ? e.message : e)
         usage.ms = Date.now() - t0
         logExchange(question, 'question-error', answer, usage)
         if (!answer) {
-          controller.enqueue(
-            enc.encode("The archive's answering model is offline right now. The question is saved for Ed."),
+          safeEnqueue(
+            enc.encode(
+              'That model timed out or is offline right now. Try a Claude model from the picker — your question is saved for Ed either way.',
+            ),
           )
         }
       }
-      controller.close()
+      if (!closed) {
+        try {
+          controller.close()
+        } catch {
+          /* already closed by runtime */
+        }
+      }
     },
   })
 
