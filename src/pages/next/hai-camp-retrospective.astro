@@ -1,0 +1,203 @@
+---
+/*
+ * DRAFT-FOR-ED — candidate node page, /next preview namespace.
+ * Source material: docs/initiatives/hai-camp/retrospective-design-brief-2026-07-22.md
+ * (sca-website repo), which carries a provenance hold pending Ed's reconciliation
+ * of the verified review. Nothing here ships without his disposition.
+ * Teacher quotes: verbatim with typo/grammar cleanup only, per the verbatim rule;
+ * raw sources are the restricted conversation archive files cited in that brief.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MarkNote from '../../components/MarkNote.astro'
+
+export const prerender = true
+---
+
+<BaseLayout
+  title="AI Summer Camp, 2026 — a retrospective"
+  description="Students could publish polished work in minutes. The teaching problem started there."
+>
+  <article class="retro">
+    <p class="draft-stamp">draft · under review</p>
+
+    <header data-mark="retro:masthead">
+      <h1>The work looked finished before the thinking was.</h1>
+      <p class="dek">
+        A summer camp on working with AI, for middle and high school students.
+        What happened when making things became almost free.
+      </p>
+    </header>
+
+    <section data-mark="retro:it-worked">
+      <h2>It worked</h2>
+      <p>
+        In the first days of camp, students published real software. They kept daily
+        journals in Google Docs, fed them into NotebookLM — an AI notebook that answers
+        from sources you give it — then attached those notebooks to a chat, generated
+        small web applications with Gemini Canvas, and deployed them to the public web.
+        Many built games. Most of the results were impressive.
+      </p>
+      <blockquote>
+        <p>
+          "They had already been keeping a daily journal, which I had them feed into
+          NotebookLM to see how they could update it and then sync it to the notebook when
+          it changed. I also had them attach a notebook to a chat, then add Canvas to
+          create a thing, which I actually had them deploy to Netlify. A lot were games;
+          most were impressive. But did it demonstrate a tremendous amount of agency on
+          behalf of the kids? They did produce something, though."
+        </p>
+        <cite>Teaching note, July 8. Typos cleaned; wording unchanged.</cite>
+      </blockquote>
+      <p>
+        The artifacts created real energy. They exceeded what anyone expects students to
+        make in an afternoon. That success is where the teaching problem started.
+      </p>
+    </section>
+
+    <section data-mark="retro:who-decided">
+      <h2>Then the question: who decided?</h2>
+      <p>
+        A published project could be inspected. The student's decisions inside it often
+        could not. Which choices could the student locate, explain, and change? The work
+        could look complete before the student had made many consequential decisions at
+        all. The problem emerged from AI's success, not from its failure.
+      </p>
+    </section>
+
+    <section data-mark="retro:response">
+      <h2>The instructional response: productive friction</h2>
+      <p>
+        The response was not to prohibit AI or pretend its leverage away. The course
+        progressively required students to supply what the model could not legitimately
+        supply for them: intention, lived material, criteria, evidence, taste, rejection,
+        judgment. Each technique returned a different responsibility to the student.
+      </p>
+      <ul class="techniques">
+        <li><strong>Handwriting first.</strong> Language, images, and uncertainty that existed before any generation.</li>
+        <li><strong>A daily journal.</strong> Continuity outside the chat — a source that changes over time.</li>
+        <li><strong>An intent interview.</strong> Audience, purpose, desired effect, constraints — a brief the student can correct.</li>
+        <li><strong>Define "better" first.</strong> Criteria and a predicted failure, before the model supplies a standard implicitly.</li>
+        <li><strong>AI as reader, not writer.</strong> The model interprets material the student already made; the student accepts, corrects, or rejects the reading.</li>
+        <li><strong>Source grounding.</strong> Evidence capable of contradicting fluent model language.</li>
+        <li><strong>Peer response.</strong> An audience outside the closed student-and-AI loop.</li>
+        <li><strong>Keep, reject, or redirect.</strong> Taste expressed as an observable decision, with a reason.</li>
+        <li><strong>Revision.</strong> Proof that reflection had a consequence in the artifact.</li>
+        <li><strong>Presentation and defense.</strong> Public ownership without pretending the student made every component.</li>
+      </ul>
+      <p>
+        These responsibilities accumulate: a student grounding claims in sources is still
+        expected to be originating material, articulating intent, and making choices.
+      </p>
+    </section>
+
+    <section data-mark="retro:failed-friction">
+      <h2>Not all friction worked</h2>
+      <blockquote>
+        <p>
+          "I'm doing it now and it is going terribly. No one is engaged. Everyone is
+          confused, and the prompt is taking too long to answer. It is chaos and boredom
+          at once."
+        </p>
+        <cite>Teaching note, July 3, mid-class. Typos cleaned; wording unchanged.</cite>
+      </blockquote>
+      <p>
+        A long AI-guided exercise meant to reconstruct authorship consumed attention
+        without returning any decision to the students — friction that was merely
+        procedural. The design changed the next day: shorter exchanges, human
+        conversation where it worked better, one question at a time, and capture only of
+        decisions that mattered.
+      </p>
+    </section>
+
+    <section data-mark="retro:assessment">
+      <h2>The assessment changed</h2>
+      <p>By the final week, the capstone questions were different in kind:</p>
+      <blockquote>
+        <p>"Where did you spend the most effort?"</p>
+        <p>"What was the most important decision you made?"</p>
+        <cite>Capstone planning, July 9.</cite>
+      </blockquote>
+      <p>
+        Attention moved from whether the artifact worked to where the student's effort
+        and judgment entered it. That shift in instructional attention is what the
+        summer's record currently supports. Stronger claims — that every student's later
+        work became more distinctive — would need student artifacts and decision traces,
+        collected with consent. Student work will appear here as each family approves it.
+      </p>
+    </section>
+
+    <section data-mark="retro:invitation">
+      <h2>The open question</h2>
+      <p class="invitation">
+        When production becomes almost frictionless, which carefully chosen forms of
+        friction help students become more visible inside their own work?
+      </p>
+    </section>
+  </article>
+  <MarkNote />
+</BaseLayout>
+
+<style>
+  .retro {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .draft-stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+    margin: 0 0 var(--space-3);
+  }
+  .dek {
+    font-size: var(--font-size-md);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-12);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    margin: var(--space-12) 0 var(--space-4);
+  }
+  p {
+    line-height: var(--leading-normal);
+    margin: 0 0 var(--space-4);
+  }
+  blockquote {
+    border-left: 1px solid var(--color-text-muted);
+    margin: var(--space-6) 0;
+    padding: 0 0 0 var(--space-6);
+  }
+  blockquote p {
+    font-style: italic;
+  }
+  cite {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    font-style: normal;
+    color: var(--color-text-muted);
+  }
+  .techniques {
+    list-style: none;
+    margin: 0 0 var(--space-4);
+    padding: 0;
+  }
+  .techniques li {
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-bg-subtle);
+    line-height: var(--leading-normal);
+  }
+  .invitation {
+    font-size: var(--font-size-md);
+    font-style: italic;
+  }
+</style>

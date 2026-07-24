@@ -1,0 +1,258 @@
+---
+/*
+ * DRAFT-FOR-ED — the Index landing as a real page, /next preview namespace.
+ * The live homepage is untouched; this namespace exists for Ed's review.
+ * Rows link to real pages where they exist; rows without a page yet render
+ * as plain text, never dead links. Data source: static for review; the
+ * artifact document type takes over once seeding clears its gate.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MarkNote from '../../components/MarkNote.astro'
+
+export const prerender = true
+
+interface Row {
+  years: string
+  name: string
+  desc: string
+  href?: string
+  stack?: string
+  kind: 'work' | 'craft' | 'thought'
+  status: string
+}
+
+const rows: Row[] = [
+  { years: '2026', name: 'School platform', desc: 'structured content, four live domains', href: '/case-studies/sca-headless-cms/', stack: 'Sanity · Astro · Vercel', kind: 'work', status: 'running · checked Jul 24' },
+  { years: '2026', name: 'Solar decision companion', desc: 'a calculator for one real house, being generalized', href: '/next/solar-companion/', stack: 'JavaScript · SVG · Playwright', kind: 'work', status: 'working' },
+  { years: '2026', name: 'Enrollment automations', desc: 'a week of paperwork down to a day', stack: 'Google Workspace', kind: 'work', status: 'in daily use' },
+  { years: '2026', name: 'AI summer camp', desc: 'a curriculum built on daily handwritten journals', href: '/next/hai-camp-retrospective/', stack: 'Google Classroom · NotebookLM · handwriting', kind: 'work', status: 'concluded Jul 2026' },
+  { years: '2026', name: 'Classroom intelligence', desc: "a teacher's view of student progress", href: '/next/classroom-intelligence/', stack: 'Gemini · NotebookLM', kind: 'work', status: 'designed' },
+  { years: '2026', name: 'Talking character', desc: 'a drawn face taught to speak, on my own GPU', href: '/next/talking-character/', stack: 'ComfyUI · Wan · MediaPipe', kind: 'craft', status: 'experiment' },
+  { years: '2026', name: 'The Bike Shop', desc: 'essay', href: '/articles/the-bike-shop/', kind: 'thought', status: 'published' },
+  { years: '2026', name: 'Hand-drawn layouts', desc: 'pages drawn by hand, then built responsive', stack: 'hand drawing · HTML · Remotion', kind: 'craft', status: 'experiment' },
+  { years: '2025–', name: 'Handwriting pipeline', desc: 'about a thousand notebook pages, parsed and read', href: '/next/handwriting-pipeline/', stack: 'Supernote · Python · local models', kind: 'craft', status: 'working' },
+  { years: '2025–', name: 'Music-to-video pipeline', desc: 'a finished lyric video from a song file', stack: 'HyperFrames', kind: 'craft', status: 'working' },
+  { years: '2025–', name: 'Three-machine fleet', desc: 'local models, shared memory, one private network', href: '/governed-fleet/', stack: 'Tailscale · Ollama · git', kind: 'work', status: 'running' },
+  { years: '2016–2024', name: 'University magazine templates', desc: 'magazine.wne.edu', href: 'https://magazine.wne.edu', kind: 'work', status: 'still running · checked Jul 24' },
+  { years: '2002–2015', name: 'Two university CMS platforms', desc: 'co-built from scratch, carried through two migrations', stack: 'ColdFusion · SharePoint · Drupal', kind: 'work', status: 'retired after long service' },
+]
+
+const startHere = [
+  { name: 'School platform', desc: "a school's public web presence, rebuilt end to end", href: '/case-studies/sca-headless-cms/', stamp: 'running · checked Jul 24', mark: 'start:school-platform' },
+  { name: 'Solar decision companion', desc: 'a home-solar calculator that shows its work', href: '/next/solar-companion/', stamp: 'working', mark: 'start:solar-companion' },
+  { name: 'The Bike Shop', desc: 'an essay on truing wheels, and systems', href: '/articles/the-bike-shop/', stamp: 'published', mark: 'start:bike-shop' },
+]
+
+const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+---
+
+<BaseLayout title="An index of made things" description="Ed O'Connell — the complete index: platforms, pipelines, essays, experiments.">
+  <div class="idx">
+    <header class="masthead" data-mark="index:masthead">
+      <h1>Ed O'Connell</h1>
+      <p class="thesis">An index of made things.</p>
+    </header>
+
+    <div class="ask" data-mark="index:ask">
+      <p class="kicker">Ask the archive</p>
+      <p><a href="/next/archive/">Ask a question about this work</a> <span class="stamp">being built</span></p>
+    </div>
+
+    <section class="start" data-mark="index:start-here">
+      <p class="kicker">Start here</p>
+      <ul>
+        {startHere.map((s) => (
+          <li data-mark={s.mark}>
+            <span class="s-name"><a href={s.href}>{s.name}</a></span>
+            <span class="s-desc">{s.desc}</span>
+            <span class="stamp">{s.stamp}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="tablewrap" aria-label="The index">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Years</th>
+            <th scope="col">Work</th>
+            <th scope="col">Stack</th>
+            <th scope="col">Kind</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr data-mark={`row:${slug(r.name)}`}>
+              <td class="year">{r.years}</td>
+              <td class="name">
+                {r.href ? <a href={r.href}>{r.name}</a> : r.name}
+                <span class="desc"> — {r.desc}</span>
+                <span class="marknote-slot"></span>
+              </td>
+              <td class="stack">{r.stack ?? ''}</td>
+              <td class={`kind ${r.kind}`}>{r.kind}</td>
+              <td class="stamp">{r.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="foot" data-mark="index:footer">
+      <span>Ed O'Connell · Easthampton, Massachusetts</span>
+      <span>espoconnell@gmail.com</span>
+    </footer>
+  </div>
+  <MarkNote />
+</BaseLayout>
+
+<style>
+  .idx {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .masthead h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-3xl);
+    line-height: var(--leading-tight);
+    letter-spacing: -0.015em;
+    margin: 0 0 var(--space-2);
+    text-wrap: balance;
+  }
+  .thesis {
+    font-size: var(--font-size-lg);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+  .kicker {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-3);
+  }
+  .ask {
+    margin: var(--space-12) 0 0;
+  }
+  .ask p {
+    margin: 0;
+  }
+  .stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .start {
+    margin: var(--space-16) 0 var(--space-12);
+  }
+  .start ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .start li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-6);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-bg-subtle);
+  }
+  .start li:first-child {
+    border-top: 1px solid var(--color-bg-subtle);
+  }
+  .s-name {
+    font-size: var(--font-size-base);
+  }
+  .s-desc {
+    color: var(--color-text-muted);
+    flex: 1;
+  }
+  .tablewrap {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+  }
+  th {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-muted);
+    text-align: left;
+    padding: 0 var(--space-4) var(--space-2) 0;
+    border-bottom: 1px solid var(--color-text);
+  }
+  td {
+    padding: var(--space-3) var(--space-4) var(--space-3) 0;
+    border-bottom: 1px solid var(--color-bg-subtle);
+    vertical-align: baseline;
+  }
+  .year {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .name {
+    font-size: var(--font-size-base);
+  }
+  .desc {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+  .stack {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+  }
+  .kind {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+  .kind::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 0.5em;
+    vertical-align: 1px;
+    background: var(--color-text-muted);
+  }
+  .kind.work::before {
+    background: var(--color-cat-case-study, #0f6e66);
+  }
+  .kind.craft::before {
+    background: var(--color-cat-essay, #8a5212);
+  }
+  .kind.thought::before {
+    background: var(--color-cat-brief, #1d4e89);
+  }
+  .foot {
+    margin-top: var(--space-16);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-bg-subtle);
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+</style>

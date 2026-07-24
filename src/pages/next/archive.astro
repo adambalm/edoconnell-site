@@ -1,0 +1,167 @@
+---
+/*
+ * DRAFT-FOR-ED — the "ask the archive" testbed, /next preview namespace.
+ * This is the interview-proxy's intake half, working today: questions are
+ * captured to the feedback log (the deferral loop's first stage). The
+ * answering half arrives later, scoped per resume-factory/DESIGN.md.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+export const prerender = false
+---
+
+<BaseLayout
+  title="Ask the archive"
+  description="Ask a question about the work on this site."
+>
+  <article class="ask">
+    <p class="draft-stamp">draft · being built</p>
+    <header data-mark="archive:masthead">
+      <h1>Ask the archive</h1>
+      <p class="dek">
+        Ask anything about the work on this site. Answers are coming; questions already
+        count.
+      </p>
+    </header>
+
+    <form id="ask-form" data-mark="archive:form">
+      <label for="ask-q" class="sr-only">Your question</label>
+      <textarea id="ask-q" required maxlength="1000" placeholder="What would you like to know?"></textarea>
+      <button type="submit">Ask</button>
+    </form>
+
+    <div id="ask-receipt" class="receipt" hidden>
+      <p>Saved.</p>
+    </div>
+
+    <div id="ask-log" class="asked" hidden>
+      <p class="asked-label">Asked this visit</p>
+      <ul id="ask-list"></ul>
+    </div>
+  </article>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('ask-form') as HTMLFormElement
+  const q = document.getElementById('ask-q') as HTMLTextAreaElement
+  const receipt = document.getElementById('ask-receipt')!
+  const log = document.getElementById('ask-log')!
+  const list = document.getElementById('ask-list')!
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const text = q.value.trim()
+    if (!text) return
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          anchor: 'archive:question',
+          text,
+          page: location.pathname,
+          ts: new Date().toISOString(),
+        }),
+      })
+      if (!res.ok) throw new Error(String(res.status))
+      const li = document.createElement('li')
+      li.textContent = text
+      list.appendChild(li)
+      log.hidden = false
+      receipt.hidden = false
+      q.value = ''
+      q.focus()
+    } catch {
+      window.prompt('Send failed — copy your question:', text)
+    }
+  })
+</script>
+
+<style>
+  .ask {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .draft-stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    line-height: var(--leading-tight);
+    margin: 0 0 var(--space-3);
+  }
+  .dek {
+    font-size: var(--font-size-md);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 34rem;
+  }
+  textarea {
+    min-height: 5em;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-text-muted);
+    border-radius: 2px;
+    padding: 0.7em;
+  }
+  button {
+    align-self: flex-start;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    padding: 0.45em 1.4em;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid var(--color-accent, #8b2635);
+    background: var(--color-accent, #8b2635);
+    color: var(--color-bg);
+  }
+  .receipt p {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: var(--space-4) 0 0;
+  }
+  .asked {
+    margin-top: var(--space-8);
+  }
+  .asked-label {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-2);
+  }
+  .asked ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .asked li {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-bg-subtle);
+    font-size: var(--font-size-sm);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>

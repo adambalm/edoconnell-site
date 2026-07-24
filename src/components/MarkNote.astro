@@ -1,0 +1,206 @@
+---
+/*
+ * MarkNote — the per-element feedback layer.
+ *
+ * Include once per page. Every element carrying a data-mark attribute gets a
+ * VISIBLE note button (not hover-hidden — reviewers must be able to find it).
+ * Notes post to /api/feedback one at a time; the drawer keeps a session tally
+ * and offers Copy as the offline envelope (embryo-pattern fallback).
+ * Anchors are stable ids — never renumber them.
+ */
+---
+
+<div class="marknote-drawer" id="marknote-drawer" aria-live="polite">
+  <span id="marknote-count">0 notes sent</span>
+  <button type="button" id="marknote-copy">Copy all</button>
+</div>
+
+<style>
+  :global([data-mark]) {
+    position: relative;
+  }
+  :global(.marknote-btn) {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    line-height: 1;
+    color: var(--color-text-muted);
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border, var(--color-text-muted));
+    border-radius: 2px;
+    padding: 0.15em 0.5em;
+    margin-left: 0.6em;
+    cursor: pointer;
+    vertical-align: middle;
+  }
+  :global(.marknote-btn:hover) {
+    color: var(--color-accent, #8B2635);
+  }
+  :global(.marknote-pop) {
+    position: absolute;
+    z-index: 40;
+    max-width: 20rem;
+    width: min(88vw, 20rem);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border, var(--color-text-muted));
+    border-radius: 2px;
+    padding: 0.8rem;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  }
+  :global(.marknote-pop .anchor) {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-text-muted);
+    margin: 0 0 0.5em;
+  }
+  :global(.marknote-pop textarea) {
+    width: 100%;
+    min-height: 4.2em;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border, var(--color-text-muted));
+    border-radius: 2px;
+    padding: 0.5em;
+  }
+  :global(.marknote-pop .actions) {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.55rem;
+  }
+  :global(.marknote-pop button) {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    padding: 0.35em 0.9em;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 1px solid var(--color-border, var(--color-text-muted));
+    background: var(--color-bg-subtle);
+    color: var(--color-text);
+  }
+  :global(.marknote-pop button.primary) {
+    background: var(--color-accent, #8B2635);
+    border-color: var(--color-accent, #8B2635);
+    color: var(--color-bg);
+  }
+  .marknote-drawer {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 35;
+    display: none;
+    gap: 0.6rem;
+    align-items: center;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border, var(--color-text-muted));
+    border-radius: 2px;
+    padding: 0.5rem 0.8rem;
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+  }
+  .marknote-drawer.active {
+    display: flex;
+  }
+  .marknote-drawer button {
+    font-size: var(--font-size-xs);
+    padding: 0.25em 0.7em;
+    cursor: pointer;
+    border: 1px solid var(--color-border, var(--color-text-muted));
+    background: var(--color-bg-subtle);
+    color: var(--color-text);
+    border-radius: 2px;
+  }
+</style>
+
+<script>
+  const sent: Record<string, { text: string; ts: string }> = {}
+  const drawer = document.getElementById('marknote-drawer')!
+  const countEl = document.getElementById('marknote-count')!
+  let pop: HTMLElement | null = null
+
+  function closePop() {
+    pop?.remove()
+    pop = null
+  }
+
+  function updateDrawer() {
+    const n = Object.keys(sent).length
+    countEl.textContent = `${n} note${n === 1 ? '' : 's'} sent`
+    drawer.classList.toggle('active', n > 0)
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-mark]').forEach((el) => {
+    const btn = document.createElement('button')
+    btn.className = 'marknote-btn'
+    btn.textContent = '+'
+    btn.setAttribute('aria-label', `Note on ${el.getAttribute('data-mark')}`)
+    const slot = el.querySelector('.marknote-slot') ?? el
+    slot.appendChild(btn)
+  })
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    const btn = target.closest('.marknote-btn')
+    if (!btn) {
+      if (pop && !target.closest('.marknote-pop')) closePop()
+      return
+    }
+    closePop()
+    const host = btn.closest('[data-mark]')
+    const anchor = host?.getAttribute('data-mark') ?? 'general'
+    pop = document.createElement('div')
+    pop.className = 'marknote-pop'
+    pop.innerHTML = `
+      <p class="anchor">${anchor}</p>
+      <textarea aria-label="Note text"></textarea>
+      <div class="actions">
+        <button type="button" class="primary" data-act="send">Send</button>
+        <button type="button" data-act="cancel">Cancel</button>
+      </div>`
+    document.body.appendChild(pop)
+    const r = (btn as HTMLElement).getBoundingClientRect()
+    pop.style.top = `${window.scrollY + r.bottom + 8}px`
+    pop.style.left = `${Math.max(12, Math.min(window.scrollX + r.left - 240, window.scrollX + window.innerWidth - 340))}px`
+    const ta = pop.querySelector('textarea')!
+    ta.focus()
+    pop.addEventListener('click', async (ev) => {
+      const act = (ev.target as HTMLElement).getAttribute?.('data-act')
+      if (act === 'cancel') return closePop()
+      if (act !== 'send') return
+      const text = ta.value.trim()
+      if (!text) return closePop()
+      const note = { anchor, text, page: location.pathname, ts: new Date().toISOString() }
+      try {
+        const res = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(note),
+        })
+        if (!res.ok) throw new Error(String(res.status))
+        sent[`${anchor}@${note.ts}`] = { text, ts: note.ts }
+        updateDrawer()
+        closePop()
+      } catch {
+        window.prompt('Send failed — copy the note instead:', JSON.stringify(note))
+        closePop()
+      }
+    })
+  })
+
+  document.getElementById('marknote-copy')!.addEventListener('click', () => {
+    const envelope = JSON.stringify(
+      { page: location.pathname, savedAt: new Date().toISOString(), notes: sent },
+      null,
+      2,
+    )
+    navigator.clipboard?.writeText(envelope).then(
+      () => {
+        countEl.textContent = 'copied'
+        setTimeout(updateDrawer, 1200)
+      },
+      () => window.prompt('Copy the notes:', envelope),
+    )
+  })
+</script>

@@ -1,0 +1,101 @@
+---
+/* DRAFT-FOR-ED — candidate node page, /next preview namespace. */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MarkNote from '../../components/MarkNote.astro'
+
+export const prerender = true
+---
+
+<BaseLayout
+  title="Talking character"
+  description="A drawn face taught to speak — generated, animated, and lip-synced on a home GPU."
+>
+  <article class="node">
+    <p class="draft-stamp">draft · under review</p>
+    <header data-mark="greg:masthead">
+      <h1>Talking character</h1>
+      <p class="dek">A drawn face taught to speak, end to end, on my own machine.</p>
+      <p class="meta">craft · experiment · ComfyUI, Wan, MediaPipe</p>
+    </header>
+
+    <section data-mark="greg:what">
+      <h2>What it is</h2>
+      <p>
+        Start with a 29-second audio monologue. Generate a portrait for the voice. Bring
+        the portrait to life — the same face, holding its identity, breathing. Then sync
+        its mouth to the recorded speech, word by word. Every stage runs on a consumer
+        graphics card at home: no cloud rendering, no subscription, no one else's
+        servers.
+      </p>
+      <p>
+        The pipeline chains open video-generation models: one to paint the portrait, one
+        to animate it while keeping the face consistent, one to drive the lips from
+        audio. Long clips are stitched from short renders, which surfaced the hard bug —
+        a lip-sync drift that accumulated across segments until the mouth ran ahead of
+        the voice. The fix was exact tiling arithmetic between segment length and stride.
+      </p>
+    </section>
+
+    <section data-mark="greg:capture">
+      <h2>The capture side</h2>
+      <p>
+        A companion web app runs on a phone: it tracks the face in the browser — 52
+        expression measurements per frame, on-device — while a teleprompter scrolls the
+        script in time with the original audio. One real take produced 1,781 frames of
+        usable expression data: jaw, smile, brow, blink. That data is the bridge to
+        driving the character from a human performance instead of audio alone.
+      </p>
+    </section>
+
+    <section data-mark="greg:status">
+      <h2>Where it stands</h2>
+      <p>
+        An experiment, honestly. The sync works; the render quality isn't yet where it
+        should be, and each iteration is an hour of GPU time. Clips will appear here when
+        one is worth showing.
+      </p>
+    </section>
+  </article>
+  <MarkNote />
+</BaseLayout>
+
+<style>
+  .node {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .draft-stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    line-height: var(--leading-tight);
+    margin: 0 0 var(--space-3);
+  }
+  .dek {
+    font-size: var(--font-size-md);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-2);
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    margin: var(--space-8) 0 var(--space-4);
+  }
+  p {
+    line-height: var(--leading-normal);
+    margin: 0 0 var(--space-4);
+  }
+</style>

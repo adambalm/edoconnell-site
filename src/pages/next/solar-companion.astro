@@ -1,0 +1,102 @@
+---
+/* DRAFT-FOR-ED — candidate node page, /next preview namespace. */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MarkNote from '../../components/MarkNote.astro'
+
+export const prerender = true
+---
+
+<BaseLayout
+  title="Solar decision companion"
+  description="A home-solar calculator built on one real house, designed to refuse easy answers."
+>
+  <article class="node">
+    <p class="draft-stamp">draft · under review</p>
+    <header data-mark="solar:masthead">
+      <h1>Solar decision companion</h1>
+      <p class="dek">A calculator for deciding about rooftop solar, built on one real house first.</p>
+      <p class="meta">work · working · JavaScript, SVG, Playwright</p>
+    </header>
+
+    <section data-mark="solar:what">
+      <h2>What it does</h2>
+      <p>
+        Enter a house — roof, bills, location — and it compares the real options: buy
+        panels, finance them, lease, or do nothing. Every economic answer comes back as a
+        range across conservative, expected, and favorable futures. Single-point answers
+        aren't offered, because for a twenty-year decision they aren't real.
+      </p>
+      <p>
+        Before its forecasts count for anything, the model must reproduce the household's
+        actual electric bills within seven percent. Until it can, the interface says so.
+        A candidate that fails a feasibility check — a shaded roof, an ineligible
+        incentive — shows the failed check rather than hiding the option, and no amount
+        of good projected return excuses it.
+      </p>
+    </section>
+
+    <section data-mark="solar:how">
+      <h2>How it's built</h2>
+      <p>
+        All arithmetic lives in one pure JavaScript module that runs identically in the
+        browser and in the test suite. The finance math is cross-checked against an
+        independent numerical library, and every claim-bearing word in the interface must
+        trace to a computed quantity — a rule enforced by tests against a registry of
+        forbidden phrasings that only ever grows. State incentive data covers
+        Massachusetts in depth; other states get national figures and a pointer to the
+        authoritative database, never invented numbers.
+      </p>
+    </section>
+
+    <section data-mark="solar:status">
+      <h2>Where it stands</h2>
+      <p>
+        Working, in daily use on the house it was built for, and being generalized so any
+        household can load its own profile. Public release is pending; it will live at a
+        subdomain of this site.
+      </p>
+    </section>
+  </article>
+  <MarkNote />
+</BaseLayout>
+
+<style>
+  .node {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .draft-stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    line-height: var(--leading-tight);
+    margin: 0 0 var(--space-3);
+  }
+  .dek {
+    font-size: var(--font-size-md);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-2);
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    margin: var(--space-8) 0 var(--space-4);
+  }
+  p {
+    line-height: var(--leading-normal);
+    margin: 0 0 var(--space-4);
+  }
+</style>
