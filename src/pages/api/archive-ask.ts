@@ -21,6 +21,39 @@ export const prerender = false
 const MAX_HISTORY_TURNS = 8
 const MAX_TURN_CHARS = 2000
 
+/*
+ * Abuse controls — deterministic, outside the model:
+ * - per-IP limit: 6 requests/minute (in-memory token window)
+ * - global daily cap: ARCHIVE_DAILY_CAP requests/day (default 200)
+ * HONEST BOUNDARY: in-memory state is per server instance and does not
+ * survive serverless recycling — these catch bursts and casual abuse, not a
+ * distributed attack. The durable ceiling is the workspace spend limit set
+ * in the Anthropic console; keep one set there. Kill switch: unset
+ * ANTHROPIC_API_KEY -> the page degrades to its honest offline state.
+ */
+const PER_IP_PER_MINUTE = 6
+const DAILY_CAP = Number(process.env.ARCHIVE_DAILY_CAP ?? 200)
+const ipWindow = new Map<string, { count: number; resetAt: number }>()
+let daily = { day: '', count: 0 }
+
+function rateLimited(ip: string): boolean {
+  const now = Date.now()
+  const day = new Date().toISOString().slice(0, 10)
+  if (daily.day !== day) daily = { day, count: 0 }
+  if (daily.count >= DAILY_CAP) return true
+  const w = ipWindow.get(ip)
+  if (!w || now > w.resetAt) {
+    ipWindow.set(ip, { count: 1, resetAt: now + 60_000 })
+  } else if (w.count >= PER_IP_PER_MINUTE) {
+    return true
+  } else {
+    w.count += 1
+  }
+  daily.count += 1
+  if (ipWindow.size > 5000) ipWindow.clear()
+  return false
+}
+
 const SYSTEM = `You are the archive assistant on Ed O'Connell's personal site, talking with visitors — recruiters, potential collaborators, curious readers. You know Ed's work well and you enjoy talking about it. Plain, warm, specific, brief. No marketing language, no exclamation marks, no form-letter phrasing.
 
 FORMAT CONTRACT: the FIRST line of every reply is exactly "STATUS: answered" or "STATUS: deferred" — it is stripped before the visitor sees anything; never mention it. Then a blank line, then your reply.
@@ -74,7 +107,17 @@ function sanitizeHistory(raw: unknown): HistoryTurn[] {
     .map((t) => ({ role: t.role, content: t.content.slice(0, MAX_TURN_CHARS) }))
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
+  let ip = 'unknown'
+  try {
+    ip = clientAddress ?? 'unknown'
+  } catch {
+    /* clientAddress throws on prerendered contexts; route is SSR, but stay safe */
+  }
+  if (rateLimited(ip)) {
+    return new Response(JSON.stringify({ ok: false, error: 'rate limited' }), { status: 429 })
+  }
+
   let question: string
   let history: HistoryTurn[]
   try {

@@ -59,6 +59,12 @@ export const prerender = false
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: text, history }),
       })
+      if (res.status === 429) {
+        pending.remove()
+        add('defer', 'The archive is getting a lot of questions right now — try again in a minute.')
+        q.focus()
+        return
+      }
       const data = await res.json()
       pending.remove()
       if (data.answer) {
