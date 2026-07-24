@@ -1,0 +1,25 @@
+extends: existence
+message: "False connective: '%s'"
+level: suggestion
+tokens:
+  - 'furthermore,'
+  - 'moreover,'
+  - 'additionally,'
+  - 'in addition,'
+  - 'nevertheless,'
+  - 'nonetheless,'
+  - 'on the other hand,'
+  - 'conversely,'
+  - 'consequently,'
+  - ': including'
+  - ': such as'
+  - ': for example,'
+  - ': notably,'
+  - ': specifically,'
+  - ': particularly,'
+  - one of the most
+  - among the most
+  - some of the most
+  - one of the first
+  - among the earliest
+  - some of the earliest

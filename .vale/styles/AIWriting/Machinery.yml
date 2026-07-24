@@ -1,0 +1,17 @@
+extends: existence
+message: "Machinery showing: '%s'"
+level: error
+tokens:
+  - I hope this helps
+  - Of course!
+  - Certainly!
+  - "You're absolutely right"
+  - Would you like me to
+  - Is there anything else
+  - Let me know if you
+  - More detailed breakdown
+  - As an AI language model
+  - As an AI model
+  - Would you like it expanded
+  - Feel free to ask
+  - Final important tip

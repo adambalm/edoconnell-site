@@ -1,0 +1,5 @@
+extends: existence
+message: "Ceremony — unearned reverence: '%s'"
+level: suggestion
+raw:
+  - "(stands|serves) as|plays a (vital|crucial|pivotal|central) role|(underscores|highlights) (the )?significance|reflects broader"

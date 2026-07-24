@@ -7,7 +7,7 @@
 
 edoconnell.org — personal site for Ed O'Connell. Astro frontend, Sanity CMS, deployed on Vercel.
 
-The site serves as both a personal presence and a portfolio of working systems. Interactive demos, writing samples, and project documentation live here as structured content — authored once, queryable via API, rendered through components.
+The site is both a personal presence and a portfolio of working systems. Interactive demos, writing samples, and project documentation live here as structured content — authored once, queryable via API, rendered through components.
 
 <!-- verified: 2026-02-11 -->
 

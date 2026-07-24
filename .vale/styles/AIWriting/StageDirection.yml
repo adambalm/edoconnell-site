@@ -1,0 +1,14 @@
+extends: existence
+message: "Stage direction — managing the reader: '%s'"
+level: suggestion
+tokens:
+  - it is important to understand
+  - it is crucial to recognize
+  - it is essential to note
+  - one must consider
+  - we must acknowledge
+  - it is vital to remember
+  - it is necessary to examine
+  - one should note
+  - we should recognize
+  - it is critical to understand

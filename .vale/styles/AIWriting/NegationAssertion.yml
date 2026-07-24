@@ -1,0 +1,21 @@
+extends: existence
+message: "Negation-assertion — defining by what it isn't: '%s'"
+level: suggestion
+tokens:
+  - This is not just
+  - This is not merely
+  - This is not simply
+  - These are not aspirational
+  - These are not abstract
+  - These are not theoretical
+  - This is not hypothetical
+  - This is not aspirational
+  - This is not an abstract
+  - That is not a suggestion
+  - not just talk about it
+  - not merely talk about
+  - not just discuss
+  - not just a tool
+  - not just a feature
+  - not just technical
+  - not just about

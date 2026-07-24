@@ -1,0 +1,45 @@
+extends: existence
+message: "Filler — reaching for weight: '%s'"
+level: suggestion
+tokens:
+  - '\bdelves?\b'
+  - delving
+  - delved
+  - '\btapestry\b'
+  - '\bvibrant\b'
+  - multifaceted
+  - intricate
+  - intricately
+  - meticulous
+  - meticulously
+  - '\bmyriad\b'
+  - showcases
+  - showcased
+  - showcasing
+  - rich tapestry
+  - rich history
+  - rich array
+  - complex landscape
+  - dynamic landscape
+  - comprehensive understanding
+  - '\bcornerstone\b'
+  - multitude of
+  - plethora of
+  - testament to
+  - reminder of
+  - enduring impact
+  - lasting impact
+  - indelible mark
+  - deeply rooted
+  - profound heritage
+  - steadfast dedication
+  - prominent fixture
+  - dynamic hub of
+  - key turning point
+  - various aspects
+  - different aspects
+  - multiple aspects
+  - key aspects
+  - important aspects
+  - various facets
+  - many dimensions

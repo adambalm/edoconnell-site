@@ -53,6 +53,23 @@ jobs:
         if: steps.check.outputs.ready == 'true'
         run: npm run check:seo
 
+  prose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vale
+        run: |
+          curl -sL https://github.com/vale-cli/vale/releases/download/v3.13.1/vale_3.13.1_Linux_64-bit.tar.gz | tar xz -C /tmp vale
+          sudo mv /tmp/vale /usr/local/bin/vale
+          vale --version
+
+      - name: Prose lint (AIWriting styles — any alert fails)
+        run: |
+          vale --no-wrap --output=line README.md AGENTS.md src | tee vale-report.txt
+          test ! -s vale-report.txt
+
   accessibility:
     runs-on: ubuntu-latest
     needs: build

@@ -1,0 +1,7 @@
+extends: existence
+message: "Scaffolding left in place: '%s'"
+level: warning
+scope: paragraph
+ignorecase: true
+raw:
+  - '\b(firstly|first)[,\s][\s\S]*\b(secondly|second)[,\s][\s\S]*\b(thirdly|third)\b'
