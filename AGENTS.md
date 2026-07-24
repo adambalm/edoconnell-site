@@ -52,15 +52,18 @@ Design principle: content as infrastructure, not content as pages. Each document
 
 | Document Type | Purpose | Key Fields |
 |---------------|---------|------------|
-| `article` | Long-form authored content | kind (brief/essay/case-study), body + appendix (Portable Text), epistemicStatus, audienceContext, publicationReadiness, provenance |
-| `page` | General content page | subtitle, body (Portable Text), seo |
+| `article` | Long-form authored content | kind (brief/essay/case-study), body + appendix (Portable Text), epistemicStatus, audienceContext, publicationReadiness, provenance, agentEditable |
+| `artifact` | A made thing that is not long-form writing (platform, pipeline, rig, curriculum, tool) | kind (work/craft/thought), status (honest-state vocabulary, rendered verbatim), statusDetail, lastChecked (set only by a real check), summary, yearStart/yearsDisplay, receipts[], provenance, agentEditable |
+| `page` | General content page | subtitle, body (Portable Text), seo, agentEditable |
 | `siteSettings` | Global config (singleton) | siteTitle, noindex toggle, default seo |
 
 Shared objects: `seo` (metaTitle, metaDescription, ogImage) and `provenance` (author, generatedBy, reviewedBy, context, date, confidenceScore).
 
 **Epistemic governance fields** appear on content types that carry editorial weight. They track *who* produced the content, *what status* it has, and *who it's for* — not as decoration but as queryable structured data.
 
-<!-- verified: 2026-02-20 -->
+**Dual editability:** every content document carries `agentEditable` (default `false`). Agent mutations go only through `scripts/agent-write.mjs`, which refuses non-flagged documents and logs every write to `logs/agent-mutations.jsonl`. Studio (hand) editing is never affected. The flag binds agents because the gateway is the only path agents are given — Sanity does not enforce per-document ACL; keep the write token out of agent contexts. Seeds for `artifact` live in `scripts/seed-artifacts.mjs` (dry-run default; execute gated on an HO checkpoint plus a fresh dataset export).
+
+<!-- verified: 2026-07-24 -->
 
 ## Quality Standards
 
