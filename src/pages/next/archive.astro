@@ -1,10 +1,13 @@
 ---
 /*
- * DRAFT-FOR-ED — the "ask the archive" conversation surface, /next namespace.
- * Streaming answers (first words in seconds), visible thinking state,
- * disabled-while-pending controls, Enter-to-send, starter questions for the
- * cold visitor, paragraphs preserved. The answering route and its limits:
- * src/pages/api/archive-ask.ts; the corpus: src/config/archive-bot.ts.
+ * DRAFT-FOR-ED — the "ask the archive" conversation, /next namespace.
+ * Layout copies the dominant chat convention (ChatGPT/Claude.ai): empty
+ * state centers the composer with starter chips; once conversation starts,
+ * the composer docks to the bottom, the thread fills the viewport, user
+ * messages sit right-aligned, and streaming auto-follows unless the reader
+ * scrolls up. Mobile: dynamic viewport units, 16px input font (no iOS zoom),
+ * safe-area padding. Route + limits: src/pages/api/archive-ask.ts; corpus:
+ * src/config/archive-bot.ts.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
 
@@ -14,7 +17,7 @@ const starters = [
   'What has Ed actually built?',
   'How does the handwriting pipeline work?',
   'What was the AI summer camp about?',
-  'Where did Ed work before 2015?',
+  'How does this chatbot itself work?',
 ]
 ---
 
@@ -22,39 +25,39 @@ const starters = [
   title="Ask the archive"
   description="A conversation about Ed O'Connell's work — grounded in the record."
 >
-  <article class="ask">
-    <p class="draft-stamp">draft · under review</p>
-    <header data-mark="archive:masthead">
+  <article class="ask" id="ask-root">
+    <div class="intro">
+      <p class="draft-stamp">draft · under review</p>
       <h1>Ask the archive</h1>
       <p class="dek">Questions about Ed's work, answered from the record.</p>
-    </header>
+    </div>
 
     <div id="ask-thread" class="thread" aria-live="polite"></div>
 
-    <div id="ask-starters" class="starters" data-mark="archive:starters">
-      {starters.map((s) => (
-        <button type="button" class="starter" data-q={s}>{s}</button>
-      ))}
-    </div>
-
-    <form id="ask-form" data-mark="archive:form">
-      <label for="ask-q" class="sr-only">Your question</label>
-      <textarea
-        id="ask-q"
-        required
-        maxlength="1000"
-        rows="2"
-        placeholder="Ask about the work…"
-      ></textarea>
-      <div class="form-row">
-        <button type="submit" id="ask-send">Ask</button>
-        <span class="hint" id="ask-hint">Enter to send · Shift+Enter for a new line</span>
+    <div class="composer">
+      <div id="ask-starters" class="starters" data-mark="archive:starters">
+        {starters.map((s) => (
+          <button type="button" class="starter" data-q={s}>{s}</button>
+        ))}
       </div>
-    </form>
+      <form id="ask-form" data-mark="archive:form">
+        <label for="ask-q" class="sr-only">Your question</label>
+        <textarea
+          id="ask-q"
+          required
+          maxlength="1000"
+          rows="1"
+          placeholder="Ask about the work…"
+        ></textarea>
+        <button type="submit" id="ask-send" aria-label="Send question">Ask</button>
+      </form>
+      <p class="hint">Enter to send · Shift+Enter for a new line</p>
+    </div>
   </article>
 </BaseLayout>
 
 <script>
+  const root = document.getElementById('ask-root')!
   const form = document.getElementById('ask-form') as HTMLFormElement
   const q = document.getElementById('ask-q') as HTMLTextAreaElement
   const sendBtn = document.getElementById('ask-send') as HTMLButtonElement
@@ -63,15 +66,25 @@ const starters = [
   const history: { role: 'user' | 'assistant'; content: string }[] = []
   let busy = false
 
+  function nearBottom(): boolean {
+    return thread.scrollTop + thread.clientHeight >= thread.scrollHeight - 80
+  }
+  function follow(force = false) {
+    if (force || nearBottom()) thread.scrollTop = thread.scrollHeight
+  }
+
   function turn(cls: string): HTMLElement {
     const wrap = document.createElement('div')
     wrap.className = `turn ${cls}`
-    const label = document.createElement('span')
-    label.className = 'who'
-    label.textContent = cls === 'q' ? 'You' : 'Archive'
     const body = document.createElement('div')
     body.className = 'body'
-    wrap.append(label, body)
+    if (cls === 'a') {
+      const label = document.createElement('span')
+      label.className = 'who'
+      label.textContent = 'Archive'
+      wrap.append(label)
+    }
+    wrap.append(body)
     thread.appendChild(wrap)
     return body
   }
@@ -79,21 +92,22 @@ const starters = [
   function setBusy(b: boolean) {
     busy = b
     sendBtn.disabled = b
-    sendBtn.textContent = b ? 'Answering…' : 'Ask'
     q.disabled = b
   }
 
   async function ask(text: string) {
     if (busy || !text) return
+    root.classList.add('started')
     startersBox.remove()
     setBusy(true)
     turn('q').textContent = text
     q.value = ''
+    q.style.height = 'auto'
 
     const aBody = turn('a')
     aBody.classList.add('thinking')
     aBody.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>'
-    thread.scrollTop = thread.scrollHeight
+    follow(true)
     const slowNote = setTimeout(() => {
       if (aBody.classList.contains('thinking')) {
         aBody.parentElement!.querySelector('.who')!.textContent = 'Archive · still thinking'
@@ -136,7 +150,7 @@ const starters = [
         }
         answer += dec.decode(value, { stream: true })
         aBody.textContent = answer
-        thread.scrollTop = thread.scrollHeight
+        follow()
       }
       if (answer) {
         history.push({ role: 'user', content: text })
@@ -168,6 +182,11 @@ const starters = [
     }
   })
 
+  q.addEventListener('input', () => {
+    q.style.height = 'auto'
+    q.style.height = Math.min(q.scrollHeight, 160) + 'px'
+  })
+
   startersBox.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest('.starter') as HTMLElement | null
     if (b) ask(b.dataset.q ?? '')
@@ -177,45 +196,99 @@ const starters = [
 </script>
 
 <style is:global>
+  /* App-shell frame: intro + thread + composer, sized to the real viewport */
   .ask {
-    max-width: var(--measure);
+    max-width: 46rem;
     margin: 0 auto;
-    padding: var(--space-6) var(--page-gutter) var(--space-6);
+    padding: 0 var(--page-gutter) env(safe-area-inset-bottom, 0);
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 7.5rem);
-    min-height: 22rem;
+    height: calc(100vh - 5.5rem);
+    height: calc(100dvh - 5.5rem);
+    min-height: 20rem;
+  }
+
+  /* EMPTY STATE — composer centered in the viewport, chips above it */
+  .ask .intro {
+    text-align: center;
+    margin-top: auto;
   }
   .ask .draft-stamp {
     font-family: var(--font-mono);
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
-    margin: 0 0 var(--space-3);
+    margin: 0 0 var(--space-2);
   }
   .ask h1 {
     font-family: var(--font-display);
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
     line-height: var(--leading-tight);
-    margin: 0 0 var(--space-3);
+    margin: 0 0 var(--space-2);
   }
   .ask .dek {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-sm);
     font-style: italic;
     color: var(--color-text-muted);
     margin: 0 0 var(--space-4);
+  }
+  .ask .composer {
+    margin-bottom: auto;
+    padding: var(--space-2) 0 var(--space-4);
+  }
+
+  /* STARTED STATE — intro collapses to one line, thread fills, composer docks */
+  .ask.started .intro {
+    margin: 0;
+    text-align: left;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-bg-subtle);
+  }
+  .ask.started h1 {
+    font-size: var(--font-size-md);
+    display: inline;
+    margin: 0 var(--space-3) 0 0;
+  }
+  .ask.started .dek { display: none; }
+  .ask.started .draft-stamp {
+    display: inline;
+    margin: 0;
+  }
+  .ask.started .composer {
+    margin: 0;
+    border-top: 1px solid var(--color-bg-subtle);
+    padding: var(--space-2) 0 var(--space-3);
   }
 
   .ask .thread {
     flex: 1 1 auto;
     overflow-y: auto;
-    display: flex;
+    display: none;
     flex-direction: column;
-    gap: var(--space-6);
-    margin-bottom: var(--space-4);
-    padding-right: var(--space-2);
-    scroll-behavior: smooth;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-1) var(--space-4) 0;
+    overscroll-behavior: contain;
   }
-  .ask .turn .who {
+  .ask.started .thread { display: flex; }
+
+  /* User turns right-aligned (the recognized convention); archive turns are prose */
+  .ask .turn.q {
+    align-self: flex-end;
+    max-width: 85%;
+  }
+  .ask .turn.q .body {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-sm);
+    line-height: var(--leading-normal);
+    background: var(--color-bg-subtle);
+    border-radius: 8px;
+    padding: var(--space-2) var(--space-4);
+    white-space: pre-wrap;
+  }
+  .ask .turn.a {
+    align-self: stretch;
+    max-width: 100%;
+  }
+  .ask .turn.a .who {
     display: block;
     font-family: var(--font-ui);
     font-size: var(--font-size-xs);
@@ -225,21 +298,11 @@ const starters = [
     color: var(--color-text-muted);
     margin-bottom: var(--space-1);
   }
-  .ask .turn .body {
-    line-height: var(--leading-normal);
-    white-space: pre-line;
-  }
-  .ask .turn.q .body {
-    font-family: var(--font-ui);
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-    border-left: 1px solid var(--color-text-muted);
-    padding-left: var(--space-4);
-    white-space: pre-wrap;
-  }
   .ask .turn.a .body {
     font-family: var(--font-prose);
     font-size: var(--font-size-base);
+    line-height: var(--leading-normal);
+    white-space: pre-line;
   }
 
   .ask .thinking .dot {
@@ -251,22 +314,24 @@ const starters = [
     margin-right: 5px;
     animation: ask-pulse 1.2s ease-in-out infinite;
   }
-  .thinking .dot:nth-child(2) { animation-delay: 0.2s; }
-  .thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+  .ask .thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+  .ask .thinking .dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes ask-pulse {
     0%, 100% { opacity: 0.25; }
     50% { opacity: 1; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .thinking .dot { animation: none; opacity: 0.6; }
+    .ask .thinking .dot { animation: none; opacity: 0.6; }
   }
 
   .ask .starters {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: var(--space-2);
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-3);
   }
+  .ask.started .starters { display: none; }
   .ask .starter {
     font-family: var(--font-ui);
     font-size: var(--font-size-sm);
@@ -274,55 +339,56 @@ const starters = [
     background: var(--color-bg-subtle);
     border: 1px solid var(--color-text-muted);
     border-radius: 999px;
-    padding: 0.4em 1em;
+    padding: 0.5em 1em;
     cursor: pointer;
+    min-height: 44px;
   }
   .ask .starter:hover {
     border-color: var(--color-accent, #8b2635);
     color: var(--color-accent, #8b2635);
   }
 
-  form {
+  .ask form {
     display: flex;
-    flex-direction: column;
+    align-items: flex-end;
     gap: var(--space-2);
   }
-  textarea {
+  .ask textarea {
+    flex: 1;
     font-family: var(--font-ui);
-    font-size: var(--font-size-sm);
+    font-size: 1rem; /* 16px floor — below this iOS zooms the page on focus */
+    line-height: 1.45;
     color: var(--color-text);
     background: var(--color-bg-subtle);
     border: 1px solid var(--color-text-muted);
-    border-radius: 2px;
-    padding: 0.7em;
-    resize: vertical;
+    border-radius: 8px;
+    padding: 0.6em 0.9em;
+    resize: none;
+    max-height: 160px;
+    min-height: 44px;
   }
-  textarea:disabled {
-    opacity: 0.6;
-  }
-  .ask .form-row {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-  }
+  .ask textarea:disabled { opacity: 0.6; }
   .ask #ask-send {
     font-family: var(--font-ui);
-    font-size: var(--font-size-sm);
-    padding: 0.45em 1.4em;
-    border-radius: 2px;
+    font-size: 1rem;
+    padding: 0.5em 1.3em;
+    min-height: 44px;
+    border-radius: 8px;
     cursor: pointer;
     border: 1px solid var(--color-accent, #8b2635);
     background: var(--color-accent, #8b2635);
     color: var(--color-bg);
   }
-  .ask #ask-send:disabled {
-    opacity: 0.6;
-    cursor: wait;
-  }
+  .ask #ask-send:disabled { opacity: 0.6; cursor: wait; }
   .ask .hint {
     font-family: var(--font-ui);
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
+    margin: var(--space-2) 0 0;
+    text-align: center;
+  }
+  @media (hover: none) {
+    .ask .hint { visibility: hidden; } /* Enter-to-send hint is meaningless on touch */
   }
   .ask .sr-only {
     position: absolute;

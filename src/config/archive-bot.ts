@@ -15,7 +15,7 @@
  */
 
 export const ARCHIVE_MODEL = 'claude-sonnet-5'
-export const MAX_ANSWER_TOKENS = 700
+export const MAX_ANSWER_TOKENS = 450
 
 export const CORPUS = `
 == CAREER (resolved facts; fuller than any page) ==
@@ -51,6 +51,12 @@ export const CORPUS = `
 - Music-to-video pipeline: song file to finished lyric video — transcription with word timings, storyboard, scene renders, final cut. Multiple finished videos.
 - Hand-drawn layouts: pages drawn by hand and rebuilt as responsive HTML honoring the drawing; one drawing became a rendered walk-cycle animation. Same conviction as the handwriting pipeline: the hand decides first; the machine's job is fidelity, not improvement.
 - The fleet: three machines — a Windows workstation, a Linux server with the GPU, a Mac — joined by a private network (Tailscale), running local models (Ollama) and sharing one git-versioned knowledge store.
+
+== THIS ASSISTANT (answer plainly when asked how the chatbot works) ==
+- The answering model is Claude (Sonnet), made by Anthropic, reached over Anthropic's API. The model id is pinned in the site's configuration so it changes only deliberately.
+- Commercial services involved: Anthropic (the language model API), Vercel (site hosting when deployed), and Sanity (the site's content system). The site's code is Astro.
+- The assistant answers only from a corpus Ed curates and reviews — a hand-maintained document, not a live feed from any private archive. Questions it can't answer are saved for Ed to read, and he updates the corpus based on what people actually ask.
+- Rate limits and a spending ceiling sit in front of the model. No visitor accounts, no ad tracking; the questions themselves are logged so Ed can improve the answers.
 
 == POINTERS ==
 - The site's pages cover each project; magazine.wne.edu is live proof of the university-era work; the school's site is live. The Bike Shop is a published essay on the attention it takes to true a wheel, and systems.

@@ -36,6 +36,8 @@ const ipWindow = new Map<string, { count: number; resetAt: number }>()
 let daily = { day: '', count: 0 }
 
 function rateLimited(ip: string): boolean {
+  // Loopback is local dev and the test harness — never a public visitor.
+  if (ip === '127.0.0.1' || ip === '::1') return false
   const now = Date.now()
   const day = new Date().toISOString().slice(0, 10)
   if (daily.day !== day) daily = { day, count: 0 }
