@@ -124,6 +124,13 @@ export const article = defineType({
       type: 'provenance',
     }),
     defineField({
+      name: 'agentEditable',
+      title: 'Agent editable',
+      type: 'boolean',
+      initialValue: false,
+      description: 'When false (the default), the agent write gateway refuses to modify this document. Hand editing in the Studio is never affected.',
+    }),
+    defineField({
       name: 'seo',
       title: 'SEO',
       type: 'seo',

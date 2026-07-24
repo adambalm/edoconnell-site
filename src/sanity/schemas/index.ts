@@ -1,6 +1,7 @@
 import { seo } from './objects/seo'
 import { provenance } from './objects/provenance'
 import { article } from './article'
+import { artifact } from './artifact'
 import { page } from './page'
 import { siteSettings } from './siteSettings'
 
@@ -11,6 +12,7 @@ export const schemaTypes = [
 
   // Document types
   article,
+  artifact,
   page,
   siteSettings,
 ]
