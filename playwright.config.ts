@@ -14,11 +14,11 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
 
   use: {
-    baseURL: 'http://localhost:4321',
+    baseURL: process.env.PW_BASE_URL ?? 'http://localhost:4321',
     storageState: {
       cookies: [],
       origins: [{
-        origin: 'http://localhost:4321',
+        origin: process.env.PW_BASE_URL ?? 'http://localhost:4321',
         localStorage: [{ name: 'notrack', value: '1' }],
       }],
     },
