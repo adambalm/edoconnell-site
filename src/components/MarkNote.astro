@@ -11,7 +11,7 @@
 ---
 
 <div class="marknote-drawer" id="marknote-drawer" aria-live="polite">
-  <span id="marknote-count">0 notes sent</span>
+  <span id="marknote-count">0 work orders sent</span>
   <button type="button" id="marknote-copy">Copy all</button>
 </div>
 
@@ -127,7 +127,7 @@
 
   function updateDrawer() {
     const n = Object.keys(sent).length
-    countEl.textContent = `${n} note${n === 1 ? '' : 's'} sent`
+    countEl.textContent = `${n} work order${n === 1 ? '' : 's'} sent`
     drawer.classList.toggle('active', n > 0)
   }
 
@@ -156,7 +156,7 @@
       <p class="anchor">${anchor}</p>
       <textarea aria-label="Note text"></textarea>
       <div class="actions">
-        <button type="button" class="primary" data-act="send">Send</button>
+        <button type="button" class="primary" data-act="send">Send work order</button>
         <button type="button" data-act="cancel">Cancel</button>
       </div>`
     document.body.appendChild(pop)

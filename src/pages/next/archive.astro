@@ -18,10 +18,7 @@ export const prerender = false
     <p class="draft-stamp">draft · being built</p>
     <header data-mark="archive:masthead">
       <h1>Ask the archive</h1>
-      <p class="dek">
-        Ask anything about the work on this site. Answers are coming; questions already
-        count.
-      </p>
+      <p class="dek">Ask about the work on this site.</p>
     </header>
 
     <form id="ask-form" data-mark="archive:form">
@@ -30,50 +27,51 @@ export const prerender = false
       <button type="submit">Ask</button>
     </form>
 
-    <div id="ask-receipt" class="receipt" hidden>
-      <p>Saved.</p>
-    </div>
-
-    <div id="ask-log" class="asked" hidden>
-      <p class="asked-label">Asked this visit</p>
-      <ul id="ask-list"></ul>
-    </div>
+    <div id="ask-thread" class="thread"></div>
   </article>
 </BaseLayout>
 
 <script>
   const form = document.getElementById('ask-form') as HTMLFormElement
   const q = document.getElementById('ask-q') as HTMLTextAreaElement
-  const receipt = document.getElementById('ask-receipt')!
-  const log = document.getElementById('ask-log')!
-  const list = document.getElementById('ask-list')!
+  const thread = document.getElementById('ask-thread')!
+
+  function add(cls: string, text: string) {
+    const div = document.createElement('div')
+    div.className = `turn ${cls}`
+    div.textContent = text
+    thread.appendChild(div)
+    div.scrollIntoView({ block: 'nearest' })
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
     const text = q.value.trim()
     if (!text) return
+    add('q', text)
+    q.value = ''
+    add('pending', '\u2026')
+    const pending = thread.lastElementChild!
     try {
-      const res = await fetch('/api/feedback', {
+      const res = await fetch('/api/archive-ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          anchor: 'archive:question',
-          text,
-          page: location.pathname,
-          ts: new Date().toISOString(),
-        }),
+        body: JSON.stringify({ question: text }),
       })
-      if (!res.ok) throw new Error(String(res.status))
-      const li = document.createElement('li')
-      li.textContent = text
-      list.appendChild(li)
-      log.hidden = false
-      receipt.hidden = false
-      q.value = ''
-      q.focus()
+      const data = await res.json()
+      pending.remove()
+      if (data.answer) {
+        add('a', data.answer)
+      } else if (data.deferred) {
+        add('defer', "That one goes to Ed. Your question is saved and he'll see it.")
+      } else {
+        add('defer', 'The answering model is offline. Your question is saved.')
+      }
     } catch {
-      window.prompt('Send failed — copy your question:', text)
+      pending.remove()
+      add('defer', 'Send failed \u2014 your question was not saved. Try again.')
     }
+    q.focus()
   })
 </script>
 
@@ -128,33 +126,32 @@ export const prerender = false
     background: var(--color-accent, #8b2635);
     color: var(--color-bg);
   }
-  .receipt p {
+  .thread {
+    margin-top: var(--space-8);
+    max-width: 34rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .turn {
+    line-height: var(--leading-normal);
+    font-size: var(--font-size-sm);
+  }
+  .turn.q {
+    font-family: var(--font-ui);
+    color: var(--color-text-muted);
+    border-left: 1px solid var(--color-text-muted);
+    padding-left: var(--space-4);
+  }
+  .turn.a {
+    font-family: var(--font-prose);
+    font-size: var(--font-size-base);
+  }
+  .turn.defer,
+  .turn.pending {
     font-family: var(--font-mono);
     font-size: var(--font-size-xs);
     color: var(--color-text-muted);
-    margin: var(--space-4) 0 0;
-  }
-  .asked {
-    margin-top: var(--space-8);
-  }
-  .asked-label {
-    font-family: var(--font-ui);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--color-text-muted);
-    margin: 0 0 var(--space-2);
-  }
-  .asked ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .asked li {
-    padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--color-bg-subtle);
-    font-size: var(--font-size-sm);
   }
   .sr-only {
     position: absolute;
