@@ -10,8 +10,12 @@
  * src/config/archive-bot.ts.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
+import { MODELS, DEFAULT_MODEL_KEY } from '../../config/archive-bot'
 
 export const prerender = false
+
+const ollamaAvailable = Boolean(process.env.OLLAMA_BASE_URL ?? import.meta.env.OLLAMA_BASE_URL)
+const modelOptions = MODELS.filter((m) => m.provider === 'anthropic' || ollamaAvailable)
 
 const starters = [
   'What has Ed actually built?',
@@ -51,7 +55,15 @@ const starters = [
         ></textarea>
         <button type="submit" id="ask-send" aria-label="Send question">Ask</button>
       </form>
-      <p class="hint">Enter to send · Shift+Enter for a new line</p>
+      <p class="hint">
+        <label for="ask-model" class="sr-only">Answering model</label>
+        <select id="ask-model">
+          {modelOptions.map((m) => (
+            <option value={m.key} selected={m.key === DEFAULT_MODEL_KEY}>{m.label}</option>
+          ))}
+        </select>
+        <span class="hint-keys">Enter to send · Shift+Enter for a new line</span>
+      </p>
     </div>
   </article>
 </BaseLayout>
@@ -63,6 +75,10 @@ const starters = [
   const sendBtn = document.getElementById('ask-send') as HTMLButtonElement
   const thread = document.getElementById('ask-thread')!
   const startersBox = document.getElementById('ask-starters')!
+  const modelSel = document.getElementById('ask-model') as HTMLSelectElement
+  if (new URLSearchParams(location.search).has('dev')) localStorage.setItem('archive-dev', '1')
+  const devMode = localStorage.getItem('archive-dev') === '1'
+  const RS = String.fromCharCode(30)
   const history: { role: 'user' | 'assistant'; content: string }[] = []
   let busy = false
 
@@ -119,7 +135,7 @@ const starters = [
       const res = await fetch('/api/archive-ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: text, history }),
+        body: JSON.stringify({ question: text, history, model: modelSel?.value }),
       })
 
       if (res.status === 429) {
@@ -140,6 +156,7 @@ const starters = [
 
       const reader = res.body!.getReader()
       const dec = new TextDecoder()
+      let raw = ''
       for (;;) {
         const { done, value } = await reader.read()
         if (done) break
@@ -148,9 +165,28 @@ const starters = [
           aBody.textContent = ''
           aBody.parentElement!.querySelector('.who')!.textContent = 'Archive'
         }
-        answer += dec.decode(value, { stream: true })
+        raw += dec.decode(value, { stream: true })
+        answer = raw.split(RS)[0]
         aBody.textContent = answer
         follow()
+      }
+      const tail = raw.split(RS)[1]
+      if (tail) {
+        try {
+          const u = JSON.parse(tail)
+          if (u.truncated) {
+            const note = document.createElement('p')
+            note.className = 'trunc-note'
+            note.textContent = '— the answer hit its length cap'
+            aBody.parentElement!.appendChild(note)
+          }
+          if (devMode) {
+            const meta = document.createElement('p')
+            meta.className = 'usage-line'
+            meta.textContent = `${u.model} · ${u.in}→${u.out} tok · $${u.cost.toFixed(4)} · ${(u.ms / 1000).toFixed(1)}s`
+            aBody.parentElement!.appendChild(meta)
+          }
+        } catch { /* no usage tail */ }
       }
       if (answer) {
         history.push({ role: 'user', content: text })
@@ -386,9 +422,29 @@ const starters = [
     color: var(--color-text-muted);
     margin: var(--space-2) 0 0;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+  .ask .hint select {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+    border: 1px solid var(--color-bg-subtle);
+    border-radius: 4px;
+    padding: 0.2em 0.4em;
+  }
+  .ask .usage-line,
+  .ask .trunc-note {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: var(--space-1) 0 0;
   }
   @media (hover: none) {
-    .ask .hint { visibility: hidden; } /* Enter-to-send hint is meaningless on touch */
+    .ask .hint-keys { display: none; } /* Enter-to-send hint is meaningless on touch */
   }
   .ask .sr-only {
     position: absolute;

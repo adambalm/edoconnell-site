@@ -1,24 +1,33 @@
 /*
  * POST /api/archive-ask — the archive's answering half, streaming.
  *
- * Streams the reply as plain text chunks so first words reach the visitor in
- * one to two seconds instead of after the full completion (the real latency
- * fix; Nielsen: visibility of system status). The machine-read STATUS first
- * line is buffered and stripped server-side before any byte is sent; the
- * final status is logged with the question. Grounding, deferral behavior,
- * abuse controls, and the kill switch are unchanged. Model id pinned in
- * config; rollback = one line.
+ * Streams the reply as plain text; a final record-separator (\x1e) chunk
+ * carries usage JSON (tokens, cost, elapsed, truncation) for the dev view.
+ * The model is chosen from the registry in src/config/archive-bot.ts —
+ * Anthropic models over the API, local models over an Ollama endpoint that
+ * exists only as OLLAMA_BASE_URL in the environment (a private address,
+ * never committed). Every exchange logs question AND an answer preview, so
+ * the log is an audit trail, not just an inbox. Abuse controls and the kill
+ * switch are unchanged.
  */
 import type { APIRoute } from 'astro'
 import Anthropic from '@anthropic-ai/sdk'
 import { appendFileSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { ARCHIVE_MODEL, MAX_ANSWER_TOKENS, CORPUS, REFUSALS } from '../../config/archive-bot'
+import {
+  MODELS,
+  DEFAULT_MODEL_KEY,
+  MAX_ANSWER_TOKENS,
+  CORPUS,
+  REFUSALS,
+  type ArchiveModelDef,
+} from '../../config/archive-bot'
 
 export const prerender = false
 
 const MAX_HISTORY_TURNS = 8
 const MAX_TURN_CHARS = 2000
+const USAGE_SEP = '\x1e'
 
 /*
  * Abuse controls — deterministic, outside the model:
@@ -27,8 +36,8 @@ const MAX_TURN_CHARS = 2000
  * HONEST BOUNDARY: in-memory state is per server instance and does not
  * survive serverless recycling — these catch bursts and casual abuse, not a
  * distributed attack. The durable ceiling is the workspace spend limit set
- * in the Anthropic console; keep one set there. Kill switch: unset
- * ANTHROPIC_API_KEY -> the page degrades to its honest offline state.
+ * in the Anthropic console. Kill switch: unset ANTHROPIC_API_KEY -> honest
+ * offline state. Loopback is exempt (local dev and the test harness).
  */
 const PER_IP_PER_MINUTE = 6
 const DAILY_CAP = Number(process.env.ARCHIVE_DAILY_CAP ?? 200)
@@ -36,7 +45,6 @@ const ipWindow = new Map<string, { count: number; resetAt: number }>()
 let daily = { day: '', count: 0 }
 
 function rateLimited(ip: string): boolean {
-  // Loopback is local dev and the test harness — never a public visitor.
   if (ip === '127.0.0.1' || ip === '::1') return false
   const now = Date.now()
   const day = new Date().toISOString().slice(0, 10)
@@ -82,7 +90,16 @@ interface HistoryTurn {
   content: string
 }
 
-function logQuestion(text: string, kind: string) {
+interface Usage {
+  model: string
+  in: number
+  out: number
+  cost: number
+  ms: number
+  truncated: boolean
+}
+
+function logExchange(question: string, kind: string, answer: string, usage: Usage | null) {
   try {
     const dir = resolve(process.cwd(), 'logs')
     mkdirSync(dir, { recursive: true })
@@ -90,7 +107,10 @@ function logQuestion(text: string, kind: string) {
       resolve(dir, 'feedback.jsonl'),
       JSON.stringify({
         anchor: `archive:${kind}`,
-        text: text.slice(0, 1000),
+        text: question.slice(0, 1000),
+        answerPreview: answer.slice(0, 400) || null,
+        model: usage?.model ?? null,
+        usage: usage ? { in: usage.in, out: usage.out, cost: usage.cost, ms: usage.ms, truncated: usage.truncated } : null,
         page: '/next/archive/',
         ts: new Date().toISOString(),
         receivedAt: new Date().toISOString(),
@@ -116,6 +136,34 @@ function sanitizeHistory(raw: unknown): HistoryTurn[] {
     .map((t) => ({ role: t.role, content: t.content.slice(0, MAX_TURN_CHARS) }))
 }
 
+/* Strips the STATUS first line from a stream; passes the rest through. */
+class HeadStripper {
+  head = ''
+  headDone = false
+  status = 'answered'
+  feed(text: string): string {
+    if (this.headDone) return text
+    this.head += text
+    const m = this.head.match(/^STATUS:\s*(answered|deferred)\s*\n+/i)
+    if (m) {
+      this.status = m[1].toLowerCase()
+      this.headDone = true
+      return this.head.slice(m[0].length)
+    }
+    if (this.head.length > 40 && !/^STATUS:/i.test(this.head)) {
+      this.headDone = true
+      return this.head
+    }
+    return ''
+  }
+  flush(): string {
+    if (this.headDone || !this.head) return ''
+    const m = this.head.match(/^STATUS:\s*(answered|deferred)\s*/i)
+    if (m) this.status = m[1].toLowerCase()
+    return (m ? this.head.slice(m[0].length) : this.head).trim()
+  }
+}
+
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   let ip = 'unknown'
   try {
@@ -129,10 +177,12 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   let question: string
   let history: HistoryTurn[]
+  let modelKey: string
   try {
     const body = (await request.json()) as Record<string, unknown>
     question = typeof body.question === 'string' ? body.question.trim() : ''
     history = sanitizeHistory(body.history)
+    modelKey = typeof body.model === 'string' ? body.model : DEFAULT_MODEL_KEY
   } catch {
     return new Response(JSON.stringify({ ok: false, error: 'invalid JSON' }), { status: 400 })
   }
@@ -140,77 +190,117 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     return new Response(JSON.stringify({ ok: false, error: 'question required' }), { status: 400 })
   }
 
+  const ollamaBase = process.env.OLLAMA_BASE_URL ?? import.meta.env.OLLAMA_BASE_URL
+  let def: ArchiveModelDef =
+    MODELS.find((m) => m.key === modelKey) ?? MODELS.find((m) => m.key === DEFAULT_MODEL_KEY)!
+  if (def.provider === 'ollama' && !ollamaBase) {
+    def = MODELS.find((m) => m.key === DEFAULT_MODEL_KEY)!
+  }
+
   const apiKey = import.meta.env.ANTHROPIC_API_KEY ?? process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    logQuestion(question, 'question-no-key')
+  if (def.provider === 'anthropic' && !apiKey) {
+    logExchange(question, 'question-no-key', '', null)
     return new Response(JSON.stringify({ ok: true, unavailable: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     })
   }
 
-  const client = new Anthropic({ apiKey })
+  const t0 = Date.now()
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const enc = new TextEncoder()
-      let head = '' // buffer until the STATUS line is stripped
-      let headDone = false
-      let status = 'answered'
-      let sentAny = false
+      const strip = new HeadStripper()
+      let answer = ''
+      const send = (text: string) => {
+        if (!text) return
+        answer += text
+        controller.enqueue(enc.encode(text))
+      }
+      let usage: Usage = { model: def.key, in: 0, out: 0, cost: 0, ms: 0, truncated: false }
+
       try {
-        const s = client.messages.stream({
-          model: ARCHIVE_MODEL,
-          max_tokens: MAX_ANSWER_TOKENS,
-          system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
-          messages: [...history, { role: 'user', content: question }],
-        })
-        for await (const event of s) {
-          if (event.type !== 'content_block_delta' || event.delta.type !== 'text_delta') continue
-          if (headDone) {
-            controller.enqueue(enc.encode(event.delta.text))
-            sentAny = true
-            continue
+        if (def.provider === 'anthropic') {
+          const client = new Anthropic({ apiKey: apiKey! })
+          const s = client.messages.stream({
+            model: def.model,
+            max_tokens: MAX_ANSWER_TOKENS,
+            system: [{ type: 'text', text: SYSTEM, cache_control: { type: 'ephemeral' } }],
+            messages: [...history, { role: 'user', content: question }],
+          })
+          for await (const event of s) {
+            if (event.type !== 'content_block_delta' || event.delta.type !== 'text_delta') continue
+            send(strip.feed(event.delta.text))
           }
-          head += event.delta.text
-          const m = head.match(/^STATUS:\s*(answered|deferred)\s*\n+/i)
-          if (m) {
-            status = m[1].toLowerCase()
-            const rest = head.slice(m[0].length)
-            headDone = true
-            if (rest) {
-              controller.enqueue(enc.encode(rest))
-              sentAny = true
+          send(strip.flush())
+          const final = await s.finalMessage()
+          if (final.stop_reason === 'refusal' && !answer) {
+            strip.status = 'deferred'
+            send("That's one the assistant won't take up — but the question is saved, and Ed reads these.")
+          }
+          usage.in = final.usage.input_tokens + (final.usage.cache_read_input_tokens ?? 0)
+          usage.out = final.usage.output_tokens
+          usage.cost =
+            (final.usage.input_tokens / 1e6) * def.inPer1M + (usage.out / 1e6) * def.outPer1M
+          usage.truncated = final.stop_reason === 'max_tokens'
+        } else {
+          const res = await fetch(`${ollamaBase}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: def.model,
+              stream: true,
+              options: { num_predict: MAX_ANSWER_TOKENS },
+              messages: [
+                { role: 'system', content: SYSTEM },
+                ...history,
+                { role: 'user', content: question },
+              ],
+            }),
+          })
+          if (!res.ok || !res.body) throw new Error(`ollama ${res.status}`)
+          const reader = res.body.getReader()
+          const dec = new TextDecoder()
+          let buf = ''
+          for (;;) {
+            const { done, value } = await reader.read()
+            if (done) break
+            buf += dec.decode(value, { stream: true })
+            let nl
+            while ((nl = buf.indexOf('\n')) >= 0) {
+              const line = buf.slice(0, nl).trim()
+              buf = buf.slice(nl + 1)
+              if (!line) continue
+              try {
+                const j = JSON.parse(line)
+                if (j.message?.content) send(strip.feed(j.message.content))
+                if (j.done) {
+                  usage.in = j.prompt_eval_count ?? 0
+                  usage.out = j.eval_count ?? 0
+                  usage.truncated = j.done_reason === 'length'
+                }
+              } catch {
+                /* partial line noise */
+              }
             }
-          } else if (head.length > 40 && !/^STATUS:/i.test(head)) {
-            // model skipped the contract line — treat everything as the reply
-            headDone = true
-            controller.enqueue(enc.encode(head))
-            sentAny = true
           }
+          send(strip.flush())
         }
-        // stream ended while still buffering (short reply without newline)
-        if (!headDone && head) {
-          const m = head.match(/^STATUS:\s*(answered|deferred)\s*/i)
-          const rest = m ? head.slice(m[0].length) : head
-          if (m) status = m[1].toLowerCase()
-          if (rest.trim()) {
-            controller.enqueue(enc.encode(rest.trim()))
-            sentAny = true
-          }
-        }
-        const final = await s.finalMessage()
-        if (final.stop_reason === 'refusal' && !sentAny) {
-          status = 'deferred'
-          controller.enqueue(
-            enc.encode("That's one the assistant won't take up — but the question is saved, and Ed reads these."),
-          )
-        }
-        logQuestion(question, status === 'deferred' ? 'question-deferred' : 'question-answered')
+
+        usage.ms = Date.now() - t0
+        logExchange(
+          question,
+          strip.status === 'deferred' ? 'question-deferred' : 'question-answered',
+          answer,
+          usage,
+        )
+        controller.enqueue(enc.encode(USAGE_SEP + JSON.stringify(usage)))
       } catch (e) {
         console.error('[archive-ask] stream failed:', e instanceof Error ? e.message : e)
-        logQuestion(question, 'question-error')
-        if (!sentAny) {
+        usage.ms = Date.now() - t0
+        logExchange(question, 'question-error', answer, usage)
+        if (!answer) {
           controller.enqueue(
             enc.encode("The archive's answering model is offline right now. The question is saved for Ed."),
           )
