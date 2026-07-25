@@ -38,12 +38,6 @@ try {
 
 <BaseLayout title={PAGE_TITLE} description={pageDesc}>
   <div class="gf">
-    <aside class="supersession" role="note">
-      <p><strong>Editorial note, July 2026:</strong> this page is kept as history — it
-      describes the governance structure as it stood in June 2026. For the current
-      orientation, including what this structure has shipped since, see
-      <a href="/what-is-going-on-here/">What is going on here?</a></p>
-    </aside>
     <section>
       <div class="kicker">A governed AI fleet</div>
       <h1>Thinking that lives in the structure, not in any single mind.</h1>
@@ -199,9 +193,6 @@ try {
      fails to match injected DOM, leaving every interactive widget unstyled.
      Every selector below is .gf-prefixed, so going global does not leak. */
   .gf { font-family: var(--font-prose); color: var(--color-text); line-height: var(--leading-normal); }
-  .gf .supersession { border: 1px solid var(--color-border); border-radius: 4px; padding: var(--space-3) var(--space-4); margin: 0 0 var(--space-8); font-family: var(--font-ui); font-size: var(--font-size-sm); color: var(--color-text-muted); }
-  .gf .supersession p { margin: 0; }
-  .gf .supersession a { color: var(--color-accent); }
   .gf .kicker { font-family: var(--font-ui); font-size: var(--font-size-xs); letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-muted); }
   .gf h1 { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: var(--font-size-3xl); line-height: var(--leading-tight); margin: .2em 0 .15em; }
   .gf h2 { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: var(--font-size-2xl); margin: 1.4em 0 .2em; }

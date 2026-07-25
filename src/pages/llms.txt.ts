@@ -45,11 +45,9 @@ export async function GET() {
     'This site is intentionally not indexed by search engines yet. This file is a map for readers and AI agents given the link directly.',
     '',
     '## Sections',
-    `- [What is going on here?](${base}/what-is-going-on-here/): orientation — what this site is and how to read its claims`,
     `- [Articles](${base}/articles/): essays and technical writing`,
-    `- [Case study: a school headless CMS](${base}/case-studies/sca-headless-cms/): a production Astro + Sanity build`,
-    `- [The Fleet](${base}/governed-fleet/): a governed multi-agent AI system (kept as history; superseded as orientation)`,
-    `- [Ask about the work](${base}/next/archive/): a chat assistant answering from a hand-curated corpus`,
+    `- [Case study: SCA headless CMS](${base}/case-studies/sca-headless-cms/): a production Astro + Sanity build`,
+    `- [The Fleet](${base}/governed-fleet/): a governed multi-agent AI system`,
     `- [Contact](${base}/contact/)`,
     '',
   ]
