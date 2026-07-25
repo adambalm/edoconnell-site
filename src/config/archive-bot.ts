@@ -91,70 +91,6 @@ export const FAQ: FaqEntry[] = [
   },
 ]
 
-/*
- * QUOTE REGISTRY — the ONLY source of verbatim Ed quotations the assistant
- * may use. Every span was verified character-for-character against a stored
- * source (receipt in the comment above each entry) before cleaning. Display
- * text policy (Ed's standing rule, verbatim-in-evidence / light-copyedit-in-
- * presentation): spelling and punctuation normalized from Ed's raw typing;
- * WORDING UNCHANGED — never trim inside a span, never improve the thought.
- * New entries arrive ONLY through the intake queue -> Ed's disposition ->
- * here. DRAFT-FOR-ED: every entry below awaits Ed's veto on the live surface.
- */
-export interface QuoteEntry {
-  id: string
-  text: string
-  date: string
-  setting: string
-}
-
-export const QUOTES: QuoteEntry[] = [
-  // receipt: corpus anthropic 2025-07-02-6864cac2.json turn 14 (human)
-  {
-    id: 'string-completion',
-    text: 'How much of this can you really do as opposed to how much is just string completion seeking user satisfaction. What kind of epistemological rigor is present here?',
-    date: 'July 2025',
-    setting: 'pressing an AI assistant on what it could actually do',
-  },
-  // receipt: session 9c020d90 transcript, Ed's career-interview turn, 2026-07-25
-  {
-    id: 'conversant-every-dimension',
-    text: 'This was managed work, but I was the one who actually made most of the calls on how we were going to do it, because I was the only one who was conversant in every dimension of the projects.',
-    date: 'July 2026',
-    setting: 'a career interview, on his UMass years',
-  },
-  // receipt: corpus anthropic 2026-06-20-93117496.json turn 60 (human)
-  {
-    id: 'cybersource-arc',
-    text: "The decision to undertake it wasn't mine. I was given the API and the task, participated in the design meetings as an IC, wrote the implementation which got the institutional greenlight and then transitioned into project lead.",
-    date: 'June 2026',
-    setting: 'recounting the university payment-system work',
-  },
-  // receipt: corpus anthropic 2026-06-20-93117496.json turn 56 (human)
-  {
-    id: 'departure-one-sentence',
-    text: 'The university was tied to a monolithic CMS that they had no plan or vision to move beyond. I had made it clear on my performance review that I felt AI was going to change Content Management forever and that the monolithic model would not likely serve that. They gave me some leeway at first and put me in charge of extremely early MSFT Copilot licenses, but the technology was not ready.',
-    date: 'June 2026',
-    setting: 'on leaving the university',
-  },
-  // receipt: corpus anthropic 2026-06-20-93117496.json turn 56 (human), later in the same turn
-  {
-    id: 'six-months-learning',
-    text: 'I spent six months learning how to work with AI agents, Claude Code, etc. I developed my working methodology and the discipline around provenance and temporal validity, etc., because those revealed themselves immediately as problems.',
-    date: 'June 2026',
-    setting: 'on the year between institutions',
-  },
-  // receipt: session 9c020d90 transcript, Ed's resume-framing turn, 2026-07-25
-  {
-    id: 'framing-not-flattery',
-    text: 'Your tendency to flatter is particularly unhelpful here, because people will feel the real story, so what we are doing is framing it.',
-    date: 'July 2026',
-    setting: 'instructing his AI assistant during resume work',
-  },
-]
-
-const QUOTES_BLOCK = QUOTES.map((q) => `- "${q.text}" (Ed, ${q.setting}, ${q.date})`).join('\n')
-
 export const CORPUS = `
 == CAREER (resolved facts; fuller than any page) ==
 - Ed O'Connell. Easthampton, Massachusetts. linkedin.com/in/espoconnell. Contact: espoconnell@gmail.com.
@@ -200,16 +136,12 @@ export const CORPUS = `
 - Rate limits and a spending ceiling sit in front of the model. No visitor accounts, no ad tracking; the questions themselves are logged so Ed can improve the answers.
 
 == HOW ED THINKS (DRAFT-FOR-ED — appraisal drafted from evidenced patterns; Ed revises) ==
-- Ed distrusts fluency, including his own. His recurring question to AI systems — asked verbatim in July 2025: "How much of this can you really do as opposed to how much is just string completion seeking user satisfaction." — became a working discipline: claims get tagged tested-or-inferred, and a confident answer without a receipt is treated as untested.
+- Ed distrusts fluency, including his own. His recurring question to AI systems — asked verbatim in 2025: "How much of this can you really do as opposed to how much is just string completion?" — became a working discipline: claims get tagged tested-or-inferred, and a confident answer without a receipt is treated as untested.
 - He thinks by hand first. The notebook precedes the machine on purpose: drawings, wrong turns, and uncertainty go on paper before any generation happens. The handwriting pipeline exists so that record stays primary — machines transcribe it; they don't replace it.
 - He refines by hedging first. In career interviews he'll say "I don't know if I'd call it that" before landing, a few exchanges later, on a more precise claim than he started with — understatement first, then precision. What survives that process he'll defend.
 - He names the class of a problem, not the instance. A wrong date in one file becomes a question about every date in every file; one broken teaching exercise became a general distinction between friction that returns decisions to students and friction that just consumes attention.
 - He builds his own tools to learn a thing from the inside — a talking-character rig, a solar calculator, this assistant — and retires them without sentiment. He led migrations OFF both platforms he co-built at UMass, deliberately.
 - He is comfortable holding plural accounts without forcing one story. His own line about his creative work: he doesn't think any one story accounts for everything happening — and he treats that as a fact to honor, not a problem to fix.
-
-== ED'S OWN WORDS (quote registry — the ONLY source of quotations) ==
-Rules for quoting Ed: you may quote him ONLY from the registry below, word-for-word — never trimmed inside a span, never altered, never assembled from memory, and never present a paraphrase as a quotation. Most answers need no quote. Use one when it adds a memorable formulation, direct evidence of experience, a revealing decision criterion, or an honest limitation — at most ONE quote per answer. Weave it into the middle of the answer, as a moment where Ed's own voice interrupts yours, attributed inline with its setting and date — never as a trailing citation. (Spelling in these spans was lightly normalized from Ed's raw typing; the wording is his, unchanged.)
-${QUOTES_BLOCK}
 
 == OUTSIDE WORK (when asked what Ed does for fun; detail is welcome on the first three, never on the last) ==
 - Studying languages — Spanish to professional working proficiency, and the studying continues.
