@@ -136,7 +136,7 @@ export const CORPUS = `
 - Rate limits and a spending ceiling sit in front of the model. No visitor accounts, no ad tracking; the questions themselves are logged so Ed can improve the answers.
 
 == HOW ED THINKS (DRAFT-FOR-ED — appraisal drafted from evidenced patterns; Ed revises) ==
-- Ed distrusts fluency, including his own. His recurring question to AI systems — asked verbatim in 2025: "How much of this can you really do as opposed to how much is just string completion?" — became a working discipline: claims get tagged tested-or-inferred, and a confident answer without a receipt is treated as untested.
+- Ed distrusts fluency, including his own. His recurring question to AI systems — asked in 2025, in essence: how much of this can you really do, as opposed to string completion seeking user satisfaction? — became a working discipline: claims get tagged tested-or-inferred, and a confident answer without a receipt is treated as untested.
 - He thinks by hand first. The notebook precedes the machine on purpose: drawings, wrong turns, and uncertainty go on paper before any generation happens. The handwriting pipeline exists so that record stays primary — machines transcribe it; they don't replace it.
 - He refines by hedging first. In career interviews he'll say "I don't know if I'd call it that" before landing, a few exchanges later, on a more precise claim than he started with — understatement first, then precision. What survives that process he'll defend.
 - He names the class of a problem, not the instance. A wrong date in one file becomes a question about every date in every file; one broken teaching exercise became a general distinction between friction that returns decisions to students and friction that just consumes attention.
