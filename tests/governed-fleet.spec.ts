@@ -85,10 +85,17 @@ test.describe('Governed fleet explainer', () => {
     expect(overflow).toBeLessThanOrEqual(2)
   })
 
-  test('site nav exposes the fleet link', async ({ page }) => {
+  // Superseded 2026-07-25 (Ed's ruling): "The Fleet" left the nav in favor of
+  // the orientation page, which links to the fleet page as kept history.
+  test('site nav exposes the orientation link', async ({ page }) => {
     await page.goto('/')
     // The home quick-nav is visible on every viewport (the header desktop nav
     // is hidden on mobile and the mobile menu is collapsed by default).
-    await expect(page.locator('.home-nav a[href="/governed-fleet/"]')).toBeVisible()
+    await expect(page.locator('.home-nav a[href="/what-is-going-on-here/"]')).toBeVisible()
+  })
+
+  test('fleet page remains reachable from the orientation page', async ({ page }) => {
+    await page.goto('/what-is-going-on-here/')
+    await expect(page.locator('a[href="/governed-fleet/"]').first()).toBeVisible()
   })
 })

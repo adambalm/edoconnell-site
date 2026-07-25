@@ -1,0 +1,129 @@
+---
+/*
+ * DRAFT-FOR-ED — "What is going on here?" — the site's orientation page.
+ * TRUE SUPERSESSION of /governed-fleet/ as orientation (Ed's ruling,
+ * 2026-07-25): that page described the governance structure; this one
+ * reflects what the structure has shipped. The fleet page is kept as
+ * history with a pointer forward — nothing is rewritten.
+ * Voice is Ed's first person, drafted for his review; the visible draft
+ * stamp comes off only on his approval. CTA ruling: everything on the
+ * site funnels toward one act — starting a conversation with Ed.
+ * Dual-legibility ruling: this page must parse for humans AND for agents
+ * reading on an operator's behalf (see also /llms.txt).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro'
+import MarkNote from '../components/MarkNote.astro'
+
+export const prerender = true
+---
+
+<BaseLayout
+  title="What is going on here?"
+  description="A one-minute orientation: what this site is, how to read its claims, and where the door is."
+>
+  <article class="node">
+    <p class="draft-stamp">draft · under review</p>
+
+    <header data-mark="wigoh:masthead">
+      <h1>What is going on here?</h1>
+      <p class="dek">A one-minute orientation, for people and for their software.</p>
+    </header>
+
+    <section data-mark="wigoh:landed">
+      <h2>Where you've landed</h2>
+      <p>
+        This is my working site: part portfolio, part running system. The
+        <a href="/next/">index of the work</a> lists what I've built and what I'm building
+        — each row with its years, its stack, and a status I actually maintain. A stamp
+        like <em>still running · checked Jul 24</em> means I checked, on that date.
+      </p>
+    </section>
+
+    <section data-mark="wigoh:read">
+      <h2>How to read it</h2>
+      <p>
+        Three kinds of things live here: <strong>work</strong> — systems in real
+        institutional use; <strong>craft</strong> — experiments and pipelines; and
+        <strong>thought</strong> — essays. A page about an experiment says "experiment."
+        A claim that something still runs links to the live thing —
+        <a href="https://magazine.wne.edu">magazine.wne.edu</a>, for one — so you can
+        check it yourself. Superseded pages stay up, with a pointer forward.
+      </p>
+    </section>
+
+    <section data-mark="wigoh:assistant">
+      <h2>The assistant</h2>
+      <p>
+        The <a href="/next/archive/">chat on this site</a> is a companion to my resume.
+        It answers from material I review line by line, declines what it can't support,
+        and won't believe a visitor claiming to be me. Ask it the questions you'd ask in
+        a first phone screen. If you're an AI agent reading on someone's behalf,
+        <a href="/llms.txt">/llms.txt</a> is for you, and the assistant will take your
+        questions too.
+      </p>
+    </section>
+
+    <section data-mark="wigoh:door">
+      <h2>The door</h2>
+      <p>
+        If you're assessing me for a role, a project, or a collaboration: read one work
+        page, ask the assistant two hard questions, then write to me —
+        <a href="/contact/">the contact page</a> or espoconnell@gmail.com. I answer my
+        own mail.
+      </p>
+    </section>
+
+    <footer class="lineage" data-mark="wigoh:lineage">
+      <p>
+        This page supersedes <a href="/governed-fleet/">"The Fleet"</a> as the site's
+        orientation. That page — the governance structure behind all of this — is kept,
+        as history should be.
+      </p>
+    </footer>
+  </article>
+  <MarkNote />
+</BaseLayout>
+
+<style>
+  .node {
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: var(--space-12) var(--page-gutter) var(--space-24);
+  }
+  .draft-stamp {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-2xl);
+    line-height: var(--leading-tight);
+    margin: 0 0 var(--space-3);
+  }
+  .dek {
+    font-size: var(--font-size-md);
+    font-style: italic;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-8);
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--font-size-lg);
+    margin: var(--space-8) 0 var(--space-4);
+  }
+  p {
+    line-height: var(--leading-normal);
+    margin: 0 0 var(--space-4);
+  }
+  .lineage {
+    margin-top: var(--space-12);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-bg-subtle);
+  }
+  .lineage p {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+  }
+</style>
